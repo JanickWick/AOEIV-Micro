@@ -156,6 +156,8 @@ function rebuildSettingsPanel(): void {
     onDisplayChanged: () => {
       if (settings.view !== game.view) game.setView(settings.view);
       game.setShadows(settings.shadows);
+      game.audio.enabled = settings.sound;
+      game.audio.setVolume(settings.soundVolume);
       refreshHud();
     },
     onHotkeysChanged: () => refreshHud(),
@@ -328,6 +330,8 @@ $('result-restart').addEventListener('click', () => {
 });
 $('result-close').addEventListener('click', () => closeOverlay(result));
 game.onRoundFinished = showResult;
+game.audio.enabled = settings.sound;
+game.audio.setVolume(settings.soundVolume);
 game.onDrillFinished = showDrillResult;
 
 // -------- HUD

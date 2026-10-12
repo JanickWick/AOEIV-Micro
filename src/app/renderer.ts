@@ -94,10 +94,12 @@ export function render(ctx: CanvasRenderingContext2D, s: RenderState): void {
   drawRangeRings(ctx, s);
   drawDrillMarker(ctx, s);
   drawWaypoints(ctx, s);
-  drawMarkers(ctx, s);
-  if (s.mode === '2d') drawUnitBodies(ctx, s);
+  if (s.mode === '2d') {
+    drawMarkers(ctx, s);
+    drawUnitBodies(ctx, s);
+  }
   drawUnitOverlays(ctx, s);
-  drawProjectiles(ctx, s);
+  if (s.mode === '2d') drawProjectiles(ctx, s);
   drawDragRect(ctx, s);
   drawFacingDrag(ctx, s);
   drawMinimap(ctx, s);

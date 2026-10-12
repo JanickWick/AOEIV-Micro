@@ -33,7 +33,19 @@ Karte als Raute erscheint. Der Standardabstand ergibt in Bildmitte etwa 74 px pr
 Formationsabstand (2·Radius + 0,2 Tiles) stammen aus den Videoclips unter `reference/videos/`
 (Messung in `docs/G0-INVENTUR.md`, Abschnitt 4b). Gelände, Bäume, Felsen, Büsche und Gebäude-Kulisse sind prozedural
 erzeugt; Bäume und Felsen haben Kollision (Einheiten laufen um sie herum), die Kampfzone in der
-Kartenmitte bleibt frei. Einheiten sind in G1 noch Platzhalter (Kapseln in Teamfarbe).
+Kartenmitte bleibt frei.
+
+Figuren (G2) sind prozedural aus Grundkörpern mit Gelenken gebaut und pro Körperteil instanziert
+(ein Draw-Call je Teil für alle Einheiten): Speerkämpfer mit Speer, Bogenschütze mit Bogen, Soldat
+mit Schwert und Schild, Reiter mit Speer, Ritter mit Lanze und Schild auf Pferden, Armbrustschütze,
+Mangonel mit Wurfarm, Springald mit Bogenarmen. Teamfarbe auf Rumpf und Schild. Animationen kommen
+strikt aus dem Simulationszustand: Laufen mit Schrittfrequenz aus der zurückgelegten Strecke,
+Ausholen über genau die Windup-Zeit der Daten, Stoß/Hieb/Abschuss am Schadenszeitpunkt, Nachlauf,
+Trefferreaktion, Umkippen beim Tod (Körper bleibt 2,5 s liegen), sichtbarer Abbruch beim Windup-
+Cancel. Pfeile und Bolzen fliegen mit Bogenbahn und dem Tempo aus den Daten, Mangonel-Steine
+hoch mit Einschlagzone am Boden und Staub, Ansturm-Staub, Trefferfunken, Klickmarker (grün Bewegen,
+rot Angriff, gelb eingereiht). Ton synthetisch über Web Audio (Bogensehne, Treffer, Tod,
+Befehlsbestätigung), in den Einstellungen abschaltbar.
 Der Knopf "Ansicht" (oder Einstellungen → Ansicht) schaltet auf die bisherige 2D-Draufsicht als
 Debug-Ansicht um; Auswahl, Befehle und Kamera funktionieren in beiden. Klicks treffen die Figur
 (projizierte Fuß- bis Kopfposition), der Auswahlrahmen arbeitet im Bildschirmraum.
@@ -212,7 +224,7 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 - [x] M5: Auswertung, Verlauf mit Diagramm, Vergleichslauf, Hotkey-Drill, Editor, Schmiede-Upgrades
 - [x] G0: Inventur, Hotkey-Import aus der Spieldatei (`docs/G0-INVENTUR.md`)
 - [x] G1: Three.js-Renderer mit geneigter Kamera, Gelände, Deko mit Kollision, Raycast-Eingabe, 2D-Debug-Ansicht
-- [ ] G2: Figuren, sim-gesteuerte Animationen, Projektile, Effekte, Ton
+- [x] G2: Prozedurale Figuren mit Gelenken, sim-gesteuerte Animationen, Projektile, Effekte, Ton
 - [ ] G3: HUD nach AoE4-Vorbild
 - [ ] G4: Auswahl-Leiste mit Untergruppen, Formationen, Untergruppen-Drill
 - [ ] G5: Feinschliff, Leistung, Vergleich mit den Screenshots

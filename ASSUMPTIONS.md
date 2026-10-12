@@ -122,6 +122,23 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
 63. (A) Klick trifft die Figur, wenn der Zeiger höchstens max(10 px, Kollisionsradius) von der
     Strecke Fuß–Kopf (Höhe 1,6 / 1,9 / 1,3 Tiles für Infanterie / Kavallerie / Belagerung) entfernt ist.
 
+## Figuren, Animation, Effekte (G2)
+
+64. (V) Figuren prozedural (keine Fremdmodelle): Rig mit Hüfte, Knie, Schulter, Ellbogen, Rumpf, Kopf;
+    Pferd mit vier Beinen, Hals, Kopf; Belagerung als Basis mit Rädern und Wurf-/Bogenarmen.
+    Silhouetten je Typ über Waffe/Schild/Helm, nicht über Kleidung.
+65. (A) Schrittlänge 0,42 Tiles (Infanterie), 0,9 (Pferd): Laufphase = Strecke / Schrittlänge; im
+    Spiel nicht gemessen.
+66. (A) Angriffsanimation: Ausholen läuft über die Windup-Zeit (Datenwert), der Hieb/Stoß/Abschuss
+    liegt am Schadenszeitpunkt, der Nachlauf über die Recovery-Zeit. Ein Abbruch blendet in 0,2 s
+    zur Ruhepose zurück (sichtbar, aber nicht an eine Spielanimation angelehnt).
+67. (A) Trefferreaktion: Rumpf lehnt 8 Ticks nach dem Treffer zurück. Tod: Umkippen in 0,35 s,
+    Körper bleibt bis 2,5 s liegen, versinkt bis 3,2 s. Im Spiel bleiben Leichen länger.
+68. (A) Projektilbahn: Bodenpunkt aus der Simulation (Tempo aus den Daten), Höhe als Sinusbogen mit
+    Scheitel 12 % der Flugstrecke (Pfeil/Bolzen) bzw. 35 % (Mangonel), mindestens 0,3 / 1,0 Tiles.
+69. (V) Ton synthetisch (Web Audio), keine Spiel-Samples; Lautstärke und Schalter in den Einstellungen.
+    Befehlsbestätigung nur bei eigenen Befehlen.
+
 ## Auswertung, Drill, Upgrades
 
 48. (A) APM zählt jede Eingabe (Befehl, Auswahländerung, Kontrollgruppe) pro Minute Spielzeit;

@@ -89,8 +89,22 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
+  const sound = el('input', { type: 'checkbox', id: 'set-sound' });
+  sound.checked = d.settings.sound;
+  sound.addEventListener('change', () => {
+    d.settings.sound = sound.checked;
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
+  const vol = el('input', { type: 'range', min: '0', max: '1', step: '0.05', id: 'set-volume' });
+  vol.value = String(d.settings.soundVolume);
+  vol.addEventListener('input', () => {
+    d.settings.soundVolume = Number(vol.value);
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
   root.append(
-    el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, [shadows, ' Schatten (3D)']), el('label', {}, [fps, ' FPS anzeigen'])]),
+    el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, [shadows, ' Schatten (3D)']), el('label', {}, [fps, ' FPS anzeigen']), el('label', {}, [sound, ' Ton']), el('label', {}, ['Lautstärke ', vol])]),
     el('div', { class: 'row' }, [
       el('label', {}, ['Lebensbalken ', hb]),
       el('label', {}, [ring, ' Reichweitenring (Kalibrierhilfe: Zoom so einstellen, dass der Ring so groß wirkt wie im Spiel)']),

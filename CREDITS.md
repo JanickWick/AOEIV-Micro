@@ -1,7 +1,7 @@
 # Credits und Lizenzen
 
-Alle Grafiken, Texturen und Figuren in dieser Anwendung sind prozedural im Code erzeugt
-(`src/app/render3d/`). Es werden keine Grafiken, Icons, Modelle oder Sounds aus Age of Empires IV
+Alle Grafiken, Texturen, Figuren und Klänge in dieser Anwendung sind prozedural im Code erzeugt
+(`src/app/render3d/`, `src/app/audio.ts`). Es werden keine Grafiken, Icons, Modelle oder Sounds aus Age of Empires IV
 verwendet. Die Dateien unter `reference/` (Hotkey-Profil, Screenshots) dienen nur als Daten- und
 Layoutquelle und sind nicht Teil der Anwendung.
 

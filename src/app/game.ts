@@ -14,6 +14,7 @@ import { Camera3D } from './camera3d';
 import { ControlGroups } from './groups';
 import { Scene3D } from './render3d/scene';
 import type { ViewCamera } from './viewCamera';
+import { GameAudio } from './audio';
 import { HotkeyMap, type ActionId } from './hotkeys';
 import { computeMinimapLayout, render, type Marker, type MinimapLayout } from './renderer';
 import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitAtScreenPoint, unitsInScreenRect, unitsOfTypeInRect, type Rect } from './selection';
@@ -51,6 +52,8 @@ export class Game {
   private cam2d: Camera2D;
   private cam3d: Camera3D;
   private scene3d: Scene3D | null = null;
+  readonly audio = new GameAudio();
+  private frameEvents: import('../sim/types').SimEvent[] = [];
   view: '2d' | '3d';
   selection = new Set<UnitId>();
   readonly groups = new ControlGroups();
@@ -240,10 +243,13 @@ export class Game {
       let ticks = 0;
       while (this.accumulator >= this.world.dt && ticks < MAX_TICKS_PER_FRAME && this.outcome === 'running') {
         const cmds = this.ai ? [...this.pending, ...this.ai.think(this.world)] : this.pending;
+        const projectilesBefore = this.world.projectiles.filter((p) => p.splashRadius > 0).map((p) => ({ id: p.id, targetPos: { ...p.targetPos }, splashRadius: p.splashRadius }));
         stepWorld(this.world, cmds);
         this.pending = [];
         this.tracker.consume(this.world, this.world.events);
         this.tracker.sample(this.world);
+        this.frameEvents.push(...this.world.events);
+        if (projectilesBefore.length && this.scene3d) this.scene3d.noteImpacts(this.world, projectilesBefore);
         this.accumulator -= this.world.dt;
         ticks++;
         this.outcome = evaluateOutcome(this.world, this.scenario, MY_PLAYER);
@@ -271,7 +277,12 @@ export class Game {
     const hover = this.mouseInside && !this.drag ? unitAtScreenPoint(this.world.units, this.world.defs, this.mouse, this.camera) : null;
     const d = this.drag;
     const hoverEnemyId = hover && hover.player !== MY_PLAYER && this.selection.size > 0 ? hover.id : null;
-    if (this.view === '3d' && this.scene3d) this.scene3d.render(this.world, this.cam3d, alpha, this.selection, hoverEnemyId);
+    if (this.frameEvents.length) {
+      this.scene3d?.consumeEvents(this.world, this.frameEvents);
+      this.audio.consume(this.world, this.frameEvents, nowMs);
+      this.frameEvents = [];
+    }
+    if (this.view === '3d' && this.scene3d) this.scene3d.render(this.world, this.cam3d, alpha, this.selection, hoverEnemyId, nowMs);
     render(this.ctx, {
       mode: this.view,
       world: this.world,
@@ -353,11 +364,11 @@ export class Game {
     const hit = screen ? unitAtScreenPoint(this.world.units, this.world.defs, screen, this.camera) : unitAtPoint(this.world.units, target);
     if (hit && hit.player !== MY_PLAYER) {
       this.issue({ kind: 'attack', unitIds: ids, targetId: hit.id, queue });
-      this.markers.push({ pos: { x: hit.pos.x, y: hit.pos.y }, bornMs: performance.now(), kind: 'attack' });
+      this.marker(hit.pos, 'attack');
       return null;
     }
     this.issue({ kind: 'move', unitIds: ids, target, queue });
-    this.markers.push({ pos: { x: target.x, y: target.y }, bornMs: performance.now(), kind: queue ? 'queue' : 'move' });
+    this.marker(target, queue ? 'queue' : 'move');
     return target;
   }
 
@@ -372,7 +383,14 @@ export class Game {
     const ids = this.selectedIds();
     if (ids.length === 0) return;
     this.issue({ kind: mode, unitIds: ids, target, queue });
-    this.markers.push({ pos: { x: target.x, y: target.y }, bornMs: performance.now(), kind: mode === 'attackMove' ? 'attack' : 'queue' });
+    this.marker(target, mode === 'attackMove' ? 'attack' : 'queue');
+  }
+
+  private marker(pos: Vec2, kind: 'move' | 'attack' | 'queue'): void {
+    const now = performance.now();
+    this.markers.push({ pos: { x: pos.x, y: pos.y }, bornMs: now, kind });
+    this.scene3d?.addMarker(pos, kind, now);
+    if (this.audio.enabled) this.audio.ack();
   }
 
   commandStop(): void {
@@ -572,6 +590,7 @@ export class Game {
     c.addEventListener('mousedown', (e) => {
       if (this.inputBlocked) return;
       c.focus();
+      this.audio.unlock();
       if (!this.pointerLocked && this.settings.pointerLock) this.requestPointerLock();
       const p = this.screenPos(e);
       this.mouse = p;
@@ -656,6 +675,7 @@ export class Game {
       const target = e.target as HTMLElement | null;
       const inField = target != null && (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA');
       if (inField || this.inputBlocked) return;
+      this.audio.unlock();
       this.keysDown.add(e.code);
       if (shouldPreventDefault(e) || this.hotkeys.isBound(e.code)) e.preventDefault();
       if (e.repeat) return;

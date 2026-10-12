@@ -4,13 +4,13 @@
  * warmes Tageslicht mit weichen Schatten. Alle Grafiken sind hier erzeugt (keine Fremdassets).
  */
 import * as THREE from 'three';
-import { lerp, lerpAngle } from '../../sim/math';
-import type { UnitId, UnitState, World } from '../../sim/types';
+import { lerp, type Vec2 } from '../../sim/math';
+import type { SimEvent, UnitId, World } from '../../sim/types';
 import type { Camera3D } from '../camera3d';
-import { PLAYER_COLORS_HEX } from '../unitVisual';
+import { EffectsRenderer } from './effects';
+import { FigureRenderer } from './figures';
 
 const MAX_UNITS = 512;
-const DEATH_FADE_TICKS = 60;
 
 export interface SceneOptions {
   shadows: boolean;
@@ -23,7 +23,8 @@ export class Scene3D {
   private ground: THREE.Mesh | null = null;
   private outer: THREE.Mesh;
   private decorGroup = new THREE.Group();
-  private units: Record<'infantry' | 'cavalry' | 'siege', THREE.InstancedMesh>;
+  readonly figures = new FigureRenderer();
+  readonly effects = new EffectsRenderer();
   private rings: THREE.InstancedMesh;
   private hoverRing: THREE.Mesh;
   private dummy = new THREE.Object3D();
@@ -62,25 +63,8 @@ export class Scene3D {
     this.scene.add(this.outer);
     this.scene.add(this.decorGroup);
 
-    const mat = (c: number) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, metalness: 0.05 });
-    const mk = (geo: THREE.BufferGeometry) => {
-      const m = new THREE.InstancedMesh(geo, mat(0xffffff), MAX_UNITS);
-      m.castShadow = true;
-      m.receiveShadow = false;
-      m.count = 0;
-      m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-      this.scene.add(m);
-      return m;
-    };
-    // Platzhalter in Video-Maßstab: Infanterie ≈ 0,6 Tiles hoch, Kavallerie ≈ 0,8 lang/hoch, Belagerung ≈ 1 Tile.
-    const infantry = new THREE.CapsuleGeometry(0.12, 0.36, 4, 10);
-    infantry.translate(0, 0.3, 0);
-    const cavalry = new THREE.CapsuleGeometry(0.17, 0.5, 4, 10);
-    cavalry.rotateZ(Math.PI / 2);
-    cavalry.translate(0, 0.45, 0);
-    const siege = new THREE.BoxGeometry(1.0, 0.5, 0.8);
-    siege.translate(0, 0.28, 0);
-    this.units = { infantry: mk(infantry), cavalry: mk(cavalry), siege: mk(siege) };
+    this.scene.add(this.figures.group);
+    this.scene.add(this.effects.group);
 
     const ringGeo = new THREE.RingGeometry(0.44, 0.52, 28);
     ringGeo.rotateX(-Math.PI / 2);
@@ -97,6 +81,7 @@ export class Scene3D {
   setShadows(on: boolean): void {
     this.renderer.shadowMap.enabled = on;
     this.sun.castShadow = on;
+    this.figures.setShadows(on);
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.material) (Array.isArray(m.material) ? m.material : [m.material]).forEach((x) => (x.needsUpdate = true));
@@ -184,7 +169,20 @@ export class Scene3D {
     }, 0.06);
   }
 
-  render(world: World, cam: Camera3D, alpha: number, selection: ReadonlySet<UnitId>, hoverId: UnitId | null): void {
+  /** Spielereignisse des Frames (Partikel) und Bodenmarker annehmen. */
+  consumeEvents(world: World, events: readonly SimEvent[]): void {
+    this.effects.consume(world, events);
+  }
+
+  noteImpacts(world: World, before: readonly { id: number; targetPos: Vec2; splashRadius: number }[]): void {
+    this.effects.noteImpacts(world, before);
+  }
+
+  addMarker(pos: Vec2, kind: 'move' | 'attack' | 'queue', nowMs: number): void {
+    this.effects.addMarker(pos, kind, nowMs);
+  }
+
+  render(world: World, cam: Camera3D, alpha: number, selection: ReadonlySet<UnitId>, hoverId: UnitId | null, nowMs: number): void {
     if (this.worldRef !== world) this.setWorld(world);
     // Sonne folgt der Kamera, damit die Schattenkarte den sichtbaren Bereich abdeckt
     const c = cam.center;
@@ -200,33 +198,16 @@ export class Scene3D {
     sc.updateProjectionMatrix();
     this.outer.position.set(c.x, -0.05, c.y);
 
-    const counts = { infantry: 0, cavalry: 0, siege: 0 };
+    this.figures.update(world, alpha, { nowMs });
+    this.effects.update(world, alpha, nowMs);
     let ringCount = 0;
     this.hoverRing.visible = false;
     for (const u of world.units) {
       const dead = !u.alive;
-      if (dead && world.tick - u.diedTick > DEATH_FADE_TICKS) continue;
-      const kind = world.defs.get(u.defId).kind;
-      const mesh = this.units[kind];
-      const i = counts[kind]++;
-      if (i >= MAX_UNITS) break;
-      const p = dead ? u.pos : lerp(u.prevPos, u.pos, alpha);
-      const heading = lerpAngle(u.prevHeading, u.heading, alpha);
-      this.dummy.position.set(p.x, 0, p.y);
-      this.dummy.rotation.set(0, -heading, 0);
-      if (dead) {
-        const t = (world.tick - u.diedTick) / DEATH_FADE_TICKS;
-        this.dummy.rotation.z = (Math.PI / 2) * Math.min(1, t * 3);
-        this.dummy.scale.set(1, 1, 1);
-        this.dummy.position.y = -t * 0.8;
-      } else {
-        this.dummy.scale.set(1, 1, 1);
-      }
-      this.dummy.updateMatrix();
-      mesh.setMatrixAt(i, this.dummy.matrix);
-      this.color.setHex(dead ? 0x4b5563 : PLAYER_COLORS_HEX[u.player]);
-      mesh.setColorAt(i, this.color);
-      if (!dead && selection.has(u.id)) {
+      if (dead) continue;
+      const p = lerp(u.prevPos, u.pos, alpha);
+      if (ringCount >= MAX_UNITS) break;
+      if (selection.has(u.id)) {
         this.dummy.rotation.set(0, 0, 0);
         this.dummy.scale.setScalar(Math.max(0.3, u.radius * 2.1));
         this.dummy.position.y = 0;
@@ -238,12 +219,6 @@ export class Scene3D {
         this.hoverRing.position.set(p.x, 0.02, p.y);
         this.hoverRing.scale.setScalar(Math.max(0.3, u.radius * 2.1));
       }
-    }
-    for (const k of ['infantry', 'cavalry', 'siege'] as const) {
-      const m = this.units[k];
-      m.count = counts[k];
-      m.instanceMatrix.needsUpdate = true;
-      if (m.instanceColor) m.instanceColor.needsUpdate = true;
     }
     this.rings.count = ringCount;
     this.rings.instanceMatrix.needsUpdate = true;

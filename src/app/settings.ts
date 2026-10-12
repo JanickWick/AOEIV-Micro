@@ -22,6 +22,8 @@ export interface DisplaySettings {
   shadows: boolean;
   /** FPS-Anzeige. */
   showFps: boolean;
+  sound: boolean;
+  soundVolume: number;
   lastScenario: string | null;
 }
 
@@ -37,6 +39,8 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   zoom3d: 31,
   shadows: true,
   showFps: true,
+  sound: true,
+  soundVolume: 0.5,
   lastScenario: null,
 };
 

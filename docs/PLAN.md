@@ -161,7 +161,17 @@
   statische Hindernisse (neuer, optionaler Teil der Welt; Logik-Tests bleiben unverändert).
 - Einheiten als Platzhalter (Kapseln mit Teamfarbe), Auswahlring am Boden, Lebensbalken.
 
-### G2 – Figuren, Animation, Effekte, Ton
+### G2 – erledigt
+- Weg: prozedurale Figuren aus Grundkörpern mit Gelenken, instanziert pro Körperteil (keine
+  CC0-Modelle: Lizenzprüfung und Rig-Anpassung aus dem Container nicht zuverlässig möglich, und
+  Instancing mit Gelenken ist mit eigenem Rig einfacher; 200 Einheiten ≈ 25 Draw-Calls).
+- Animationen aus Tick-Zustand (Laufen, Ausholen = Windup-Zeit, Treffer, Nachlauf, Abbruch,
+  Trefferreaktion, Tod), Pferde mit Reitern, Mangonel-Wurfarm, Springald-Bolzen.
+- Projektile mit Bogenbahn, Einschlagzone, Staub, Funken, Ansturm-Staub, Klickmarker im Boden,
+  synthetischer Ton. Tests: Posen ändern sich mit dem Windup-Fortschritt, Abbruch blendet.
+- Offen: Figur-Proportionen gegen Zoom-Clips prüfen (G5), Leichen-Dauer, Formationsanimation.
+
+### G2 – ursprünglicher Plan
 - Low-Poly-Menschen und Pferde pro Typ (Waffe, Silhouette), Instancing, Teamfarbe.
 - Animationen aus dem Simulationszustand: Stehen, Laufen (Schrittfrequenz ∝ Tempo), Angriff mit
   Ausholphase = Windup-Dauer, Treffer, Sterben (Körper bleibt 1 s liegen), sichtbarer Abbruch.
