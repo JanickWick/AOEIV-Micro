@@ -3,7 +3,7 @@
   "label": "Mein Layout (Dorfzenter)",
   "sourceFile": "reference/hotkeys/Dorfzenter.rkp",
   "importedAt": "2026-10-12",
-  "keyNaming": "us-physical",
+  "keyNaming": "qwertz-chars",
   "bindings": {
     "camera.up": [
       {
@@ -83,7 +83,7 @@
     ],
     "formation.line": [
       {
-        "code": "KeyZ"
+        "code": "KeyY"
       }
     ],
     "formation.wedge": [

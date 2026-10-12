@@ -13,6 +13,7 @@ html, body {
   user-select: none;
 }
 #app { position: fixed; inset: 0; }
+#game3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: default; }
 #hud { position: absolute; inset: 0; pointer-events: none; }
 .hud-panel[hidden] { display: none; }

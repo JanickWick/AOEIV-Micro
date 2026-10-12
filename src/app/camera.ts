@@ -1,7 +1,9 @@
 import { clamp, type Vec2 } from '../sim/math';
+import type { ViewCamera, ViewRect } from './viewCamera';
 
-/** Draufsicht-Kamera: `center` in Tiles, `zoom` in Pixel pro Tile. */
-export class Camera {
+/** Draufsicht-Kamera (2D-Debug-Ansicht): `center` in Tiles, `zoom` in Pixel pro Tile. */
+export class Camera2D implements ViewCamera {
+  readonly kind = '2d' as const;
   center: Vec2 = { x: 0, y: 0 };
   zoom = 48;
   minZoom = 28;
@@ -10,6 +12,17 @@ export class Camera {
   viewportH = 1;
 
   constructor(private mapW: number, private mapH: number) {}
+
+  get zoomLevel(): number {
+    return this.zoom;
+  }
+  set zoomLevel(v: number) {
+    this.zoom = clamp(v, this.minZoom, this.maxZoom);
+  }
+
+  resetZoom(): void {
+    this.zoom = 48;
+  }
 
   setMap(w: number, h: number): void {
     this.mapW = w;
@@ -23,7 +36,6 @@ export class Camera {
     this.clamp();
   }
 
-  /** Sichtbarer Bereich in Tiles. */
   get viewWidth(): number {
     return this.viewportW / this.zoom;
   }
@@ -31,10 +43,10 @@ export class Camera {
     return this.viewportH / this.zoom;
   }
 
-  worldToScreen(p: Vec2): Vec2 {
+  worldToScreen(p: Vec2, height = 0): Vec2 {
     return {
       x: (p.x - this.center.x) * this.zoom + this.viewportW / 2,
-      y: (p.y - this.center.y) * this.zoom + this.viewportH / 2,
+      y: (p.y - this.center.y) * this.zoom + this.viewportH / 2 - height * this.zoom * 0.5,
     };
   }
 
@@ -43,6 +55,10 @@ export class Camera {
       x: (p.x - this.viewportW / 2) / this.zoom + this.center.x,
       y: (p.y - this.viewportH / 2) / this.zoom + this.center.y,
     };
+  }
+
+  scaleAt(): number {
+    return this.zoom;
   }
 
   pan(dxTiles: number, dyTiles: number): void {
@@ -60,7 +76,6 @@ export class Camera {
     this.clamp();
   }
 
-  /** Zoomt um den Bildschirmpunkt `anchor` (Pixel) herum. */
   zoomAt(factor: number, anchor: Vec2): void {
     const before = this.screenToWorld(anchor);
     this.zoom = clamp(this.zoom * factor, this.minZoom, this.maxZoom);
@@ -70,7 +85,6 @@ export class Camera {
     this.clamp();
   }
 
-  /** Hält die Kamera auf der Karte (mit etwas Rand, damit man an den Kartenrand sehen kann). */
   clamp(): void {
     const margin = 2;
     const hw = this.viewWidth / 2;
@@ -83,9 +97,22 @@ export class Camera {
     this.center.y = clamp(this.center.y, minY, maxY);
   }
 
-  visibleRect(): { x0: number; y0: number; x1: number; y1: number } {
+  visibleRect(): ViewRect {
     const a = this.screenToWorld({ x: 0, y: 0 });
     const b = this.screenToWorld({ x: this.viewportW, y: this.viewportH });
     return { x0: a.x, y0: a.y, x1: b.x, y1: b.y };
   }
+
+  visibleQuad(): [Vec2, Vec2, Vec2, Vec2] {
+    const r = this.visibleRect();
+    return [
+      { x: r.x0, y: r.y0 },
+      { x: r.x1, y: r.y0 },
+      { x: r.x1, y: r.y1 },
+      { x: r.x0, y: r.y1 },
+    ];
+  }
 }
+
+/** @deprecated Alter Name. */
+export const Camera = Camera2D;

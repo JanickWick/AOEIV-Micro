@@ -24,6 +24,18 @@ npm run data:import    # Einheitendaten neu von aoe4world importieren
 npm run data:unverified# Alle Werte mit "verified": false auflisten
 ```
 
+## Darstellung
+
+Standard ist die 3D-Ansicht (Three.js): perspektivische Kamera schräg von oben (Neigung 45°,
+Sichtfeld 35°, aus dem Minimap-Trapez des Spiel-Screenshots berechnet), um 45° gedreht, sodass die
+Karte als Raute erscheint. Der Standardabstand ergibt in Bildmitte etwa 44 px pro Tile bei
+2560×1440, wie im Screenshot. Gelände, Bäume, Felsen, Büsche und Gebäude-Kulisse sind prozedural
+erzeugt; Bäume und Felsen haben Kollision (Einheiten laufen um sie herum), die Kampfzone in der
+Kartenmitte bleibt frei. Einheiten sind in G1 noch Platzhalter (Kapseln in Teamfarbe).
+Der Knopf "Ansicht" (oder Einstellungen → Ansicht) schaltet auf die bisherige 2D-Draufsicht als
+Debug-Ansicht um; Auswahl, Befehle und Kamera funktionieren in beiden. Klicks treffen die Figur
+(projizierte Fuß- bis Kopfposition), der Auswahlrahmen arbeitet im Bildschirmraum.
+
 ## Steuerung (Stand M1)
 
 | Eingabe | Wirkung |
@@ -196,3 +208,9 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
       Hotkey-Menü mit AoE4-Preset, Pointer-Lock
 - [x] M4: Gegner-KI in 3 Stufen, Szenarien 2 bis 8
 - [x] M5: Auswertung, Verlauf mit Diagramm, Vergleichslauf, Hotkey-Drill, Editor, Schmiede-Upgrades
+- [x] G0: Inventur, Hotkey-Import aus der Spieldatei (`docs/G0-INVENTUR.md`)
+- [x] G1: Three.js-Renderer mit geneigter Kamera, Gelände, Deko mit Kollision, Raycast-Eingabe, 2D-Debug-Ansicht
+- [ ] G2: Figuren, sim-gesteuerte Animationen, Projektile, Effekte, Ton
+- [ ] G3: HUD nach AoE4-Vorbild
+- [ ] G4: Auswahl-Leiste mit Untergruppen, Formationen, Untergruppen-Drill
+- [ ] G5: Feinschliff, Leistung, Vergleich mit den Screenshots

@@ -133,7 +133,20 @@
 6. 3D-Figuren: Ich versuche zuerst CC0-Modelle (Quaternius/Kenney, glTF mit Animationen). Falls
    die Silhouetten nicht ausreichen, prozedural. Einverstanden mit beidem?
 
-### G1 – Three.js-Renderer
+### G1 – erledigt
+- Three.js-Szene parallel zur 2D-Ansicht, umschaltbar (Knopf "Ansicht", Einstellung). Kamera
+  Neigung 45°, Sichtfeld 35°, Drehung 45°, Standardabstand nach Screenshot-Maß; Mausrad-Zoom am
+  Zeiger, Rand/Pfeiltasten/mittlere Maustaste, Backspace setzt zurück.
+- Raycast auf die Bodenebene, Auswahlrahmen und Figur-Klick im Bildschirmraum (Tests).
+- Gelände mit prozeduraler Textur, Bäume/Felsen/Büsche/Gebäude als Instanzen, Schatten, warmes
+  Licht; Bäume und Felsen als Hindernisse in der Simulation (Tests).
+- Einheiten als Platzhalter-Instanzen mit Teamfarbe, Auswahlring am Boden, Lebensbalken in
+  Teamfarbe über dem Kopf; Minimap zeigt das Kamera-Trapez.
+- Antworten: V = Halten; Formationstaste Z ist die obere Z-Taste (Import mit `--qwertz-chars`);
+  Videos bitte als Datei (mp4, ≤ 100 MB) unter `reference/videos/` hochladen, YouTube kann ich hier
+  nicht abrufen.
+
+### G1 – ursprünglicher Plan
 - Three.js-Szene parallel zum 2D-Canvas, umschaltbar (Einstellung "Ansicht: 3D / 2D-Debug").
 - Perspektivische Kamera, Neigung ca. 50–55°, Sichtfeld und Zoom nach Screenshot-Maß (Gruppe
   von 19 Einheiten ≈ 320×210 px bei 2560×1440). Mausrad-Zoom stufenlos, Bewegung wie bisher.

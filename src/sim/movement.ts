@@ -42,8 +42,8 @@ export function moveTowards(world: World, u: UnitState, target: Vec2, arriveDist
     return 'blocked';
   }
 
-  // Drehen
-  const desired = angleOf({ x: dx, y: dy });
+  // Drehen; Hindernisse auf dem Weg werden tangential umlaufen
+  const desired = steerAroundObstacles(world, u, angleOf({ x: dx, y: dy }), d);
   u.heading = turnTowards(u.heading, desired, u.turnRate * dt);
   const misalign = Math.abs(wrapAngle(desired - u.heading));
 
@@ -56,7 +56,7 @@ export function moveTowards(world: World, u: UnitState, target: Vec2, arriveDist
 
   // Bewegen: bei kleiner Abweichung direkt aufs Ziel, sonst entlang der Blickrichtung.
   const step = Math.min(u.speed * dt, remaining);
-  if (misalign < 0.02) {
+  if (misalign < 0.02 && Math.abs(wrapAngle(desired - angleOf({ x: dx, y: dy }))) < 1e-6) {
     u.pos.x += (dx / d) * step;
     u.pos.y += (dy / d) * step;
   } else {
@@ -64,6 +64,40 @@ export function moveTowards(world: World, u: UnitState, target: Vec2, arriveDist
     u.pos.y += Math.sin(u.heading) * step;
   }
   return 'moving';
+}
+
+const LOOKAHEAD = 2.5;
+
+/** Liefert die Wunschrichtung; liegt ein Hindernis auf der Linie, die Tangentenrichtung daran vorbei. */
+function steerAroundObstacles(world: World, u: UnitState, desired: number, distToTarget: number): number {
+  if (world.obstacles.length === 0) return desired;
+  const look = Math.min(LOOKAHEAD, distToTarget);
+  const dx = Math.cos(desired);
+  const dy = Math.sin(desired);
+  let best: { along: number; lateral: number; r: number } | null = null;
+  for (const o of world.obstacles) {
+    const rx = o.pos.x - u.pos.x;
+    const ry = o.pos.y - u.pos.y;
+    const along = rx * dx + ry * dy;
+    if (along < -0.2 || along > look + o.radius) continue;
+    const lateral = -rx * dy + ry * dx;
+    const r = o.radius + u.radius + 0.15;
+    if (Math.abs(lateral) >= r) continue;
+    // Hindernis, das das Ziel selbst enthält, nicht umlaufen (Einheit hält davor)
+    if (along > distToTarget + o.radius) continue;
+    if (!best || along < best.along) best = { along, lateral, r };
+  }
+  if (!best) return desired;
+  const dist = Math.hypot(best.along, best.lateral);
+  if (dist <= best.r) {
+    // Bereits am Hindernis: seitlich weg
+    return desired + (best.lateral >= 0 ? -1 : 1) * (Math.PI / 2);
+  }
+  // Tangente auf der Seite, die näher an der Wunschrichtung liegt
+  const side = best.lateral >= 0 ? -1 : 1;
+  const tangent = Math.asin(Math.min(1, best.r / dist));
+  const toCenter = Math.atan2(best.lateral, best.along);
+  return desired + toCenter + side * tangent;
 }
 
 /** Dreht die Einheit zum Punkt; liefert die verbleibende Abweichung in Radiant. */
@@ -115,6 +149,20 @@ export function resolveCollisions(world: World): void {
   }
   for (const u of units) {
     if (!u.alive) continue;
+    // Hindernisse sind unbeweglich
+    for (const o of world.obstacles) {
+      const dx = u.pos.x - o.pos.x;
+      const dy = u.pos.y - o.pos.y;
+      const d = Math.hypot(dx, dy);
+      const min = o.radius + u.radius;
+      if (d >= min) continue;
+      if (d < 1e-6) {
+        u.pos.x += min;
+        continue;
+      }
+      u.pos.x += (dx / d) * (min - d);
+      u.pos.y += (dy / d) * (min - d);
+    }
     u.pos.x = clamp(u.pos.x, u.radius, world.map.width - u.radius);
     u.pos.y = clamp(u.pos.y, u.radius, world.map.height - u.radius);
   }

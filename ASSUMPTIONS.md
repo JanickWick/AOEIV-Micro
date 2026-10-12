@@ -103,6 +103,26 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
     Untergruppe vor = Tab, zurück = Strg+Tab, alle Militäreinheiten = Strg+Shift+C und Strg+Shift+A.
 58. (A) Neustart F4 und Pause F3 haben keine Entsprechung im Spiel und bleiben eigene Wahl.
 
+## 3D-Darstellung (G1)
+
+59. (M) Kamera: Neigung 45°, vertikales Sichtfeld 35°, aus dem Minimap-Trapez des Screenshots
+    (Breite fern/nah 1,94, Tiefe/nahe Breite 1,12) gelöst; Messunsicherheit der Ablesung etwa ±5 px
+    auf 270 px, also ±3° bei der Neigung. Drehung 45° (Karte als Raute). Standardabstand 52 Tiles
+    so gewählt, dass eine Einheit in Bildmitte ≈ 44 px pro Tile einnimmt (Abstand benachbarter
+    Einheiten in der Screenshot-Gruppe ≈ 25 px bei 1456 px Breite). Ein Screenshot mit bekanntem Maß
+    (Reichweitenring) würde Zoom und Sichtfeld bestätigen.
+60. (A) Bildschirm-rechts entspricht der Weltrichtung (+x, +y)/√2, Bildschirm-oben (+x, −y)/√2.
+    Spieler-Gruppen (kleines x) liegen damit links unten, Gegner rechts oben. Kamera-Drehung
+    ([ ] im Spiel) ist nicht umgesetzt.
+61. (A) Zoom ändert den Kameraabstand (18 bis 90 Tiles) bei festem Sichtfeld; das Spiel hat
+    feste Zoomstufen, deren Werte nicht bekannt sind.
+62. (A) Deko liegt nur im Randstreifen (10 Tiles) und mindestens 12 Tiles von Gruppenzentren
+    entfernt; Bäume (Radius 0,6) und Felsen (0,9) kollidieren, Büsche nicht. Einheiten umlaufen
+    Hindernisse tangential ohne Wegfindung. Die Kampfzone in der Mitte bleibt frei, damit Drills
+    nicht von Hindernissen abhängen.
+63. (A) Klick trifft die Figur, wenn der Zeiger höchstens max(10 px, Kollisionsradius) von der
+    Strecke Fuß–Kopf (Höhe 1,6 / 1,9 / 1,3 Tiles für Infanterie / Kavallerie / Belagerung) entfernt ist.
+
 ## Auswertung, Drill, Upgrades
 
 48. (A) APM zählt jede Eingabe (Befehl, Auswahländerung, Kontrollgruppe) pro Minute Spielzeit;

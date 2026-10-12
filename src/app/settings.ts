@@ -14,6 +14,14 @@ export interface DisplaySettings {
   showTimingBars: boolean;
   /** Mauszeiger im Spielfeld einsperren (Pointer-Lock mit eigenem Zeiger). */
   pointerLock: boolean;
+  /** Darstellung: perspektivisch (3D) oder Draufsicht (2D-Debug). */
+  view: '3d' | '2d';
+  /** Kameraabstand der 3D-Ansicht in Tiles. */
+  zoom3d: number;
+  /** Schatten in der 3D-Ansicht. */
+  shadows: boolean;
+  /** FPS-Anzeige. */
+  showFps: boolean;
   lastScenario: string | null;
 }
 
@@ -25,6 +33,10 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   randomStart: false,
   showTimingBars: true,
   pointerLock: false,
+  view: '3d',
+  zoom3d: 52,
+  shadows: true,
+  showFps: true,
   lastScenario: null,
 };
 

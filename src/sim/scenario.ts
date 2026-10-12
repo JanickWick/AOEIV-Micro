@@ -1,5 +1,6 @@
 /** Szenario-Dateien (src/data/scenarios/*.json) in eine Welt übersetzen. */
 import type { AiConfig } from './ai';
+import { generateDecor, obstaclesOf } from './decor';
 import { computeFormation } from './formation';
 import { degToRad, fromAngle, type Vec2 } from './math';
 import type { PlayerId, SimRules, Upgrades, World } from './types';
@@ -50,6 +51,8 @@ export function upgradesFor(sc: ScenarioDef, player: PlayerId): Upgrades {
 export interface BuildOptions {
   seed?: number;
   randomStart?: boolean;
+  /** Deko/Hindernisse erzeugen (Standard true; Tests schalten es aus). */
+  decor?: boolean;
 }
 
 export function buildWorldFromScenario(defs: UnitDefLibrary, sc: ScenarioDef, opts: BuildOptions = {}): World {
@@ -75,6 +78,13 @@ export function buildWorldFromScenario(defs: UnitDefLibrary, sc: ScenarioDef, op
       u.attack.leashOrigin = { x: slot.target.x, y: slot.target.y };
     }
   });
+  if (opts.decor ?? true) {
+    // Deko erst nach den Einheiten, damit der Einheiten-Zufall unabhängig von der Deko bleibt.
+    const keepClear = sc.groups.map((g) => ({ center: g.center, radius: 12 }));
+    keepClear.push({ center: { x: sc.map.width / 2, y: sc.map.height / 2 }, radius: 14 });
+    world.decor = generateDecor(world.rng, world.map, { keepClear });
+    world.obstacles = obstaclesOf(world.decor);
+  }
   return world;
 }
 

@@ -9,11 +9,14 @@ import { buildWorldFromScenario, evaluateOutcome, type Outcome, type ScenarioDef
 import { stepWorld } from '../sim/step';
 import type { Command, SimRules, UnitId, World } from '../sim/types';
 import type { UnitDefLibrary } from '../sim/unitDefs';
-import { Camera } from './camera';
+import { Camera2D } from './camera';
+import { Camera3D } from './camera3d';
 import { ControlGroups } from './groups';
+import { Scene3D } from './render3d/scene';
+import type { ViewCamera } from './viewCamera';
 import { HotkeyMap, type ActionId } from './hotkeys';
 import { computeMinimapLayout, render, type Marker, type MinimapLayout } from './renderer';
-import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitsInRect, unitsOfTypeInRect, type Rect } from './selection';
+import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitAtScreenPoint, unitsInScreenRect, unitsOfTypeInRect, type Rect } from './selection';
 import type { DisplaySettings } from './settings';
 import { RoundStats, type InputAction, type RoundSummary } from '../sim/stats';
 import { Drill, type DrillSummary } from './drill';
@@ -44,7 +47,11 @@ interface DragState {
 export class Game {
   world!: World;
   scenario: ScenarioDef;
-  readonly camera: Camera;
+  camera: ViewCamera;
+  private cam2d: Camera2D;
+  private cam3d: Camera3D;
+  private scene3d: Scene3D | null = null;
+  view: '2d' | '3d';
   selection = new Set<UnitId>();
   readonly groups = new ControlGroups();
   private pending: Command[] = [];
@@ -87,6 +94,7 @@ export class Game {
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
+    private readonly glCanvas: HTMLCanvasElement,
     private defs: UnitDefLibrary,
     public hotkeys: HotkeyMap,
     public readonly settings: DisplaySettings,
@@ -97,11 +105,44 @@ export class Game {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas 2D nicht verfügbar');
     this.ctx = ctx;
-    this.camera = new Camera(scenario.map.width, scenario.map.height);
-    this.camera.zoom = settings.zoom;
+    this.cam2d = new Camera2D(scenario.map.width, scenario.map.height);
+    this.cam2d.zoomLevel = settings.zoom;
+    this.cam3d = new Camera3D(scenario.map.width, scenario.map.height);
+    this.cam3d.zoomLevel = settings.zoom3d;
+    this.view = settings.view;
+    this.camera = this.view === '3d' ? this.cam3d : this.cam2d;
+    this.setView(this.view, true);
     this.restart();
     this.attachInput();
     this.resize();
+  }
+
+  /** Ansicht wechseln: 3D (Three.js) oder 2D-Debug. Kamera-Mitte wird übernommen. */
+  setView(view: '2d' | '3d', initial = false): void {
+    const center = { ...this.camera.center };
+    this.view = view;
+    this.settings.view = view;
+    this.camera = view === '3d' ? this.cam3d : this.cam2d;
+    if (!initial) this.camera.lookAt(center);
+    if (view === '3d') {
+      if (!this.scene3d) {
+        try {
+          this.scene3d = new Scene3D(this.glCanvas, { shadows: this.settings.shadows });
+        } catch (e) {
+          console.error('3D-Ansicht nicht verfügbar (WebGL?):', e);
+          this.view = '2d';
+          this.settings.view = '2d';
+          this.camera = this.cam2d;
+        }
+      }
+    }
+    this.glCanvas.style.display = this.view === '3d' ? 'block' : 'none';
+    if (this.world) this.resize();
+    this.onStateChanged?.();
+  }
+
+  setShadows(on: boolean): void {
+    this.scene3d?.setShadows(on);
   }
 
   // ---------------------------------------------------------------- Szenario
@@ -131,9 +172,15 @@ export class Game {
     this.markers = [];
     this.accumulator = 0;
     this.paused = false;
-    this.camera.setMap(this.world.map.width, this.world.map.height);
+    this.cam2d.setMap(this.world.map.width, this.world.map.height);
+    this.cam3d.setMap(this.world.map.width, this.world.map.height);
     const mine = this.world.units.filter((u) => u.player === MY_PLAYER);
-    if (mine.length) this.camera.lookAt(centroid(mine.map((u) => u.pos)));
+    if (mine.length) {
+      const c = centroid(mine.map((u) => u.pos));
+      this.cam2d.lookAt(c);
+      this.cam3d.lookAt(c);
+    }
+    this.scene3d?.setWorld(this.world);
     this.drill = null;
     if (sc.kind === 'drill') {
       // Szenario-Gruppen werden den Kontrollgruppen 1..n zugewiesen.
@@ -168,7 +215,9 @@ export class Game {
     this.canvas.width = Math.round(w * dpr);
     this.canvas.height = Math.round(h * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    this.camera.setViewport(w, h);
+    this.cam2d.setViewport(w, h);
+    this.cam3d.setViewport(w, h);
+    this.scene3d?.resize(w, h);
     this.minimap = computeMinimapLayout(this.camera, this.world);
   }
 
@@ -219,9 +268,12 @@ export class Game {
     const alpha = running ? Math.min(1, this.accumulator / this.world.dt) : 1;
     this.markers = this.markers.filter((m) => nowMs - m.bornMs < 700);
     this.minimap = computeMinimapLayout(this.camera, this.world);
-    const hover = this.mouseInside && !this.drag ? unitAtPoint(this.world.units, this.camera.screenToWorld(this.mouse)) : null;
+    const hover = this.mouseInside && !this.drag ? unitAtScreenPoint(this.world.units, this.world.defs, this.mouse, this.camera) : null;
     const d = this.drag;
+    const hoverEnemyId = hover && hover.player !== MY_PLAYER && this.selection.size > 0 ? hover.id : null;
+    if (this.view === '3d' && this.scene3d) this.scene3d.render(this.world, this.cam3d, alpha, this.selection, hoverEnemyId);
     render(this.ctx, {
+      mode: this.view,
       world: this.world,
       camera: this.camera,
       selection: this.selection,
@@ -235,7 +287,7 @@ export class Game {
       healthBars: this.settings.healthBars,
       rangeRing: this.settings.rangeRing,
       timingBars: this.settings.showTimingBars,
-      hoverEnemyId: hover && hover.player !== MY_PLAYER && this.selection.size > 0 ? hover.id : null,
+      hoverEnemyId,
       targeting: this.targeting,
       mouse: this.mouse,
       drawCursor: this.pointerLocked && !this.inputBlocked,
@@ -295,10 +347,10 @@ export class Game {
   }
 
   /** Rechtsklick: Angriff auf Gegner unter dem Zeiger, sonst Bewegung. Liefert das Bewegungsziel (für Ausrichten). */
-  commandAt(target: Vec2, queue: boolean): Vec2 | null {
+  commandAt(target: Vec2, queue: boolean, screen?: Vec2): Vec2 | null {
     const ids = this.selectedIds();
     if (ids.length === 0) return null;
-    const hit = unitAtPoint(this.world.units, target);
+    const hit = screen ? unitAtScreenPoint(this.world.units, this.world.defs, screen, this.camera) : unitAtPoint(this.world.units, target);
     if (hit && hit.player !== MY_PLAYER) {
       this.issue({ kind: 'attack', unitIds: ids, targetId: hit.id, queue });
       this.markers.push({ pos: { x: hit.pos.x, y: hit.pos.y }, bornMs: performance.now(), kind: 'attack' });
@@ -408,8 +460,9 @@ export class Game {
   }
 
   cameraReset(): void {
-    this.camera.zoom = 48;
-    this.settings.zoom = 48;
+    this.camera.resetZoom();
+    if (this.view === '3d') this.settings.zoom3d = this.camera.zoomLevel;
+    else this.settings.zoom = this.camera.zoomLevel;
     const mine = this.world.units.filter((u) => u.alive && u.player === MY_PLAYER);
     if (mine.length) this.camera.lookAt(centroid(mine.map((u) => u.pos)));
     this.onStateChanged?.();
@@ -434,8 +487,8 @@ export class Game {
     this.lastGroupTap = { n, atMs: nowMs };
   }
 
-  private clickSelect(world: Vec2, shift: boolean, nowMs: number): void {
-    const hit = unitAtPoint(this.world.units, world);
+  private clickSelect(screen: Vec2, shift: boolean, nowMs: number): void {
+    const hit = unitAtScreenPoint(this.world.units, this.world.defs, screen, this.camera);
     const isDouble = nowMs - this.lastClick.atMs < DOUBLE_CLICK_MS && hit !== null && this.lastClick.unitId === hit.id;
     this.lastClick = { atMs: nowMs, unitId: hit?.id ?? null };
 
@@ -458,9 +511,7 @@ export class Game {
   }
 
   private boxSelect(screenRect: Rect, shift: boolean): void {
-    const a = this.camera.screenToWorld({ x: screenRect.x0, y: screenRect.y0 });
-    const b = this.camera.screenToWorld({ x: screenRect.x1, y: screenRect.y1 });
-    const ids = unitsInRect(this.world.units, normalizeRect(a, b), MY_PLAYER).map((u) => u.id);
+    const ids = unitsInScreenRect(this.world.units, screenRect, this.camera, MY_PLAYER).map((u) => u.id);
     if (ids.length === 0 && !shift) {
       this.setSelection([]);
       return;
@@ -536,7 +587,7 @@ export class Game {
         return;
       }
       if (e.button === 2) {
-        const moveTarget = this.commandAt(worldPos, e.shiftKey);
+        const moveTarget = this.commandAt(worldPos, e.shiftKey, onMini ? undefined : p);
         this.drag = { button: 2, startScreen: p, lastScreen: p, moved: false, onMinimap: onMini, queue: e.shiftKey };
         if (moveTarget && !onMini && !e.shiftKey) this.drag.moveTarget = moveTarget;
         e.preventDefault();
@@ -577,7 +628,7 @@ export class Game {
       const p = this.screenPos(e);
       if (d.button === 0 && !d.onMinimap) {
         if (d.moved) this.boxSelect(normalizeRect(d.startScreen, p), e.shiftKey);
-        else this.clickSelect(this.camera.screenToWorld(p), e.shiftKey, performance.now());
+        else this.clickSelect(p, e.shiftKey, performance.now());
       } else if (d.button === 2 && d.moved && d.moveTarget) {
         const to = this.camera.screenToWorld(p);
         this.commandMoveFacing(d.moveTarget, { x: to.x - d.moveTarget.x, y: to.y - d.moveTarget.y });
@@ -594,7 +645,8 @@ export class Game {
         e.preventDefault();
         if (this.inputBlocked) return;
         this.camera.zoomAt(e.deltaY < 0 ? 1.08 : 1 / 1.08, this.screenPos(e));
-        this.settings.zoom = this.camera.zoom;
+        if (this.view === '3d') this.settings.zoom3d = this.camera.zoomLevel;
+        else this.settings.zoom = this.camera.zoomLevel;
         this.onStateChanged?.();
       },
       { passive: false },

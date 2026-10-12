@@ -67,7 +67,30 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
+  const viewSel = el('select', { id: 'set-view' });
+  viewSel.append(el('option', { value: '3d', text: '3D (perspektivisch)' }), el('option', { value: '2d', text: '2D-Debug (Draufsicht)' }));
+  viewSel.value = d.settings.view;
+  viewSel.addEventListener('change', () => {
+    d.settings.view = viewSel.value as '2d' | '3d';
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
+  const shadows = el('input', { type: 'checkbox', id: 'set-shadows' });
+  shadows.checked = d.settings.shadows;
+  shadows.addEventListener('change', () => {
+    d.settings.shadows = shadows.checked;
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
+  const fps = el('input', { type: 'checkbox', id: 'set-fps' });
+  fps.checked = d.settings.showFps;
+  fps.addEventListener('change', () => {
+    d.settings.showFps = fps.checked;
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
   root.append(
+    el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, [shadows, ' Schatten (3D)']), el('label', {}, [fps, ' FPS anzeigen'])]),
     el('div', { class: 'row' }, [
       el('label', {}, ['Lebensbalken ', hb]),
       el('label', {}, [ring, ' Reichweitenring (Kalibrierhilfe: Zoom so einstellen, dass der Ring so groß wirkt wie im Spiel)']),
@@ -76,7 +99,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     el('div', { class: 'row' }, [
       el('label', {}, [plock, ' Mauszeiger im Spielfeld einsperren (Pointer-Lock, eigener Zeiger; Rand-Scrolling auch im Fenster; Esc gibt frei, nächster Klick sperrt wieder)']),
     ]),
-    el('div', { class: 'note', text: `Aktueller Zoom: ${d.settings.zoom.toFixed(1)} px/Tile (wird gespeichert). Standard 48 = ca. 40 Tiles Breite bei 1920 px.` }),
+    el('div', { class: 'note', text: `Zoom 2D: ${d.settings.zoom.toFixed(1)} px/Tile · Kameraabstand 3D: ${d.settings.zoom3d.toFixed(1)} Tiles (Standard 52 ≈ 44 px/Tile in Bildmitte bei 2560×1440, Neigung 45°, Sichtfeld 35°). Backspace setzt die Kamera zurück.` }),
   );
 
   // -------- Regeln

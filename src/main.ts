@@ -16,6 +16,7 @@ import type { RoundSummary } from './sim/stats';
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
 const canvas = $<HTMLCanvasElement>('game');
+const glCanvas = $<HTMLCanvasElement>('game3d');
 canvas.tabIndex = 0;
 let settings: DisplaySettings = loadSettings();
 let calibration: CalibrationState = loadCalibration();
@@ -28,7 +29,7 @@ function allScenarios(): ScenarioDef[] {
 }
 
 const initialScenario = allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
-const game = new Game(canvas, defs, hotkeys, settings, effectiveRules(calibration), initialScenario);
+const game = new Game(canvas, glCanvas, defs, hotkeys, settings, effectiveRules(calibration), initialScenario);
 
 const scenarioName = $('scenario-name');
 const scenarioGoal = $('scenario-goal');
@@ -82,6 +83,12 @@ scenarioSelect.addEventListener('change', () => {
   }
   const sc = allScenarios().find((s) => s.id === scenarioSelect.value);
   if (sc) selectScenario(sc);
+  canvas.focus();
+});
+const btnView = $<HTMLButtonElement>('btn-view');
+btnView.addEventListener('click', () => {
+  game.setView(game.view === '3d' ? '2d' : '3d');
+  saveSettings(settings);
   canvas.focus();
 });
 $('btn-restart').addEventListener('click', () => {
@@ -146,7 +153,11 @@ function rebuildSettingsPanel(): void {
       game.restart();
       refreshHud();
     },
-    onDisplayChanged: () => refreshHud(),
+    onDisplayChanged: () => {
+      if (settings.view !== game.view) game.setView(settings.view);
+      game.setShadows(settings.shadows);
+      refreshHud();
+    },
     onHotkeysChanged: () => refreshHud(),
     keyboardLayout,
     onImport: (json) => {
@@ -343,6 +354,7 @@ function refreshHud(): void {
   scenarioName.textContent = game.scenario.name;
   scenarioGoal.textContent = game.scenario.goal ?? game.scenario.description ?? '';
   btnPause.textContent = game.paused ? 'Weiter' : 'Pause';
+  btnView.textContent = game.view === '3d' ? 'Ansicht: 3D' : 'Ansicht: 2D-Debug';
   const deps = game.scenario.dependsOnUnverified ?? [];
   const open = unverifiedPaths(calibration);
   const missing = deps.filter((p) => open.includes(p));
@@ -375,7 +387,7 @@ function loop(now: number): void {
   if (now - lastStats > 250) {
     lastStats = now;
     const s = game.stats;
-    stats.textContent = `${s.simTime.toFixed(1)} s · Einheiten ${s.mine} : ${s.theirs} · ${Math.round(s.fps)} FPS`;
+    stats.textContent = `${s.simTime.toFixed(1)} s · Einheiten ${s.mine} : ${s.theirs}${settings.showFps ? ` · ${Math.round(s.fps)} FPS` : ''}`;
   }
   if (game.drill && now - lastDrill > 100) {
     lastDrill = now;

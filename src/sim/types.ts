@@ -1,3 +1,4 @@
+import type { Decor, Obstacle } from './decor';
 import type { Vec2 } from './math';
 import type { Rng } from './rng';
 import type { UnitDefLibrary, WeaponType } from './unitDefs';
@@ -188,6 +189,9 @@ export interface World {
   defs: UnitDefLibrary;
   units: UnitState[];
   projectiles: Projectile[];
+  /** Deko (Darstellung) und daraus abgeleitete Hindernisse (Kollision). */
+  decor: Decor[];
+  obstacles: Obstacle[];
   nextUnitId: number;
   nextGroupId: number;
   nextProjectileId: number;

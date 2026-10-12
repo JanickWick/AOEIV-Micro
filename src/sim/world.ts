@@ -23,6 +23,8 @@ export function createWorld(opts: WorldOptions): World {
     defs: opts.defs,
     units: [],
     projectiles: [],
+    decor: [],
+    obstacles: [],
     nextUnitId: 1,
     nextGroupId: 1,
     nextProjectileId: 1,
