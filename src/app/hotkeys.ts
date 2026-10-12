@@ -70,10 +70,10 @@ export const ACTIONS: readonly ActionInfo[] = [
   { id: 'unit.stop', label: 'Stopp', category: 'Einheitenbefehle' },
   { id: 'unit.patrol', label: 'Patrouille (dann Ziel klicken)', category: 'Einheitenbefehle' },
   { id: 'unit.hold', label: 'Position halten', category: 'Einheitenbefehle' },
-  { id: 'unit.delete', label: 'Einheit löschen', category: 'Einheitenbefehle', pending: 'G3' },
-  { id: 'formation.line', label: 'Formation: Linie', category: 'Formation', pending: 'G4' },
-  { id: 'formation.wedge', label: 'Formation: versetzt (Keil)', category: 'Formation', pending: 'G4' },
-  { id: 'formation.spread', label: 'Formation: aufgelockert', category: 'Formation', pending: 'G4' },
+  { id: 'unit.delete', label: 'Einheit löschen', category: 'Einheitenbefehle' },
+  { id: 'formation.line', label: 'Formation: Linie', category: 'Formation' },
+  { id: 'formation.wedge', label: 'Formation: versetzt (Keil)', category: 'Formation' },
+  { id: 'formation.spread', label: 'Formation: aufgelockert', category: 'Formation' },
   { id: 'select.allMilitary', label: 'Alle Militäreinheiten auswählen', category: 'Auswahl' },
   { id: 'select.allOfType', label: 'Alle Einheiten dieses Typs auswählen', category: 'Auswahl' },
   { id: 'select.idleMilitary', label: 'Alle untätigen Militäreinheiten auswählen', category: 'Auswahl' },
@@ -276,11 +276,19 @@ export function describeBinding(b: KeyBinding, layout?: Map<string, string>): st
   return parts.join('+');
 }
 
+/**
+ * Tastaturbelegung für die Anzeige (physischer Code → aufgedrucktes Zeichen). Chrome/Edge liefern sie
+ * über die Keyboard-API; ohne diese API wird bei deutscher Browsersprache QWERTZ angenommen (Y und Z
+ * vertauscht), damit die Rasterbeschriftung zur Tastatur passt.
+ */
 export async function loadKeyboardLayout(): Promise<Map<string, string> | undefined> {
   const kb = (navigator as Navigator & { keyboard?: { getLayoutMap?: () => Promise<Map<string, string>> } }).keyboard;
   try {
-    return await kb?.getLayoutMap?.();
+    const m = await kb?.getLayoutMap?.();
+    if (m) return m;
   } catch {
-    return undefined;
+    /* unten Fallback */
   }
+  if (/^de/i.test(navigator.language ?? '')) return new Map([['KeyY', 'z'], ['KeyZ', 'y']]);
+  return undefined;
 }

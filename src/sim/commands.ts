@@ -100,6 +100,21 @@ export function applyCommand(world: World, cmd: Command): void {
       for (const u of resolveUnits(world, cmd.unitIds)) pushOrder(world, u, { kind: 'hold' }, cmd.queue);
       return;
     }
+    case 'formation': {
+      for (const u of resolveUnits(world, cmd.unitIds)) u.formation = cmd.formation;
+      return;
+    }
+    case 'delete': {
+      for (const u of resolveUnits(world, cmd.unitIds)) {
+        u.hp = 0;
+        u.alive = false;
+        u.diedTick = world.tick;
+        u.orders = [];
+        u.speed = 0;
+        world.events.push({ kind: 'died', unitId: u.id, killerId: null, tick: world.tick });
+      }
+      return;
+    }
     case 'stop': {
       for (const u of resolveUnits(world, cmd.unitIds)) {
         u.orders = [];

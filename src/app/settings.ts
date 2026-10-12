@@ -22,6 +22,8 @@ export interface DisplaySettings {
   shadows: boolean;
   /** FPS-Anzeige. */
   showFps: boolean;
+  /** Größe des HUD in Prozent (wie die UI-Skalierung im Spiel). */
+  uiScale: number;
   sound: boolean;
   soundVolume: number;
   lastScenario: string | null;
@@ -39,6 +41,7 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   zoom3d: 31,
   shadows: true,
   showFps: true,
+  uiScale: 100,
   sound: true,
   soundVolume: 0.5,
   lastScenario: null,

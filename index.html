@@ -11,38 +11,8 @@
     <div id="app">
       <canvas id="game3d"></canvas>
       <canvas id="game"></canvas>
-      <div id="hud">
-        <div id="hud-top-left" class="hud-panel">
-          <div id="scenario-name"></div>
-          <div id="scenario-goal" class="muted small"></div>
-          <div id="stats" class="muted"></div>
-          <div id="unverified-hint" class="warn small" hidden></div>
-        </div>
-        <div id="hud-top-right" class="hud-panel">
-          <label>Szenario <select id="scenario-select"></select></label>
-          <button id="btn-restart" title="Neustart (F4)">Neustart</button>
-          <button id="btn-pause" title="Pause (F3)">Pause</button>
-          <label>Tempo
-            <select id="speed-select">
-              <option value="0.5">50 %</option>
-              <option value="0.75">75 %</option>
-              <option value="1">100 %</option>
-            </select>
-          </label>
-          <label><input type="checkbox" id="random-start" /> Zufallsstart</label>
-          <button id="btn-view" title="Zwischen 3D-Ansicht und 2D-Debug-Ansicht umschalten">Ansicht: 3D</button>
-          <button id="btn-editor" title="Freier Szenario-Editor">Editor</button>
-          <button id="btn-settings" title="Einstellungen und Kalibrierung">Einstellungen</button>
-          <button id="btn-fullscreen" title="Vollbild">Vollbild</button>
-        </div>
-        <div id="mode-info" class="hud-panel warn" hidden></div>
-        <div id="drill-prompt" class="hud-panel drill" hidden></div>
-        <div id="hud-bottom-right" class="hud-panel">
-          <div id="selection-info" class="muted">Keine Auswahl</div>
-        </div>
-        <div id="hud-help" class="hud-panel muted">
-          Linksklick/Ziehen: Auswahl · Doppelklick: alle des Typs · Shift: hinzufügen/entfernen · Rechtsklick: Bewegen / Gegner angreifen · Rechtsklick ziehen: Formation ausrichten · Shift: Befehle einreihen · A: Angriffsbewegung · S: Stopp · D: Patrouille · V: Halten · Strg+Zahl / Zahl / Shift+Zahl: Kontrollgruppen · F4: Neustart · F3: Pause · F10: Einstellungen
-        </div>
+      <div id="hud"></div>
+      <div id="dialogs">
         <div id="result" class="overlay" hidden>
           <div class="dialog">
             <h2 id="result-title"></h2>

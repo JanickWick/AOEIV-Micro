@@ -137,6 +137,36 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
 68. (A) Projektilbahn: Bodenpunkt aus der Simulation (Tempo aus den Daten), Höhe als Sinusbogen mit
     Scheitel 12 % der Flugstrecke (Pfeil/Bolzen) bzw. 35 % (Mangonel), mindestens 0,3 / 1,0 Tiles.
 69. (V) Ton synthetisch (Web Audio), keine Spiel-Samples; Lautstärke und Schalter in den Einstellungen.
+
+## HUD (G3)
+
+70. (V) HUD als HTML/CSS-Ebene über den Canvas-Ebenen: dunkelblaue Paneele mit feinem Rahmen und
+    goldenen Akzenten (Farben aus dem Screenshot geschätzt, keine Spielgrafik). Schriftgröße und alle
+    Abmessungen hängen an der UI-Größe in Prozent (Einstellungen, Standard 100 %).
+71. (A) Anordnung nach dem Vollbild-Screenshot: oben links Szenario und Menü-Knöpfe, oben Mitte
+    Zeitalter und Spielzeit, links Kontrollgruppen-Marken, unten links Zähler (statt Ressourcen:
+    eigene, Gegner, Verluste, Ressourcenwert), unten Mitte Auswahl-Leiste und Befehlsraster 5×3,
+    unten rechts die Minimap. Hilfetext und Ressourcenleiste entfallen.
+72. (V) Befehlsraster wie die Command-Card des Spiels: Reihe 2 = Angriffsbewegung, Stopp,
+    Patrouille, Verschanzen (ohne Funktion, da keine Gebäude), Reihe 3 = Formation Linie,
+    versetzt, aufgelockert, Stellung halten, Löschen. Tastenbeschriftung kommt aus der aktuellen
+    Hotkey-Einstellung (erstes Binding), nicht aus festen Buchstaben; Zellen sind klickbar, blitzen
+    bei Taste oder Klick auf, zeigen beim Überfahren Name und Taste.
+73. (A) Formationen wirken in der Simulation nur über den Abstand: Linie = Standardabstand,
+    versetzt = jede zweite Reihe um den halben Abstand verschoben, aufgelockert = Abstand + 0,6 Tiles.
+    Die Formation gilt pro Einheit, bei gemischter Gruppe entscheidet die Mehrheit. Die echten
+    Spielwerte (Abstände, Reihenbildung) sind nicht gemessen.
+74. (V) Löschen (ENTF) tötet die ausgewählten eigenen Einheiten sofort; sie zählen als Verluste
+    mit vollem Ressourcenwert (wie im Spiel).
+75. (A) Minimap im 3D-Modus als Raute (Karte um −45° gedreht, Welt +x zeigt nach oben rechts wie
+    die Kamera), mit Kamera-Trapez; im 2D-Debug als Rechteck. Klick auf die Raute springt mit der
+    Kamera, Rechtsklick erteilt einen Bewegungsbefehl; Punkte außerhalb der Karte werden auf den
+    Kartenrand begrenzt.
+76. (A) Kontrollgruppen-Marken links: Nummer, Typkürzel (bei gemischten Gruppen "+") und Anzahl;
+    Klick wählt die Gruppe, Doppelklick zentriert zusätzlich die Kamera. Marken werden nur neu
+    aufgebaut, wenn sich der Inhalt ändert.
+77. (A) Tastenbeschriftung: Chrome/Edge liefern das Layout (KeyY → Z auf QWERTZ); ohne diese API
+    wird bei deutscher Browsersprache QWERTZ angenommen, sonst die US-Beschriftung angezeigt.
     Befehlsbestätigung nur bei eigenen Befehlen.
 
 ## Auswertung, Drill, Upgrades

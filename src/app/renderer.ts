@@ -3,6 +3,7 @@
  * nur die Overlay-Ebene (Lebensbalken, Timing, Marker, Auswahlrahmen, Minimap, Zeiger) über der
  * Three.js-Szene. Alle Positionen laufen über die Kamera-Schnittstelle (2D oder perspektivisch).
  */
+import { minimapWorldToScreen, type MinimapLayout } from './minimap';
 import { lerp, lerpAngle, type Vec2 } from '../sim/math';
 import type { Projectile, UnitId, UnitState, World } from '../sim/types';
 import type { UnitShape } from '../sim/unitDefs';
@@ -41,14 +42,6 @@ export interface RenderState {
   drillMarker: Vec2 | null;
 }
 
-export interface MinimapLayout {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  scale: number; // Pixel pro Tile
-}
-
 export { PLAYER_COLORS };
 const PLAYER_DARK = ['#1e3a8a', '#7f1d1d'] as const;
 const SELECT_COLOR = '#86efac';
@@ -64,15 +57,6 @@ const UNIT_CODE: Record<string, string> = {
   mangonel: 'Mg',
   springald: 'Sp',
 };
-
-export function computeMinimapLayout(camera: ViewCamera, world: World): MinimapLayout {
-  const maxW = 220;
-  const maxH = 170;
-  const scale = Math.min(maxW / world.map.width, maxH / world.map.height);
-  const w = world.map.width * scale;
-  const h = world.map.height * scale;
-  return { x: 10, y: camera.viewportH - h - 10, w, h, scale };
-}
 
 export function interpolatedPos(u: { prevPos: Vec2; pos: Vec2 }, alpha: number): Vec2 {
   return lerp(u.prevPos, u.pos, alpha);
@@ -554,38 +538,74 @@ function drawDragRect(ctx: CanvasRenderingContext2D, s: RenderState): void {
 
 function drawMinimap(ctx: CanvasRenderingContext2D, s: RenderState): void {
   const { minimap: m, world, camera } = s;
-  ctx.fillStyle = 'rgba(10,14,10,0.85)';
-  ctx.fillRect(m.x - 3, m.y - 3, m.w + 6, m.h + 6);
+  const corners: Vec2[] = [
+    { x: 0, y: 0 },
+    { x: m.mapW, y: 0 },
+    { x: m.mapW, y: m.mapH },
+    { x: 0, y: m.mapH },
+  ].map((p) => minimapWorldToScreen(m, p));
+  const outline = () => {
+    ctx.beginPath();
+    corners.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+    ctx.closePath();
+  };
+  ctx.save();
+  // Paneel-Hintergrund (das HUD lässt den Rahmen der Minimap durchsichtig, damit der Canvas hier zeichnen kann)
+  const grad = ctx.createLinearGradient(0, m.y0, 0, m.y1);
+  grad.addColorStop(0, '#142a44');
+  grad.addColorStop(1, '#0f1c2e');
+  ctx.fillStyle = grad;
+  ctx.fillRect(m.x0 - 8, m.y0 - 8, m.x1 - m.x0 + 16, m.y1 - m.y0 + 16);
+  // Karte mit etwas Rand (Raute im 3D-Modus, Rechteck in 2D)
+  ctx.lineJoin = 'round';
+  outline();
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'rgba(8, 14, 24, 0.9)';
+  ctx.stroke();
   ctx.fillStyle = '#2b4323';
-  ctx.fillRect(m.x, m.y, m.w, m.h);
+  ctx.fill();
+  ctx.clip();
+  // Leichte Schraffur als Boden
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  for (let x = 0; x < m.mapW; x += 4) {
+    const a = minimapWorldToScreen(m, { x, y: 0 });
+    const b = minimapWorldToScreen(m, { x, y: m.mapH });
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+    ctx.stroke();
+  }
   for (const d of world.decor) {
     if (d.kind === 'bush') continue;
+    const p = minimapWorldToScreen(m, d.pos);
     ctx.fillStyle = d.kind === 'tree' ? '#1f5a1f' : d.kind === 'rock' ? '#6b675d' : '#8b7355';
-    ctx.fillRect(m.x + d.pos.x * m.scale - 1, m.y + d.pos.y * m.scale - 1, 2, 2);
+    ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
   }
   for (const u of world.units) {
     if (!u.alive) continue;
-    const p = interpolatedPos(u, s.alpha);
+    const p = minimapWorldToScreen(m, interpolatedPos(u, s.alpha));
     ctx.fillStyle = PLAYER_COLORS[u.player];
-    ctx.fillRect(m.x + p.x * m.scale - 1.5, m.y + p.y * m.scale - 1.5, 3, 3);
+    ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
   }
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(m.x, m.y, m.w, m.h);
-  ctx.clip();
+  // Sichtbereich der Kamera (Trapez in 3D, Rechteck in 2D)
   const q = camera.visibleQuad();
   ctx.beginPath();
   q.forEach((p, i) => {
-    const sx = m.x + p.x * m.scale;
-    const sy = m.y + p.y * m.scale;
-    if (i === 0) ctx.moveTo(sx, sy);
-    else ctx.lineTo(sx, sy);
+    const sp = minimapWorldToScreen(m, p);
+    if (i === 0) ctx.moveTo(sp.x, sp.y);
+    else ctx.lineTo(sp.x, sp.y);
   });
   ctx.closePath();
   ctx.strokeStyle = 'rgba(255,255,255,0.9)';
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.restore();
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.strokeRect(m.x + 0.5, m.y + 0.5, m.w, m.h);
+  ctx.save();
+  outline();
+  ctx.strokeStyle = 'rgba(201, 162, 77, 0.7)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
 }

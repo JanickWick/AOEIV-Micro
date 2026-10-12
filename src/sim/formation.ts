@@ -43,7 +43,12 @@ export function computeFormation(world: World, units: UnitState[], dest: Vec2, f
   const centroid = { x: cx / n, y: cy / n };
   const dir = facing ? normalize(facing) : normalize(sub(dest, centroid), { x: Math.cos(units[0]!.heading), y: Math.sin(units[0]!.heading) });
   const lat = perp(dir);
-  const spacing = 2 * maxR + world.rules.formationGap;
+  // Formation der Gruppe: Mehrheit entscheidet (Linie = Standard)
+  const votes: Record<string, number> = {};
+  for (const u of units) votes[u.formation] = (votes[u.formation] ?? 0) + 1;
+  const formation = (Object.entries(votes).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'line') as UnitState['formation'];
+  const gap = formation === 'spread' ? world.rules.formationGap + 0.6 : world.rules.formationGap;
+  const spacing = 2 * maxR + gap;
   const cols = formationColumns(n);
 
   // Einheiten nach Rolle, dann nach Vorwärts-Projektion (vorderste zuerst) sortieren.
@@ -66,8 +71,9 @@ export function computeFormation(world: World, units: UnitState[], dest: Vec2, f
   const slots: FormationSlot[] = [];
   rows.forEach((row, r) => {
     const back = (r - (rowCount - 1) / 2) * spacing; // Block um dest zentrieren
+    const stagger = formation === 'wedge' && r % 2 === 1 ? spacing / 2 : 0; // versetzt: jede zweite Reihe um halben Platz
     row.forEach((e, c) => {
-      const side = (c - (row.length - 1) / 2) * spacing;
+      const side = (c - (row.length - 1) / 2) * spacing + stagger;
       const target = add(dest, add(scale(dir, -back), scale(lat, side)));
       slots.push({ unitId: e.u.id, target });
     });

@@ -103,7 +103,17 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
+  const ui = el('input', { type: 'range', min: '60', max: '160', step: '5', id: 'set-uiscale' });
+  ui.value = String(d.settings.uiScale);
+  const uiLabel = el('span', { text: `${d.settings.uiScale} %` });
+  ui.addEventListener('input', () => {
+    d.settings.uiScale = Number(ui.value);
+    uiLabel.textContent = `${d.settings.uiScale} %`;
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
   root.append(
+    el('div', { class: 'row' }, [el('label', {}, ['UI-Größe ', ui, ' ', uiLabel])]),
     el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, [shadows, ' Schatten (3D)']), el('label', {}, [fps, ' FPS anzeigen']), el('label', {}, [sound, ' Ton']), el('label', {}, ['Lautstärke ', vol])]),
     el('div', { class: 'row' }, [
       el('label', {}, ['Lebensbalken ', hb]),

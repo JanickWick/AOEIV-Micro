@@ -50,7 +50,31 @@ Der Knopf "Ansicht" (oder Einstellungen → Ansicht) schaltet auf die bisherige 
 Debug-Ansicht um; Auswahl, Befehle und Kamera funktionieren in beiden. Klicks treffen die Figur
 (projizierte Fuß- bis Kopfposition), der Auswahlrahmen arbeitet im Bildschirmraum.
 
-## Steuerung (Stand M1)
+### HUD (G3)
+
+Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spiel-Icons):
+
+- Oben links Szenario-Name, Ziel, Szenario-Auswahl, Tempo, Zufallsstart und runde Menü-Knöpfe
+  (Einstellungen, Neustart, Pause, Editor, Ansicht 3D/2D, Vollbild). Oben Mitte Zeitalter und
+  Spielzeit, oben rechts FPS (abschaltbar).
+- Links Kontrollgruppen-Marken (Nummer, Typkürzel, Anzahl): Klick wählt die Gruppe, Doppelklick
+  zentriert die Kamera.
+- Unten links Zähler statt Ressourcen: ausgewählte, eigene und gegnerische Einheiten, Verluste
+  und Ressourcenwert (verloren / vernichtet).
+- Unten Mitte die Auswahl-Leiste ("ALLE (n)" plus Typ-Karten; Untergruppen folgen in G4) und das
+  Befehlsraster 5×3: Reihe 2 Angriffsbewegung, Stopp, Patrouille, Verschanzen (ohne Funktion),
+  Reihe 3 Formation Linie / versetzt / aufgelockert, Stellung halten, Löschen. Die Beschriftung
+  kommt aus der aktuellen Hotkey-Einstellung (A S D, Z X C V ENTF mit "Mein Layout"), Zellen sind
+  klickbar, blitzen bei Taste oder Klick auf und zeigen beim Überfahren Name und Taste. Aktive
+  Formation und Halten werden hervorgehoben.
+- Unten rechts die Minimap als Raute (3D) mit Kamera-Trapez, als Rechteck in der 2D-Ansicht.
+- UI-Größe in Prozent in den Einstellungen (60 bis 160 %), wie die UI-Skalierung im Spiel.
+
+Formationen wirken auf die Abstände beim nächsten Bewegungsbefehl (versetzt = Reihen um den halben
+Abstand verschoben, aufgelockert = größerer Abstand); Löschen tötet die Auswahl sofort und zählt
+als Verlust.
+
+## Steuerung
 
 | Eingabe | Wirkung |
 | --- | --- |
@@ -65,6 +89,8 @@ Debug-Ansicht um; Auswahl, Befehle und Kamera funktionieren in beiden. Klicks tr
 | S | Stopp |
 | D, dann Linksklick | Patrouille zwischen Standort und Ziel |
 | V | Position halten (Shift = einreihen) |
+| Z / X / C | Formation Linie / versetzt / aufgelockert |
+| ENTF | Ausgewählte eigene Einheiten löschen |
 | Strg + 0–9 | Kontrollgruppe auf die aktuelle Auswahl setzen (alle anderen fallen raus) |
 | Shift + 0–9 | Auswahl zur Kontrollgruppe hinzufügen |
 | Strg + Shift + 0–9 | Auswahl exklusiv in die Gruppe (aus allen anderen entfernen) |
@@ -225,6 +251,6 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 - [x] G0: Inventur, Hotkey-Import aus der Spieldatei (`docs/G0-INVENTUR.md`)
 - [x] G1: Three.js-Renderer mit geneigter Kamera, Gelände, Deko mit Kollision, Raycast-Eingabe, 2D-Debug-Ansicht
 - [x] G2: Prozedurale Figuren mit Gelenken, sim-gesteuerte Animationen, Projektile, Effekte, Ton
-- [ ] G3: HUD nach AoE4-Vorbild
+- [x] G3: HUD nach AoE4-Vorbild (Paneele, Befehlsraster mit Tastenbeschriftung, Gruppen-Marken, Minimap-Raute, Formationen, Löschen)
 - [ ] G4: Auswahl-Leiste mit Untergruppen, Formationen, Untergruppen-Drill
 - [ ] G5: Feinschliff, Leistung, Vergleich mit den Screenshots

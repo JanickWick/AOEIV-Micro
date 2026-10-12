@@ -24,6 +24,9 @@ export type Order =
 
 export type AttackPhase = 'idle' | 'windup' | 'recovery';
 
+/** Formation (Spiel: Z Linie, X versetzt, C aufgelockert). */
+export type Formation = 'line' | 'wedge' | 'spread';
+
 export interface AttackState {
   /** Aktuelles Ziel (Befehl oder automatisch erfasst). */
   targetId: UnitId | null;
@@ -82,6 +85,8 @@ export interface UnitState {
   mods: { damage: number; meleeArmor: number; rangedArmor: number };
   /** Index der Szenario-Gruppe, aus der die Einheit stammt (für Drill-Kontrollgruppen). */
   spawnGroup: number;
+  /** Gewählte Formation für Gruppenbefehle. */
+  formation: Formation;
 }
 
 /** Schmiede-Upgrades pro Seite (Stufen 0–3, je +1). */
@@ -124,7 +129,10 @@ export type Command =
   | { kind: 'attackMove'; unitIds: UnitId[]; target: Vec2; queue: boolean; facing?: Vec2 }
   | { kind: 'patrol'; unitIds: UnitId[]; target: Vec2; queue: boolean }
   | { kind: 'stop'; unitIds: UnitId[] }
-  | { kind: 'hold'; unitIds: UnitId[]; queue: boolean };
+  | { kind: 'hold'; unitIds: UnitId[]; queue: boolean }
+  | { kind: 'formation'; unitIds: UnitId[]; formation: Formation }
+  /** Eigene Einheiten löschen (zählt als Verlust). */
+  | { kind: 'delete'; unitIds: UnitId[] };
 
 export interface SimRules {
   /** Ticks pro Sekunde. */

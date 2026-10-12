@@ -116,7 +116,7 @@
   Videos. Siehe `docs/G0-INVENTUR.md`.
 - Hotkey-Import (`scripts/import-hotkeys.mjs`) → Preset "Mein Layout", Standard. Neue Aktionen:
   exklusiv zu Gruppe, aus Gruppe entfernen, aus allen entfernen, Gruppe 0, untätige Einheiten,
-  Kamera zurücksetzen; Formationen, Untergruppen und Löschen sind registriert und folgen in G3/G4.
+  Kamera zurücksetzen; Formationen und Löschen seit G3, Untergruppen folgen in G4.
 
 ### Rückfragen vor G1
 1. Position halten = V (Spieldatei), nicht F. Einverstanden?
@@ -178,11 +178,18 @@
 - Projektile mit Bogenbahn, Mangonel-Einschlag mit Staub und Bodenmarkierung, Ansturm-Staub,
   Trefferfunken, Klickmarker grün/rot. Synthetischer Ton, abschaltbar.
 
-### G3 – HUD nach AoE4-Vorbild
-- HTML/CSS-Paneele (dunkelblau, goldene Akzente), UI-Größe in Prozent.
-- Unten links Einheiten/Gegner/Verluste, oben Mitte Spielzeit, oben links Szenario und Menü,
-  links Kontrollgruppen-Marken, unten rechts Minimap-Raute mit Kamera-Trapez, Befehlsraster mit
-  Tastenbeschriftung aus der aktuellen Hotkey-Einstellung, Löschen-Befehl.
+### G3 – erledigt
+- HUD als HTML/CSS-Ebene (`src/app/hud.ts`, `src/style.css`): Paneele dunkelblau mit Goldakzent,
+  UI-Größe in Prozent (Einstellungen), eigene SVG-Icons.
+- Oben links Szenario + Menü-Knöpfe, oben Mitte Zeitalter/Spielzeit, links Gruppen-Marken (Klick
+  wählt, Doppelklick zentriert), unten links Zähler, unten Mitte Auswahl-Leiste (vorläufig, G4) und
+  Befehlsraster 5×3 mit Tastenbeschriftung aus der Hotkey-Einstellung (klickbar, Aufblitzen,
+  Tooltip, aktive Formation/Halten), unten rechts Minimap-Raute mit Kamera-Trapez
+  (`src/app/minimap.ts`, Tests).
+- Simulation: Befehle `formation` (Linie/versetzt/aufgelockert, Abstand in der Formationsberechnung)
+  und `delete`; Timestep und Kampfmodell unverändert, alle bisherigen Tests grün.
+- Offen: echte Formationsabstände des Spiels (nicht gemessen), Verschanzen ohne Funktion, Y/Z-
+  Beschriftung ohne Keyboard-API nur per Sprach-Heuristik.
 
 ### G4 – Auswahl-Leiste, Formationen, Untergruppen-Drill
 - "ALLE (n)" + Typ-Karten in fester Reihenfolge, Einzelansicht mit Werten, Tab/Strg+Tab (laut

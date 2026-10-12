@@ -7,7 +7,7 @@ import { createAi, type AiController } from '../sim/ai';
 import { normalize, type Vec2 } from '../sim/math';
 import { buildWorldFromScenario, evaluateOutcome, type Outcome, type ScenarioDef } from '../sim/scenario';
 import { stepWorld } from '../sim/step';
-import type { Command, SimRules, UnitId, World } from '../sim/types';
+import type { Command, Formation, SimRules, UnitId, World } from '../sim/types';
 import type { UnitDefLibrary } from '../sim/unitDefs';
 import { Camera2D } from './camera';
 import { Camera3D } from './camera3d';
@@ -16,7 +16,8 @@ import { Scene3D } from './render3d/scene';
 import type { ViewCamera } from './viewCamera';
 import { GameAudio } from './audio';
 import { HotkeyMap, type ActionId } from './hotkeys';
-import { computeMinimapLayout, render, type Marker, type MinimapLayout } from './renderer';
+import { computeMinimapLayout, minimapContains, minimapScreenToWorld, type MinimapLayout } from './minimap';
+import { render, type Marker } from './renderer';
 import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitAtScreenPoint, unitsInScreenRect, unitsOfTypeInRect, type Rect } from './selection';
 import type { DisplaySettings } from './settings';
 import { RoundStats, type InputAction, type RoundSummary } from '../sim/stats';
@@ -94,6 +95,10 @@ export class Game {
   onDrillFinished: ((s: DrillSummary) => void) | null = null;
   onDrillChanged: (() => void) | null = null;
   onOpenSettings: (() => void) | null = null;
+  /** Für das HUD: Aktion wurde ausgelöst (Taste oder Klick), z. B. zum Aufblitzen der Rasterzelle. */
+  onActionTriggered: ((action: ActionId) => void) | null = null;
+  /** Liefert die verfügbare Kantenlänge und den rechten/unteren Rand der Minimap in Pixeln (vom HUD). */
+  minimapBox: () => { box: number; margin: number } = () => ({ box: 200, margin: 10 });
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -221,7 +226,12 @@ export class Game {
     this.cam2d.setViewport(w, h);
     this.cam3d.setViewport(w, h);
     this.scene3d?.resize(w, h);
-    this.minimap = computeMinimapLayout(this.camera, this.world);
+    this.layoutMinimap();
+  }
+
+  private layoutMinimap(): void {
+    const { box, margin } = this.minimapBox();
+    this.minimap = computeMinimapLayout(this.camera.viewportW, this.camera.viewportH, this.world.map.width, this.world.map.height, this.view === '3d', box, margin);
   }
 
   frame(nowMs: number): void {
@@ -273,7 +283,7 @@ export class Game {
 
     const alpha = running ? Math.min(1, this.accumulator / this.world.dt) : 1;
     this.markers = this.markers.filter((m) => nowMs - m.bornMs < 700);
-    this.minimap = computeMinimapLayout(this.camera, this.world);
+    if (!this.minimap || this.minimap.mapW !== this.world.map.width || this.minimap.mapH !== this.world.map.height || (this.minimap.rotation !== 0) !== (this.view === '3d')) this.layoutMinimap();
     const hover = this.mouseInside && !this.drag ? unitAtScreenPoint(this.world.units, this.world.defs, this.mouse, this.camera) : null;
     const d = this.drag;
     const hoverEnemyId = hover && hover.player !== MY_PLAYER && this.selection.size > 0 ? hover.id : null;
@@ -547,13 +557,27 @@ export class Game {
   }
 
   private onMinimap(p: Vec2): boolean {
-    const m = this.minimap;
-    return p.x >= m.x && p.x <= m.x + m.w && p.y >= m.y && p.y <= m.y + m.h;
+    return minimapContains(this.minimap, p);
   }
 
   private minimapToWorld(p: Vec2): Vec2 {
-    const m = this.minimap;
-    return { x: (p.x - m.x) / m.scale, y: (p.y - m.y) / m.scale };
+    const w = minimapScreenToWorld(this.minimap, p);
+    return { x: Math.max(0, Math.min(this.world.map.width, w.x)), y: Math.max(0, Math.min(this.world.map.height, w.y)) };
+  }
+
+  /** Formation der Auswahl setzen (wirkt auf die nächste Bewegung). */
+  commandFormation(f: Formation): void {
+    const ids = this.selectedIds();
+    if (ids.length === 0) return;
+    this.issue({ kind: 'formation', unitIds: ids, formation: f });
+    this.onStateChanged?.();
+  }
+
+  /** Ausgewählte eigene Einheiten löschen (wie ENTF im Spiel). */
+  commandDelete(): void {
+    const ids = this.selectedIds();
+    if (ids.length === 0) return;
+    this.issue({ kind: 'delete', unitIds: ids });
   }
 
   /** Pointer-Lock anfordern (nur nach Nutzeraktion möglich). */
@@ -696,6 +720,7 @@ export class Game {
 
   runAction(action: ActionId, shift: boolean): void {
     const now = performance.now();
+    this.onActionTriggered?.(action);
     switch (action) {
       case 'game.restart':
         this.restart();
@@ -741,8 +766,17 @@ export class Game {
       case 'group.removeAll':
         this.groupRemoveAll();
         return;
+      case 'formation.line':
+      case 'formation.wedge':
+      case 'formation.spread':
+        this.commandFormation(action.slice('formation.'.length) as Formation);
+        return;
+      case 'unit.delete':
+        this.setTargeting(null);
+        this.commandDelete();
+        return;
       default:
-        break; // formation.*, subselect.*, unit.delete folgen in G3/G4
+        break; // subselect.* folgt in G4
     }
     const m = /^group\.(set|select|add|addExclusive|remove)\.(\d)$/.exec(action);
     if (m) {

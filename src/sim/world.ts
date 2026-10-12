@@ -84,6 +84,7 @@ export function spawnUnit(world: World, o: SpawnOptions): UnitState {
     lastHitTick: -1000,
     mods: upgradeMods(def, ages.weapon.type, o.upgrades ?? NO_UPGRADES),
     spawnGroup: o.spawnGroup ?? 0,
+    formation: 'line',
   };
   world.units.push(unit);
   return unit;

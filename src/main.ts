@@ -4,13 +4,15 @@ import type { DrillSummary } from './app/drill';
 import { EDITOR_SCENARIO_ID, loadEditorState, scenarioFromEditor } from './app/editor';
 import { buildEditorPanel } from './app/editorPanel';
 import { Game } from './app/game';
+import { Hud, UNIT_CODE, type GroupMarker, type SelectionCard } from './app/hud';
 import { attemptFromSummary, bestAttempt, getAttempts, isBetter, recordAttempt, type Attempt } from './app/history';
-import { HotkeyMap, loadKeyboardLayout } from './app/hotkeys';
+import { HotkeyMap, loadKeyboardLayout, type ActionId } from './app/hotkeys';
 import { importBundle, loadSettings, saveSettings, type DisplaySettings } from './app/settings';
 import { buildSettingsPanel } from './app/settingsPanel';
 import { SCENARIOS } from './data/scenarios/index';
 import { simulateBaseline, type BaselineResult } from './sim/baseline';
 import type { ScenarioDef } from './sim/scenario';
+import type { Formation, UnitId } from './sim/types';
 import type { RoundSummary } from './sim/stats';
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
@@ -31,87 +33,97 @@ function allScenarios(): ScenarioDef[] {
 const initialScenario = allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
 const game = new Game(canvas, glCanvas, defs, hotkeys, settings, effectiveRules(calibration), initialScenario);
 
-const scenarioName = $('scenario-name');
-const scenarioGoal = $('scenario-goal');
-const unverifiedHint = $('unverified-hint');
-const stats = $('stats');
-const selectionInfo = $('selection-info');
-const scenarioSelect = $<HTMLSelectElement>('scenario-select');
-const speedSelect = $<HTMLSelectElement>('speed-select');
-const randomStart = $<HTMLInputElement>('random-start');
-const btnPause = $<HTMLButtonElement>('btn-pause');
 const result = $('result');
 const settingsOverlay = $('settings');
 const editorOverlay = $('editor');
-const modeInfo = $('mode-info');
-const drillPrompt = $('drill-prompt');
 let keyboardLayout: Map<string, string> | undefined;
+
+const hud = new Hud($('hud'), {
+  onAction: (action: ActionId) => {
+    game.runAction(action, false);
+    canvas.focus();
+  },
+  onGroupClick: (n, double) => {
+    game.groupSelect(n, performance.now());
+    if (double) game.focusSelection();
+    refreshHud();
+    canvas.focus();
+  },
+  onMenu: (item) => {
+    switch (item) {
+      case 'settings':
+        openSettings();
+        return;
+      case 'restart':
+        result.hidden = true;
+        game.restart();
+        break;
+      case 'pause':
+        game.togglePause();
+        break;
+      case 'editor':
+        openEditor();
+        return;
+      case 'view':
+        game.setView(game.view === '3d' ? '2d' : '3d');
+        saveSettings(settings);
+        break;
+      case 'fullscreen':
+        void toggleFullscreen();
+        break;
+    }
+    canvas.focus();
+  },
+  onScenarioChange: (id) => {
+    if (id === '__editor__') {
+      openEditor();
+      hud.scenarioSelect.value = game.scenario.id;
+      return;
+    }
+    const sc = allScenarios().find((s) => s.id === id);
+    if (sc) selectScenario(sc);
+    canvas.focus();
+  },
+  onSpeedChange: (v) => {
+    settings.speed = v;
+    saveSettings(settings);
+    canvas.focus();
+  },
+  onRandomChange: (on) => {
+    settings.randomStart = on;
+    saveSettings(settings);
+    game.restart();
+    canvas.focus();
+  },
+});
 void loadKeyboardLayout().then((m) => {
   keyboardLayout = m;
+  hud.setKeyboardLayout(m);
+  refreshHud();
 });
+hud.setScale(settings.uiScale);
+game.minimapBox = () => hud.minimapBox();
+game.onActionTriggered = (a) => hud.flash(a);
 
 function fillScenarioSelect(): void {
-  scenarioSelect.replaceChildren();
-  for (const sc of allScenarios()) {
-    const opt = document.createElement('option');
-    opt.value = sc.id;
-    opt.textContent = sc.name;
-    scenarioSelect.appendChild(opt);
-  }
-  const edit = document.createElement('option');
-  edit.value = '__editor__';
-  edit.textContent = 'Editor öffnen …';
-  scenarioSelect.appendChild(edit);
-  scenarioSelect.value = game.scenario.id;
+  hud.fillScenarios(
+    allScenarios().map((sc) => ({ id: sc.id, name: sc.name })),
+    game.scenario.id,
+  );
 }
 fillScenarioSelect();
-speedSelect.value = String(settings.speed);
-randomStart.checked = settings.randomStart;
+hud.speedSelect.value = String(settings.speed);
+hud.randomStart.checked = settings.randomStart;
 
 function selectScenario(sc: ScenarioDef): void {
   settings.lastScenario = sc.id;
   saveSettings(settings);
   result.hidden = true;
   game.restart(sc);
-  scenarioSelect.value = sc.id;
+  hud.scenarioSelect.value = sc.id;
 }
-scenarioSelect.addEventListener('change', () => {
-  if (scenarioSelect.value === '__editor__') {
-    openEditor();
-    scenarioSelect.value = game.scenario.id;
-    return;
-  }
-  const sc = allScenarios().find((s) => s.id === scenarioSelect.value);
-  if (sc) selectScenario(sc);
-  canvas.focus();
-});
-const btnView = $<HTMLButtonElement>('btn-view');
-btnView.addEventListener('click', () => {
-  game.setView(game.view === '3d' ? '2d' : '3d');
-  saveSettings(settings);
-  canvas.focus();
-});
-$('btn-restart').addEventListener('click', () => {
-  result.hidden = true;
-  game.restart();
-  canvas.focus();
-});
-btnPause.addEventListener('click', () => {
-  game.togglePause();
-  canvas.focus();
-});
-speedSelect.addEventListener('change', () => {
-  settings.speed = Number(speedSelect.value);
-  saveSettings(settings);
-  canvas.focus();
-});
-randomStart.addEventListener('change', () => {
-  settings.randomStart = randomStart.checked;
-  saveSettings(settings);
-  game.restart();
-  canvas.focus();
-});
-$('btn-fullscreen').addEventListener('click', async () => {
+
+async function toggleFullscreen(): Promise<void> {
   const app = document.getElementById('app')!;
   try {
     if (!document.fullscreenElement) {
@@ -125,7 +137,7 @@ $('btn-fullscreen').addEventListener('click', async () => {
     /* Vollbild verweigert */
   }
   canvas.focus();
-});
+}
 
 // -------- Overlays
 function openOverlay(el: HTMLElement): void {
@@ -158,6 +170,8 @@ function rebuildSettingsPanel(): void {
       game.setShadows(settings.shadows);
       game.audio.enabled = settings.sound;
       game.audio.setVolume(settings.soundVolume);
+      hud.setScale(settings.uiScale);
+      game.resize();
       refreshHud();
     },
     onHotkeysChanged: () => refreshHud(),
@@ -186,7 +200,6 @@ function openSettings(): void {
   openOverlay(settingsOverlay);
 }
 game.onOpenSettings = openSettings;
-$('btn-settings').addEventListener('click', openSettings);
 $('settings-close').addEventListener('click', () => closeOverlay(settingsOverlay));
 
 // -------- Editor
@@ -199,7 +212,6 @@ function openEditor(): void {
   });
   openOverlay(editorOverlay);
 }
-$('btn-editor').addEventListener('click', openEditor);
 $('editor-close').addEventListener('click', () => closeOverlay(editorOverlay));
 window.addEventListener('keydown', (e) => {
   if (e.code !== 'Escape') return;
@@ -335,45 +347,130 @@ game.audio.setVolume(settings.soundVolume);
 game.onDrillFinished = showDrillResult;
 
 // -------- HUD
-function refreshDrill(): void {
+function drillText(): string | null {
   const d = game.drill;
-  if (!d) {
-    drillPrompt.hidden = true;
-    return;
-  }
+  if (!d) return null;
   const p = d.progress;
   if (d.phase === 'prompt' && d.current) {
-    drillPrompt.hidden = false;
     const step = d.currentStep;
     const stepHint = step ? ` · Schritt ${d.current.steps.indexOf(step) + 1}/${d.current.steps.length}` : '';
-    drillPrompt.textContent = `${p.done + 1}/${p.total}: ${d.current.label}${stepHint}`;
-  } else if (d.phase === 'waiting') {
-    drillPrompt.hidden = false;
-    drillPrompt.textContent = p.done === 0 ? 'Hotkey-Drill: gleich geht es los …' : `Aufgabe ${p.done}/${p.total} erledigt · nächste folgt …`;
-  } else drillPrompt.hidden = true;
+    return `${p.done + 1}/${p.total}: ${d.current.label}${stepHint}`;
+  }
+  if (d.phase === 'waiting') return p.done === 0 ? 'Hotkey-Drill: gleich geht es los …' : `Aufgabe ${p.done}/${p.total} erledigt · nächste folgt …`;
+  return null;
+}
+function refreshDrill(): void {
+  hud.setDrill(drillText());
 }
 game.onDrillChanged = refreshDrill;
 
-function refreshHud(): void {
-  scenarioName.textContent = game.scenario.name;
-  scenarioGoal.textContent = game.scenario.goal ?? game.scenario.description ?? '';
-  btnPause.textContent = game.paused ? 'Weiter' : 'Pause';
-  btnView.textContent = game.view === '3d' ? 'Ansicht: 3D' : 'Ansicht: 2D-Debug';
-  const deps = game.scenario.dependsOnUnverified ?? [];
-  const open = unverifiedPaths(calibration);
-  const missing = deps.filter((p) => open.includes(p));
-  unverifiedHint.hidden = missing.length === 0;
-  unverifiedHint.textContent = missing.length ? `Hinweis: Dieses Szenario hängt von unbestätigten Werten ab (${missing.join(', ')}). Ergebnisse sind erst nach Kalibrierung aussagekräftig.` : '';
+/** Feste Reihenfolge der Typen in Auswahl-Leiste und Gruppenmarken (wie im Spiel: Infanterie, Fernkampf, Kavallerie, Belagerung). */
+const TYPE_ORDER = ['spearman', 'man-at-arms', 'archer', 'crossbowman', 'horseman', 'knight', 'mangonel', 'springald'];
+function typeRank(defId: string): number {
+  const i = TYPE_ORDER.indexOf(defId);
+  return i < 0 ? 99 : i;
+}
+
+function cardsFor(ids: Iterable<UnitId>): { cards: SelectionCard[]; total: number } {
   const counts = new Map<string, number>();
+  let total = 0;
+  for (const id of ids) {
+    const u = game.world.units.find((x) => x.id === id);
+    if (!u || !u.alive) continue;
+    counts.set(u.defId, (counts.get(u.defId) ?? 0) + 1);
+    total++;
+  }
+  const cards = [...counts]
+    .sort((a, b) => typeRank(a[0]) - typeRank(b[0]))
+    .map(([defId, count]) => ({ defId, code: UNIT_CODE[defId] ?? defId.slice(0, 2).toUpperCase(), name: game.world.defs.get(defId).name, count }));
+  return { cards, total };
+}
+
+function refreshGroups(): void {
+  const markers: GroupMarker[] = [];
+  for (let n = 1; n <= 10; n++) {
+    const k = n % 10;
+    const ids = game.groups.get(k, game.world.units);
+    if (ids.length === 0) continue;
+    const { cards, total } = cardsFor(ids);
+    const lead = cards[0];
+    markers.push({ n: k, count: total, code: cards.length > 1 ? '+' : (lead?.code ?? '?'), label: cards.map((c) => `${c.count}× ${c.name}`).join(', ') });
+  }
+  hud.setGroups(markers);
+}
+
+function refreshGrid(): void {
+  let alive = 0;
+  let holding = 0;
+  const formations = new Map<Formation, number>();
   for (const id of game.selection) {
     const u = game.world.units.find((x) => x.id === id);
     if (!u || !u.alive) continue;
-    const name = game.world.defs.get(u.defId).name;
-    counts.set(name, (counts.get(name) ?? 0) + 1);
+    alive++;
+    if (u.orders[0]?.kind === 'hold') holding++;
+    formations.set(u.formation, (formations.get(u.formation) ?? 0) + 1);
   }
-  selectionInfo.textContent = counts.size === 0 ? 'Keine Auswahl' : [...counts].map(([n, c]) => `${c}× ${n}`).join(', ');
-  modeInfo.hidden = !game.targeting;
-  modeInfo.textContent = game.targeting === 'attackMove' ? 'Angriffsbewegung: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)' : game.targeting === 'patrol' ? 'Patrouille: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)' : '';
+  let formation: Formation | null = null;
+  let best = 0;
+  for (const [f, c] of formations) if (c > best) [formation, best] = [f, c];
+  hud.setGrid(game.hotkeys, { hasSelection: alive > 0, hold: alive > 0 && holding === alive, formation });
+}
+
+function refreshCounts(): void {
+  let mine = 0;
+  let theirs = 0;
+  let lostMine = 0;
+  let lostTheirs = 0;
+  let valueLost = 0;
+  let valueKilled = 0;
+  let age: number | null = null;
+  for (const u of game.world.units) {
+    const own = u.player === 0;
+    if (u.alive) {
+      if (own) {
+        mine++;
+        age ??= u.age;
+      } else theirs++;
+      continue;
+    }
+    const cost = game.world.defs.ageStats(u.defId, u.age).cost.total;
+    if (own) {
+      lostMine++;
+      valueLost += cost;
+    } else {
+      lostTheirs++;
+      valueKilled += cost;
+    }
+  }
+  let selected = 0;
+  for (const id of game.selection) if (game.world.units.find((x) => x.id === id)?.alive) selected++;
+  hud.setCounts({ mine, theirs, lostMine, lostTheirs, valueLost, valueKilled, selected });
+  hud.setTime(game.world.tick * game.world.dt, age ?? game.scenario.groups[0]?.age ?? null);
+}
+
+function refreshHud(): void {
+  const deps = game.scenario.dependsOnUnverified ?? [];
+  const open = unverifiedPaths(calibration);
+  const missing = deps.filter((p) => open.includes(p));
+  hud.setScenario(
+    game.scenario.name,
+    game.scenario.goal ?? game.scenario.description ?? '',
+    missing.length ? `Hinweis: Dieses Szenario hängt von unbestätigten Werten ab (${missing.join(', ')}). Ergebnisse sind erst nach Kalibrierung aussagekräftig.` : '',
+  );
+  hud.setPaused(game.paused);
+  hud.setView(game.view);
+  const { cards, total } = cardsFor(game.selection);
+  hud.setSelection(cards, total);
+  refreshGrid();
+  refreshGroups();
+  refreshCounts();
+  hud.setMode(
+    game.targeting === 'attackMove'
+      ? 'Angriffsbewegung: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)'
+      : game.targeting === 'patrol'
+        ? 'Patrouille: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)'
+        : null,
+  );
   refreshDrill();
 }
 game.onStateChanged = () => {
@@ -390,8 +487,13 @@ function loop(now: number): void {
   game.frame(now);
   if (now - lastStats > 250) {
     lastStats = now;
-    const s = game.stats;
-    stats.textContent = `${s.simTime.toFixed(1)} s · Einheiten ${s.mine} : ${s.theirs}${settings.showFps ? ` · ${Math.round(s.fps)} FPS` : ''}`;
+    refreshCounts();
+    hud.setFps(settings.showFps ? `${Math.round(game.stats.fps)} FPS` : '');
+    // Auswahl, Gruppen, Formations- und Halten-Zustand ändern sich auch ohne Eingabe (Einheiten sterben, Befehle enden)
+    const { cards, total } = cardsFor(game.selection);
+    hud.setSelection(cards, total);
+    refreshGroups();
+    refreshGrid();
   }
   if (game.drill && now - lastDrill > 100) {
     lastDrill = now;

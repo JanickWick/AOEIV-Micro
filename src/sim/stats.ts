@@ -230,6 +230,8 @@ function commandKey(c: Command): string {
       return `${c.kind}|${ids}|${Math.round(c.target.x * 2)}|${Math.round(c.target.y * 2)}|${c.queue ? 1 : 0}`;
     case 'attack':
       return `attack|${ids}|${c.targetId}|${c.queue ? 1 : 0}`;
+    case 'formation':
+      return `formation|${ids}|${c.formation}`;
     default:
       return `${c.kind}|${ids}`;
   }
