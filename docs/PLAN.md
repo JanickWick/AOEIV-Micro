@@ -88,9 +88,13 @@
 - Offen: Scroll-Geschwindigkeit als Einstellung (kommt mit M5-Einstellungen), deine Hotkey-
   Screenshots einarbeiten.
 
-### M4 – KI und Szenarien 2 bis 8
-- KI-Stufen Leicht/Mittel/Schwer mit einstellbarer Reaktionszeit, nur über normale Befehle.
-- Szenarien als JSON mit Siegbedingungen und Wertung.
+### M4 – erledigt
+- KI-Stufen leicht/mittel/schwer mit einstellbarer Reaktionszeit, nur über normale Befehle:
+  Zielwahl (Konter, Fokus), Kiten, Rückzug angeschlagener Einheiten, Ausweichen vor
+  Mangonel-Geschossen, Kavallerie umgeht Speere.
+- Szenarien 2 bis 8 (plus 3b Armbrust) als JSON mit Siegbedingung und Hinweis auf unbestätigte
+  Werte (5, 6, 7). Alle laufen ohne Spielereingriff deterministisch bis zum Ende (Test).
+- Wertung je Szenario (gerettete Einheiten, Kite-Effizienz usw.) kommt mit M5.
 
 ### M5 – Auswertung, Drill, Editor
 - Kampfstatistik (Verluste, Ressourcenwert, APM/eAPM, Kite-Effizienz, Overkill, Idle-Zeit,

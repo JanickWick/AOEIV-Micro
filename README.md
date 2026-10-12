@@ -109,6 +109,32 @@ ASSUMPTIONS.md      Alle Annahmen, bei denen das Tool vom echten Spiel abweicht 
 Die Darstellung interpoliert zwischen zwei Simulationsticks; Befehle werden im nächsten Tick
 (spätestens 16 ms) wirksam.
 
+## Szenarien
+
+| Nr. | Szenario | Aufstellung | KI |
+| --- | --- | --- | --- |
+| 1 | Kiten Grundlagen | 10 Bogen gegen 6 Speer (II) | leicht |
+| 2 | Kiten unter Druck | 8 Bogen + 4 Speer gegen 6 Reiter (II) | schwer |
+| 3 | Focus-Fire | 8 Bogen gegen 8 Bogen (II); Variante 3b: Armbrust (III) | mittel |
+| 4 | Angeschlagene zurückziehen | 8 Soldaten gegen 8 Soldaten (III) | mittel |
+| 5 | Mangonel ausweichen / splitten | 10 Bogen gegen 2 Mangonel + 4 Speer (III) | schwer |
+| 6 | Ritter-Dive abwehren | 8 Bogen + 6 Speer gegen 5 Ritter (III) | schwer |
+| 7 | Springald-Snipe | 2 Springald + 4 Reiter gegen 2 Mangonel + 6 Speer (III) | mittel |
+| 8 | Zwei-Gruppen-Micro | 8 Bogen + 4 Reiter gegen 6 Speer + 4 Bogen (II) | mittel |
+| – | Sandbox | 10 Bogen + 4 Reiter gegen 6 passive Speer | keine |
+
+Szenarien liegen als JSON in `src/data/scenarios/` (Gruppen mit Einheit, Zeitalter, Anzahl,
+Mittelpunkt, Blickrichtung; KI-Stufe und Reaktionszeit; `dependsOnUnverified` für den Hinweis
+auf unbestätigte Werte). Jedes Szenario: Neustart per F4, Tempo 50/75/100 %, Zufallsstart.
+
+KI-Stufen (alle nur über normale Befehle, Reaktionszeit einstellbar pro Szenario):
+
+- leicht: Attack-Move auf die Spielertruppe.
+- mittel: Konter-Ziele zuerst, fokussiert angeschlagene Ziele, Mangonels zielen auf Gruppen,
+  zieht nie zurück.
+- schwer: zusätzlich kiten mit Schützen, angeschlagene Einheiten zurückziehen, Mangonel-
+  Geschossen ausweichen, Kavallerie umgeht Speerkämpfer Richtung Schützen.
+
 ## Einheitendaten
 
 Alle Werte stammen aus den offenen Daten von aoe4world (`https://data.aoe4world.com/units/all.json`).
@@ -133,5 +159,5 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
       Abwehrstellung), leichte KI, Kalibrierungsmenü, Szenario 1 spielbar
 - [x] M3: Kontrollgruppen, Befehlsketten, Attack-Move/Stopp/Halten/Patrouille, Formation ausrichten,
       Hotkey-Menü mit AoE4-Preset, Pointer-Lock
-- [ ] M4: Gegner-KI in 3 Stufen, Szenarien 2 bis 8
+- [x] M4: Gegner-KI in 3 Stufen, Szenarien 2 bis 8
 - [ ] M5: Auswertung, Verlauf, Hotkey-Drill, Editor

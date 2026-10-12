@@ -1,0 +1,16 @@
+{
+  "id": "kiten-unter-druck",
+  "name": "2 · Kiten unter Druck",
+  "description": "8 Bogenschützen und 4 Speerkämpfer (du) gegen 6 Reiter (Zeitalter II). Reiter sind schneller als deine Schützen (1,875 gegen 1,25 Tiles/s): Kiten allein reicht nicht.",
+  "goal": "Speerkämpfer zwischen Reiter und Schützen stellen, Schützen hinter den Speeren kiten. Die KI versucht, die Speere zu umgehen.",
+  "map": { "width": 64, "height": 48 },
+  "seed": 2,
+  "randomOffset": 5,
+  "victory": "annihilation",
+  "ai": { "level": "hard", "reactionMs": 350 },
+  "groups": [
+    { "player": 0, "unit": "archer", "age": 2, "count": 8, "center": { "x": 22, "y": 24 }, "facing": 0 },
+    { "player": 0, "unit": "spearman", "age": 2, "count": 4, "center": { "x": 26, "y": 24 }, "facing": 0 },
+    { "player": 1, "unit": "horseman", "age": 2, "count": 6, "center": { "x": 44, "y": 24 }, "facing": 180 }
+  ]
+}

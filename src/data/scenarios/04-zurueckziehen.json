@@ -1,0 +1,15 @@
+{
+  "id": "zurueckziehen",
+  "name": "4 · Angeschlagene zurückziehen",
+  "description": "8 Soldaten gegen 8 Soldaten (Zeitalter III). Reines Nahkampf-Gefecht; die KI fokussiert angeschlagene Einheiten, zieht aber selbst nie zurück.",
+  "goal": "Angeschlagene Einheiten rechtzeitig aus der Front ziehen (hinter die eigene Linie), damit sie überleben; die Wertung zählt gerettete Einheiten.",
+  "map": { "width": 64, "height": 48 },
+  "seed": 4,
+  "randomOffset": 3,
+  "victory": "annihilation",
+  "ai": { "level": "medium", "reactionMs": 500 },
+  "groups": [
+    { "player": 0, "unit": "man-at-arms", "age": 3, "count": 8, "center": { "x": 28, "y": 24 }, "facing": 0 },
+    { "player": 1, "unit": "man-at-arms", "age": 3, "count": 8, "center": { "x": 36, "y": 24 }, "facing": 180 }
+  ]
+}

@@ -75,6 +75,26 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
     Reichweite), weil 10 Bogenschützen 6 Speerkämpfer aus großer Entfernung auch ohne Micro
     verlustfrei besiegen.
 
+## Gegner-KI
+
+42. (A) KI mittel/schwer bewertet Ziele nach Konter-Bonus, Anteil fehlender HP, bereits
+    fokussierenden Verbündeten und Nähe; Kavallerie bevorzugt Schützen und meidet Speerkämpfer.
+    Mangonels zielen auf die Einheit mit den meisten Gegnern im Flächenradius.
+43. (A) KI schwer kitet, wenn ein Nahkämpfer näher als 60 % der Waffenreichweite + 1 Tile ist und
+    die Abklingzeit noch länger als 0,3 s läuft; weicht 2,5 Tiles zurück.
+44. (A) KI schwer zieht Einheiten unter 35 % HP zurück, wenn ein Nahkämpfer näher als 4,5 Tiles
+    ist (7 Tiles weg vom Bedroher).
+45. (A) KI schwer weicht Geschossen aus, sobald das Geschoss in der Luft ist (mittlerer
+    Einschlagpunkt aller anfliegenden Geschosse, Flächenradius + 1,5 Tiles). Mit den
+    Platzhalterwerten (6 Tiles/s) schafft das nur, wer mindestens ~1,2 s Flugzeit hat, also
+    Kavallerie oder Ziele am Rand der Reichweite. Nach der Kalibrierung neu bewerten.
+46. (A) Kavallerie der KI schwer legt einen Wegpunkt 4,5 Tiles seitlich an Speerkämpfern vorbei,
+    die näher als 2,5 Tiles an der direkten Linie zum Ziel stehen; ohne Wegfindung bleibt das
+    eine Näherung.
+47. (A) Szenario-Aufstellungen (Anzahl, Abstände, Zeitalter) sind meine Wahl nach der
+    Spezifikation; Szenario 5 und 7 geben Mangonels Speerkämpfer als Schutz, damit "splitten"
+    und "an den Speeren vorbei" trainiert werden.
+
 ## Bewegung und Formation
 
 11. (A) Gemischte Gruppen laufen mit dem Tempo der langsamsten Einheit (Regel
