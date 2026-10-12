@@ -11,6 +11,10 @@ export type MenuItem = 'settings' | 'restart' | 'pause' | 'editor' | 'view' | 'f
 
 export interface HudCallbacks {
   onAction(action: ActionId): void;
+  /** Klick auf eine Typ-Karte der Auswahl-Leiste (mit gedrückten Zusatztasten). */
+  onCardClick(defId: string, mods: { shift: boolean; ctrl: boolean }): void;
+  /** Klick auf "ALLE": Untergruppe aufheben. */
+  onAllClick(): void;
   onGroupClick(n: number, double: boolean): void;
   onMenu(item: MenuItem): void;
   onScenarioChange(id: string): void;
@@ -39,16 +43,25 @@ export interface SelectionCard {
   count: number;
 }
 
-export const UNIT_CODE: Record<string, string> = {
-  spearman: 'S',
-  archer: 'A',
-  'man-at-arms': 'M',
-  horseman: 'H',
-  knight: 'K',
-  crossbowman: 'X',
-  mangonel: 'Mg',
-  springald: 'Sp',
-};
+/** Einzelansicht eines Typs (bei nur einem Typ in der Auswahl oder aktiver Untergruppe). */
+export interface UnitDetail {
+  defId: string;
+  code: string;
+  name: string;
+  count: number;
+  age: number;
+  hp: number;
+  hpMax: number;
+  damage: number;
+  weaponType: string;
+  armorMelee: number;
+  armorRanged: number;
+  rangeMin: number;
+  rangeMax: number;
+  speed: number;
+}
+
+export { UNIT_CODE } from './subgroups';
 
 const ICONS: Record<string, string> = {
   attackMove: '<path d="M4 20 L17 7"/><path d="M14 4 L20 10"/><path d="M15 9 L13 11"/><path d="M4 20 L7 17"/>',
@@ -66,6 +79,11 @@ const ICONS: Record<string, string> = {
   editor: '<path d="M4 20 L8 19 L19 8 L16 5 L5 16 Z"/><path d="M14 7 L17 10"/>',
   view: '<path d="M12 3 L21 8 V16 L12 21 L3 16 V8 Z"/><path d="M12 12 L21 8 M12 12 V21 M12 12 L3 8"/>',
   fullscreen: '<path d="M4 9 V4 H9 M15 4 H20 V9 M20 15 V20 H15 M9 20 H4 V15"/>',
+  hp: '<path d="M12 20 C5 14 3 10 5 7 C7 4 11 5 12 8 C13 5 17 4 19 7 C21 10 19 14 12 20 Z"/>',
+  attack: '<path d="M5 19 L16 8"/><path d="M13 5 L19 11"/><path d="M4 16 L8 20"/><path d="M15 7 L17 9"/>',
+  armor: '<path d="M12 3 L19 6 V12 C19 16 16 19 12 21 C8 19 5 16 5 12 V6 Z"/>',
+  range: '<path d="M6 4 C12 8 12 16 6 20"/><path d="M6 4 L6 20"/><path d="M8 12 H20"/><path d="M17 9 L20 12 L17 15"/>',
+  speed: '<path d="M4 12 H14"/><path d="M6 8 H16"/><path d="M6 16 H16"/><path d="M15 6 L20 12 L15 18"/>',
 };
 
 function svg(name: string, size = 24): string {
@@ -118,6 +136,8 @@ export class Hud {
   private groups: HTMLElement;
   private counts: Record<string, HTMLElement> = {};
   private selectionBar: HTMLElement;
+  private selectionCards: HTMLElement;
+  private selectionDetail: HTMLElement;
   private gridCells = new Map<ActionId, HTMLElement>();
   private gridRoot: HTMLElement;
   private modeInfo: HTMLElement;
@@ -132,6 +152,7 @@ export class Hud {
   private lastGroupClick = { n: -1, at: 0 };
   private groupsSig = '';
   private selectionSig = '';
+  private detailSig = '';
 
   constructor(root: HTMLElement, private cb: HudCallbacks) {
     this.root = root;
@@ -213,6 +234,10 @@ export class Hud {
     this.counts.selected = sel.querySelector('#hud-selected') as HTMLElement;
     info.append(rows);
     this.selectionBar = el('div', 'panel hud-selection');
+    this.selectionCards = el('div', 'sel-cards');
+    this.selectionDetail = el('div', 'sel-detail');
+    this.selectionDetail.hidden = true;
+    this.selectionBar.append(this.selectionCards, this.selectionDetail);
     this.gridRoot = el('div', 'panel hud-grid');
     for (const row of GRID) {
       for (const cell of row) {
@@ -327,23 +352,46 @@ export class Hud {
     }
   }
 
-  setSelection(cards: SelectionCard[], total: number): void {
-    const sig = `${total}|${cards.map((c) => `${c.defId}:${c.count}`).join('|')}`;
-    if (sig === this.selectionSig) return;
-    this.selectionSig = sig;
-    this.selectionBar.replaceChildren();
-    if (total === 0) {
-      this.selectionBar.append(el('div', 'sel-empty', 'Keine Auswahl'));
-      return;
+  setSelection(cards: SelectionCard[], total: number, active: string | null, detail: UnitDetail | null): void {
+    const sig = `${total}|${active ?? ''}|${cards.map((c) => `${c.defId}:${c.count}`).join('|')}`;
+    if (sig !== this.selectionSig) {
+      this.selectionSig = sig;
+      this.selectionCards.replaceChildren();
+      if (total === 0) {
+        this.selectionCards.append(el('div', 'sel-empty', 'Keine Auswahl'));
+      } else {
+        const all = el('button', `sel-all${active === null ? ' active' : ''}`, `ALLE (${total})`);
+        all.title = 'Alle ausgewählten Einheiten (Tab wechselt die Untergruppe)';
+        all.addEventListener('click', () => this.cb.onAllClick());
+        this.selectionCards.append(all);
+        for (const c of cards) {
+          const card = el('button', `sel-card${active === c.defId ? ' active' : ''}`);
+          card.innerHTML = `<span class="cnt">${c.count}</span><span class="code">${c.code}</span>`;
+          card.title = `${c.count}× ${c.name} – Klick: nur diesen Typ, Shift/Strg+Klick: Typ entfernen`;
+          card.addEventListener('click', (e) => this.cb.onCardClick(c.defId, { shift: e.shiftKey, ctrl: e.ctrlKey || e.metaKey }));
+          this.selectionCards.append(card);
+        }
+      }
     }
-    const all = el('button', 'sel-all active', `ALLE (${total})`);
-    this.selectionBar.append(all);
-    for (const c of cards) {
-      const card = el('button', 'sel-card');
-      card.innerHTML = `<span class="cnt">${c.count}</span><span class="code">${c.code}</span>`;
-      card.title = `${c.count}× ${c.name}`;
-      this.selectionBar.append(card);
+    this.selectionDetail.hidden = !detail;
+    if (!detail) return;
+    const d = detail;
+    const sig2 = `${d.defId}:${d.count}:${d.age}:${d.damage}:${d.armorMelee}:${d.armorRanged}`;
+    if (sig2 !== this.detailSig) {
+      this.detailSig = sig2;
+      this.selectionDetail.innerHTML = `
+        <div class="portrait"><span class="code">${d.code}</span></div>
+        <div class="dname"><span class="n"></span><span class="age">Zeitalter ${['', 'I', 'II', 'III', 'IV'][d.age] ?? d.age}</span></div>
+        <div class="dstats">
+          <span class="st hp" title="Lebenspunkte (Summe der Auswahl / Maximum)">${svg('hp', 14)}<b class="hp"></b></span>
+          <span class="st" title="Angriff (${d.weaponType === 'melee' ? 'Nahkampf' : d.weaponType === 'ranged' ? 'Fernkampf' : 'Belagerung'})">${svg('attack', 14)}<b>${d.damage}</b></span>
+          <span class="st" title="Rüstung Nahkampf / Fernkampf">${svg('armor', 14)}<b>${d.armorMelee} / ${d.armorRanged}</b></span>
+          <span class="st" title="Reichweite (Tiles)">${svg('range', 14)}<b>${d.rangeMax.toFixed(1)}${d.rangeMin > 0 ? ` (min ${d.rangeMin.toFixed(1)})` : ''}</b></span>
+          <span class="st" title="Tempo (Tiles/s)">${svg('speed', 14)}<b>${d.speed.toFixed(2)}</b></span>
+        </div>`;
     }
+    (this.selectionDetail.querySelector('.n') as HTMLElement).textContent = d.count > 1 ? `${d.count}× ${d.name}` : d.name;
+    (this.selectionDetail.querySelector('b.hp') as HTMLElement).textContent = `${Math.ceil(d.hp)} / ${d.hpMax}`;
   }
 
   /** Tastenbeschriftung und Zustände des Rasters aus der aktuellen Hotkey-Einstellung. */

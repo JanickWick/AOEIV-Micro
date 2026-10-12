@@ -191,12 +191,16 @@
 - Offen: echte Formationsabstände des Spiels (nicht gemessen), Verschanzen ohne Funktion, Y/Z-
   Beschriftung ohne Keyboard-API nur per Sprach-Heuristik.
 
-### G4 – Auswahl-Leiste, Formationen, Untergruppen-Drill
-- "ALLE (n)" + Typ-Karten in fester Reihenfolge, Einzelansicht mit Werten, Tab/Strg+Tab (laut
-  Spieldatei), aktive Untergruppe für Rasterbefehle, Klick/Shift/Strg auf Karten einstellbar.
-- Formationen Linie / versetzt / aufgelockert mit echter Wirkung (Abstände kalibrierbar).
-- Untergruppen-Drill; Tests für Tab-Reihenfolge, Entfernen, Sterben der aktiven Untergruppe,
-  Kontrollgruppen-Zusammensetzung.
+### G4 – erledigt
+- `src/app/subgroups.ts` (rein, getestet): Typ-Karten in fester Reihenfolge, Tab/Strg+Tab-Zyklus
+  über "Alle", Befehlsziele = aktive Untergruppe, nur Typ / Typ entfernen, Rückfall auf "Alle".
+- HUD: aktive Karte hervorgehoben, Klick = nur Typ, Shift/Strg-Klick = entfernen (Taste in den
+  Einstellungen), Einzelansicht mit Porträt-Kachel und Werten (laufend aktualisiert).
+- Drill-Schritte `subgroup`, `removeType`, Befehle mit `onlyType`; Szenario 10 Untergruppen-Drill.
+- Tests: Tab-Reihenfolge, Typ entfernen, Sterben der aktiven Untergruppe, Kontrollgruppen behalten
+  die Zusammensetzung, Drill-Schritte (richtige/falsche Untergruppe).
+- Offen: Formationsabstände nicht kalibrierbar im Menü (Spielwerte unbekannt), Reihenfolge der
+  Typ-Karten im Spiel nicht belegt.
 
 ### G5 – Feinschliff
 - 200 Einheiten bei 60 FPS (Instancing, FPS-Anzeige), Vergleich mit Screenshots, Abweichungsliste.

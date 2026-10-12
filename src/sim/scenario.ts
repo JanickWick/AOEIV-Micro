@@ -39,7 +39,7 @@ export interface ScenarioDef {
   /** 'battle' (Standard) oder 'drill' (Hotkey-Drill ohne Kampf). */
   kind?: 'battle' | 'drill';
   /** Hotkey-Drill: Anzahl Aufgaben; Szenario-Gruppen werden den Kontrollgruppen 1..n zugewiesen. */
-  drill?: { tasks: number };
+  drill?: { tasks: number; mode?: 'groups' | 'subgroups' };
   groups: ScenarioGroup[];
 }
 

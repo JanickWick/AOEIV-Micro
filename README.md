@@ -61,8 +61,7 @@ Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spi
   zentriert die Kamera.
 - Unten links Zähler statt Ressourcen: ausgewählte, eigene und gegnerische Einheiten, Verluste
   und Ressourcenwert (verloren / vernichtet).
-- Unten Mitte die Auswahl-Leiste ("ALLE (n)" plus Typ-Karten; Untergruppen folgen in G4) und das
-  Befehlsraster 5×3: Reihe 2 Angriffsbewegung, Stopp, Patrouille, Verschanzen (ohne Funktion),
+- Unten Mitte die Auswahl-Leiste und das Befehlsraster 5×3: Reihe 2 Angriffsbewegung, Stopp, Patrouille, Verschanzen (ohne Funktion),
   Reihe 3 Formation Linie / versetzt / aufgelockert, Stellung halten, Löschen. Die Beschriftung
   kommt aus der aktuellen Hotkey-Einstellung (A S D, Z X C V ENTF mit "Mein Layout"), Zellen sind
   klickbar, blitzen bei Taste oder Klick auf und zeigen beim Überfahren Name und Taste. Aktive
@@ -73,6 +72,22 @@ Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spi
 Formationen wirken auf die Abstände beim nächsten Bewegungsbefehl (versetzt = Reihen um den halben
 Abstand verschoben, aufgelockert = größerer Abstand); Löschen tötet die Auswahl sofort und zählt
 als Verlust.
+
+### Auswahl-Leiste und Untergruppen (G4)
+
+Die Leiste zeigt "ALLE (n)" und eine Karte je Einheitentyp in fester Reihenfolge (Speerkämpfer,
+Soldat, Bogenschütze, Armbrustschütze, Reiter, Ritter, Mangonel, Springald). Tab wählt die nächste
+Untergruppe, Strg+Tab die vorige (Zyklus über "Alle"); die aktive Karte ist gold umrandet und alle
+Befehle (Raster, Tasten, Rechtsklick) gehen nur an diese Einheiten. Klick auf eine Karte behält nur
+diesen Typ, Shift- oder Strg-Klick entfernt ihn (Taste in den Einstellungen wählbar), Klick auf
+"ALLE" hebt die Untergruppe auf. Bei einem Typ oder aktiver Untergruppe erscheint die Einzelansicht
+mit Porträt-Kachel, Name, Zeitalter, Lebenspunkten (Summe / Maximum), Angriff, Rüstung
+Nahkampf/Fernkampf, Reichweite und Tempo; sie wird laufend aktualisiert. Stirbt der aktive Typ
+vollständig, fällt die Auswahl auf "Alle" zurück; Kontrollgruppen behalten ihre Zusammensetzung.
+Szenario 10 ist der Untergruppen-Drill: Ansagen wie "Alle auswählen, Untergruppe Bogenschützen
+(Tab), Attack-Move auf den Marker"; ein Befehl zählt nur, wenn genau die verlangten Einheiten ihn
+bekommen. Tests in `tests/subgroups.test.ts` (Tab-Reihenfolge, Typ entfernen, Sterben der aktiven
+Untergruppe, Kontrollgruppen-Zusammensetzung, Drill-Schritte).
 
 ## Steuerung
 
@@ -91,6 +106,8 @@ als Verlust.
 | V | Position halten (Shift = einreihen) |
 | Z / X / C | Formation Linie / versetzt / aufgelockert |
 | ENTF | Ausgewählte eigene Einheiten löschen |
+| Tab / Strg + Tab | Untergruppe (Einheitentyp) der Auswahl weiter / zurück; Befehle gehen dann nur an diese |
+| Klick auf Typ-Karte | Nur diesen Typ behalten; Shift/Strg + Klick: Typ aus der Auswahl entfernen |
 | Strg + 0–9 | Kontrollgruppe auf die aktuelle Auswahl setzen (alle anderen fallen raus) |
 | Shift + 0–9 | Auswahl zur Kontrollgruppe hinzufügen |
 | Strg + Shift + 0–9 | Auswahl exklusiv in die Gruppe (aus allen anderen entfernen) |
@@ -179,6 +196,7 @@ Die Darstellung interpoliert zwischen zwei Simulationsticks; Befehle werden im n
 | 7 | Springald-Snipe | 2 Springald + 4 Reiter gegen 2 Mangonel + 6 Speer (III) | mittel |
 | 8 | Zwei-Gruppen-Micro | 8 Bogen + 4 Reiter gegen 6 Speer + 4 Bogen (II) | mittel |
 | 9 | Hotkey-Drill (ohne Kampf) | 3 vorbelegte Kontrollgruppen, 20 Ansagen auf Zeit | keine |
+| 10 | Untergruppen-Drill (ohne Kampf) | Gemischte Truppe, Ansagen mit Tab-Untergruppen und Karten-Klicks auf Zeit | keine |
 | – | Sandbox | 10 Bogen + 4 Reiter gegen 6 passive Speer | keine |
 | – | Editor | frei: Einheiten, Zeitalter, Anzahl, Upgrades, KI, Abstand | wählbar |
 
@@ -252,5 +270,5 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 - [x] G1: Three.js-Renderer mit geneigter Kamera, Gelände, Deko mit Kollision, Raycast-Eingabe, 2D-Debug-Ansicht
 - [x] G2: Prozedurale Figuren mit Gelenken, sim-gesteuerte Animationen, Projektile, Effekte, Ton
 - [x] G3: HUD nach AoE4-Vorbild (Paneele, Befehlsraster mit Tastenbeschriftung, Gruppen-Marken, Minimap-Raute, Formationen, Löschen)
-- [ ] G4: Auswahl-Leiste mit Untergruppen, Formationen, Untergruppen-Drill
+- [x] G4: Auswahl-Leiste mit Untergruppen (Tab/Strg+Tab, Karten-Klicks, Einzelansicht), Untergruppen-Drill, Tests
 - [ ] G5: Feinschliff, Leistung, Vergleich mit den Screenshots

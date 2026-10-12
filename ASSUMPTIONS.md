@@ -231,3 +231,26 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
 41. (V) Pointer-Lock zeichnet einen eigenen Mauszeiger; Browser geben ihn mit Esc frei, der
     nächste Klick ins Spielfeld sperrt wieder.
 22. (V) Spieltempo 50/75/100 % skaliert die Simulationszeit, nicht den Takt.
+
+## Auswahl-Leiste und Untergruppen (G4)
+
+78. (A) Typ-Karten in fester Reihenfolge Speerkämpfer, Soldat, Bogenschütze, Armbrustschütze,
+    Reiter, Ritter, Mangonel, Springald (Infanterie, Fernkampf, Kavallerie, Belagerung), unabhängig
+    von der Auswahlreihenfolge. Die Reihenfolge des Spiels ist nicht aus den Unterlagen belegt.
+79. (V) Tab = nächste Untergruppe, Strg+Tab = vorige (aus der Hotkey-Datei). Der Zyklus enthält
+    "Alle": Alle → erster Typ → … → letzter Typ → Alle. Bei nur einem Typ bleibt Tab wirkungslos.
+    Ob das Spiel "Alle" im Zyklus hat, ist nicht geprüft.
+80. (A) Befehle (Raster, Tasten, Rechtsklick) gehen an die aktive Untergruppe; Kontrollgruppen
+    (Strg/Shift+Zahl) werden dagegen aus der ganzen Auswahl gesetzt. Jede Auswahländerung setzt
+    die Untergruppe auf "Alle" zurück; stirbt der aktive Typ vollständig, ebenfalls.
+81. (V) Karten-Klick ohne Taste = nur diesen Typ behalten; mit Shift oder Strg (einstellbar:
+    Shift, Strg oder beides) = Typ aus der Auswahl entfernen. Klick auf "ALLE" hebt die
+    Untergruppe auf. Kontrollgruppen behalten ihre Zusammensetzung, auch wenn die Auswahl Typen
+    verliert.
+82. (A) Einzelansicht (ein Typ in der Auswahl oder aktive Untergruppe): Porträt als Kürzel-Kachel
+    (keine Spielgrafik), Name, Zeitalter, Lebenspunkte als Summe der Auswahl / Maximum, Angriff,
+    Rüstung Nahkampf/Fernkampf (inkl. Schmiede-Upgrades), Reichweite, Tempo.
+83. (A) Untergruppen-Drill (Szenario 10): jede Aufgabe beginnt mit "Alle auswählen"; ein Befehl
+    zählt nur, wenn genau die Einheiten des verlangten Typs ihn bekommen. Typnamen deutsch
+    (eigene Tabelle), da die Datendateien englische Namen führen.
+

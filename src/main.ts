@@ -4,7 +4,8 @@ import type { DrillSummary } from './app/drill';
 import { EDITOR_SCENARIO_ID, loadEditorState, scenarioFromEditor } from './app/editor';
 import { buildEditorPanel } from './app/editorPanel';
 import { Game } from './app/game';
-import { Hud, UNIT_CODE, type GroupMarker, type SelectionCard } from './app/hud';
+import { Hud, type GroupMarker, type SelectionCard, type UnitDetail } from './app/hud';
+import { subgroupsOf, unitCode, unitName } from './app/subgroups';
 import { attemptFromSummary, bestAttempt, getAttempts, isBetter, recordAttempt, type Attempt } from './app/history';
 import { HotkeyMap, loadKeyboardLayout, type ActionId } from './app/hotkeys';
 import { importBundle, loadSettings, saveSettings, type DisplaySettings } from './app/settings';
@@ -41,6 +42,17 @@ let keyboardLayout: Map<string, string> | undefined;
 const hud = new Hud($('hud'), {
   onAction: (action: ActionId) => {
     game.runAction(action, false);
+    canvas.focus();
+  },
+  onCardClick: (defId, mods) => {
+    const m = settings.cardRemoveModifier;
+    const remove = (mods.shift && m !== 'ctrl') || (mods.ctrl && m !== 'shift');
+    if (remove) game.selectionRemoveType(defId);
+    else game.selectionOnlyType(defId);
+    canvas.focus();
+  },
+  onAllClick: () => {
+    game.setActiveSubgroup(null);
     canvas.focus();
   },
   onGroupClick: (n, double) => {
@@ -364,26 +376,48 @@ function refreshDrill(): void {
 }
 game.onDrillChanged = refreshDrill;
 
-/** Feste Reihenfolge der Typen in Auswahl-Leiste und Gruppenmarken (wie im Spiel: Infanterie, Fernkampf, Kavallerie, Belagerung). */
-const TYPE_ORDER = ['spearman', 'man-at-arms', 'archer', 'crossbowman', 'horseman', 'knight', 'mangonel', 'springald'];
-function typeRank(defId: string): number {
-  const i = TYPE_ORDER.indexOf(defId);
-  return i < 0 ? 99 : i;
+function cardsFor(ids: Iterable<UnitId>): { cards: SelectionCard[]; total: number } {
+  const groups = subgroupsOf(game.world.units, ids);
+  const cards = groups.map((g) => ({ defId: g.defId, code: unitCode(g.defId), name: unitName(g.defId, game.world.defs.get(g.defId).name), count: g.ids.length }));
+  return { cards, total: groups.reduce((n, g) => n + g.ids.length, 0) };
 }
 
-function cardsFor(ids: Iterable<UnitId>): { cards: SelectionCard[]; total: number } {
-  const counts = new Map<string, number>();
-  let total = 0;
-  for (const id of ids) {
-    const u = game.world.units.find((x) => x.id === id);
-    if (!u || !u.alive) continue;
-    counts.set(u.defId, (counts.get(u.defId) ?? 0) + 1);
-    total++;
+/** Einzelansicht: bei aktiver Untergruppe oder nur einem Typ in der Auswahl. */
+function detailFor(ids: Iterable<UnitId>, active: string | null): UnitDetail | null {
+  const groups = subgroupsOf(game.world.units, ids);
+  const g = active ? groups.find((x) => x.defId === active) : groups.length === 1 ? groups[0] : undefined;
+  if (!g) return null;
+  const units = g.ids.map((id) => game.world.units[id - 1]!);
+  const first = units[0]!;
+  const def = game.world.defs.get(g.defId);
+  const st = game.world.defs.ageStats(g.defId, first.age);
+  let hp = 0;
+  let hpMax = 0;
+  for (const u of units) {
+    hp += u.hp;
+    hpMax += game.world.defs.ageStats(u.defId, u.age).hp;
   }
-  const cards = [...counts]
-    .sort((a, b) => typeRank(a[0]) - typeRank(b[0]))
-    .map(([defId, count]) => ({ defId, code: UNIT_CODE[defId] ?? defId.slice(0, 2).toUpperCase(), name: game.world.defs.get(defId).name, count }));
-  return { cards, total };
+  return {
+    defId: g.defId,
+    code: unitCode(g.defId),
+    name: unitName(g.defId, def.name),
+    count: units.length,
+    age: first.age,
+    hp,
+    hpMax,
+    damage: st.weapon.damage + first.mods.damage,
+    weaponType: st.weapon.type,
+    armorMelee: st.armor.melee + first.mods.meleeArmor,
+    armorRanged: st.armor.ranged + first.mods.rangedArmor,
+    rangeMin: st.weapon.range.min,
+    rangeMax: st.weapon.range.max,
+    speed: def.movement.speed,
+  };
+}
+
+function refreshSelection(): void {
+  const { cards, total } = cardsFor(game.selection);
+  hud.setSelection(cards, total, game.activeSubgroup, detailFor(game.selection, game.activeSubgroup));
 }
 
 function refreshGroups(): void {
@@ -403,7 +437,7 @@ function refreshGrid(): void {
   let alive = 0;
   let holding = 0;
   const formations = new Map<Formation, number>();
-  for (const id of game.selection) {
+  for (const id of game.commandIds()) {
     const u = game.world.units.find((x) => x.id === id);
     if (!u || !u.alive) continue;
     alive++;
@@ -459,8 +493,7 @@ function refreshHud(): void {
   );
   hud.setPaused(game.paused);
   hud.setView(game.view);
-  const { cards, total } = cardsFor(game.selection);
-  hud.setSelection(cards, total);
+  refreshSelection();
   refreshGrid();
   refreshGroups();
   refreshCounts();
@@ -490,8 +523,7 @@ function loop(now: number): void {
     refreshCounts();
     hud.setFps(settings.showFps ? `${Math.round(game.stats.fps)} FPS` : '');
     // Auswahl, Gruppen, Formations- und Halten-Zustand ändern sich auch ohne Eingabe (Einheiten sterben, Befehle enden)
-    const { cards, total } = cardsFor(game.selection);
-    hud.setSelection(cards, total);
+    refreshSelection();
     refreshGroups();
     refreshGrid();
   }

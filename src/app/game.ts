@@ -18,6 +18,7 @@ import { GameAudio } from './audio';
 import { HotkeyMap, type ActionId } from './hotkeys';
 import { computeMinimapLayout, minimapContains, minimapScreenToWorld, type MinimapLayout } from './minimap';
 import { render, type Marker } from './renderer';
+import { commandTargets, cycleSubgroup, onlyType, removeType, resolveActive, subgroupsOf, unitName } from './subgroups';
 import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitAtScreenPoint, unitsInScreenRect, unitsOfTypeInRect, type Rect } from './selection';
 import type { DisplaySettings } from './settings';
 import { RoundStats, type InputAction, type RoundSummary } from '../sim/stats';
@@ -57,6 +58,8 @@ export class Game {
   private frameEvents: import('../sim/types').SimEvent[] = [];
   view: '2d' | '3d';
   selection = new Set<UnitId>();
+  /** Aktive Untergruppe der Auswahl (Einheitentyp) oder null = alle. */
+  activeSubgroup: string | null = null;
   readonly groups = new ControlGroups();
   private pending: Command[] = [];
   private markers: Marker[] = [];
@@ -193,11 +196,15 @@ export class Game {
     if (sc.kind === 'drill') {
       // Szenario-Gruppen werden den Kontrollgruppen 1..n zugewiesen.
       const groupCount = sc.groups.length;
-      for (let g = 0; g < groupCount; g++) {
-        this.groups.set(g + 1, mine.filter((u) => u.spawnGroup === g).map((u) => u.id));
+      if (sc.drill?.mode !== 'subgroups') {
+        for (let g = 0; g < groupCount; g++) {
+          this.groups.set(g + 1, mine.filter((u) => u.spawnGroup === g).map((u) => u.id));
+        }
       }
       const c = centroid(mine.map((u) => u.pos));
-      this.drill = new Drill(this.world.rng, sc.drill?.tasks ?? 20, Array.from({ length: groupCount }, (_, i) => i + 1), { center: c, radius: 9 }, performance.now());
+      const types = [...new Set(mine.map((u) => u.defId))].map((defId) => ({ defId, name: unitName(defId, this.world.defs.get(defId).name) }));
+      if (sc.drill?.mode === 'subgroups') this.groups.set(1, mine.map((u) => u.id));
+      this.drill = new Drill(this.world.rng, sc.drill?.tasks ?? 20, Array.from({ length: groupCount }, (_, i) => i + 1), { center: c, radius: 9 }, performance.now(), { mode: sc.drill?.mode ?? 'groups', types });
     }
     this.onStateChanged?.();
   }
@@ -207,7 +214,13 @@ export class Game {
     if (this.drill && this.drill.phase === 'prompt') {
       this.drill.onInput(
         a,
-        { selection: this.selection, groupIds: (n) => this.groups.get(n, this.world.units), allMilitary: () => this.world.units.filter((u) => u.alive && u.player === MY_PLAYER).map((u) => u.id) },
+        {
+          selection: this.selection,
+          groupIds: (n) => this.groups.get(n, this.world.units),
+          allMilitary: () => this.world.units.filter((u) => u.alive && u.player === MY_PLAYER).map((u) => u.id),
+          activeSubgroup: this.activeSubgroup,
+          typeOf: (id) => this.world.units[id - 1]?.defId ?? '',
+        },
         performance.now(),
       );
       this.onDrillChanged?.();
@@ -364,12 +377,45 @@ export class Game {
 
   private selectedIds(): UnitId[] {
     this.selection = new Set(pruneSelection([...this.selection], this.world.units).filter((id) => this.world.units[id - 1]?.player === MY_PLAYER));
+    this.activeSubgroup = resolveActive(this.activeSubgroup, subgroupsOf(this.world.units, this.selection));
     return [...this.selection];
+  }
+
+  /** Einheiten, an die Befehle gehen: aktive Untergruppe oder ganze Auswahl. */
+  commandIds(): UnitId[] {
+    this.selectedIds();
+    return commandTargets(this.world.units, this.selection, this.activeSubgroup);
+  }
+
+  /** Untergruppe wechseln (Tab = nächste, Strg+Tab = vorige). */
+  subselect(dir: 1 | -1): void {
+    this.selectedIds();
+    this.activeSubgroup = cycleSubgroup(this.activeSubgroup, subgroupsOf(this.world.units, this.selection), dir);
+    this.recordInput({ kind: 'select' });
+    this.onStateChanged?.();
+  }
+
+  /** Untergruppe direkt wählen (Klick auf "ALLE" oder eine Typ-Karte im Untergruppen-Modus). */
+  setActiveSubgroup(defId: string | null): void {
+    this.selectedIds();
+    this.activeSubgroup = resolveActive(defId, subgroupsOf(this.world.units, this.selection));
+    this.recordInput({ kind: 'select' });
+    this.onStateChanged?.();
+  }
+
+  /** Auswahl auf einen Typ reduzieren (Klick auf die Typ-Karte). */
+  selectionOnlyType(defId: string): void {
+    this.setSelection(onlyType(this.world.units, this.selection, defId));
+  }
+
+  /** Typ aus der Auswahl entfernen (Shift/Strg+Klick auf die Typ-Karte). */
+  selectionRemoveType(defId: string): void {
+    this.setSelection(removeType(this.world.units, this.selection, defId));
   }
 
   /** Rechtsklick: Angriff auf Gegner unter dem Zeiger, sonst Bewegung. Liefert das Bewegungsziel (für Ausrichten). */
   commandAt(target: Vec2, queue: boolean, screen?: Vec2): Vec2 | null {
-    const ids = this.selectedIds();
+    const ids = this.commandIds();
     if (ids.length === 0) return null;
     const hit = screen ? unitAtScreenPoint(this.world.units, this.world.defs, screen, this.camera) : unitAtPoint(this.world.units, target);
     if (hit && hit.player !== MY_PLAYER) {
@@ -384,13 +430,13 @@ export class Game {
 
   /** Bewegungsbefehl mit Blickrichtung (Rechtsklick-Ziehen); ersetzt den zuvor erteilten Befehl. */
   commandMoveFacing(target: Vec2, facing: Vec2): void {
-    const ids = this.selectedIds();
+    const ids = this.commandIds();
     if (ids.length === 0) return;
     this.issue({ kind: 'move', unitIds: ids, target, queue: false, facing: normalize(facing) });
   }
 
   commandTargeted(mode: Exclude<TargetingMode, null>, target: Vec2, queue: boolean): void {
-    const ids = this.selectedIds();
+    const ids = this.commandIds();
     if (ids.length === 0) return;
     this.issue({ kind: mode, unitIds: ids, target, queue });
     this.marker(target, mode === 'attackMove' ? 'attack' : 'queue');
@@ -404,17 +450,17 @@ export class Game {
   }
 
   commandStop(): void {
-    const ids = this.selectedIds();
+    const ids = this.commandIds();
     if (ids.length) this.issue({ kind: 'stop', unitIds: ids });
   }
 
   commandHold(queue: boolean): void {
-    const ids = this.selectedIds();
+    const ids = this.commandIds();
     if (ids.length) this.issue({ kind: 'hold', unitIds: ids, queue });
   }
 
   setTargeting(mode: TargetingMode): void {
-    if (mode && this.selectedIds().length === 0) mode = null;
+    if (mode && this.commandIds().length === 0) mode = null;
     this.targeting = mode;
     this.onStateChanged?.();
   }
@@ -434,6 +480,7 @@ export class Game {
 
   private setSelection(ids: Iterable<UnitId>): void {
     this.selection = new Set(ids);
+    this.activeSubgroup = null;
     this.recordInput({ kind: 'select' });
     this.onStateChanged?.();
   }
@@ -567,7 +614,7 @@ export class Game {
 
   /** Formation der Auswahl setzen (wirkt auf die nächste Bewegung). */
   commandFormation(f: Formation): void {
-    const ids = this.selectedIds();
+    const ids = this.commandIds();
     if (ids.length === 0) return;
     this.issue({ kind: 'formation', unitIds: ids, formation: f });
     this.onStateChanged?.();
@@ -575,7 +622,7 @@ export class Game {
 
   /** Ausgewählte eigene Einheiten löschen (wie ENTF im Spiel). */
   commandDelete(): void {
-    const ids = this.selectedIds();
+    const ids = this.commandIds();
     if (ids.length === 0) return;
     this.issue({ kind: 'delete', unitIds: ids });
   }
@@ -775,8 +822,14 @@ export class Game {
         this.setTargeting(null);
         this.commandDelete();
         return;
+      case 'subselect.next':
+        this.subselect(1);
+        return;
+      case 'subselect.prev':
+        this.subselect(-1);
+        return;
       default:
-        break; // subselect.* folgt in G4
+        break;
     }
     const m = /^group\.(set|select|add|addExclusive|remove)\.(\d)$/.exec(action);
     if (m) {

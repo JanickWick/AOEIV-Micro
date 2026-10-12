@@ -24,6 +24,8 @@ export interface DisplaySettings {
   showFps: boolean;
   /** Größe des HUD in Prozent (wie die UI-Skalierung im Spiel). */
   uiScale: number;
+  /** Klick auf eine Typ-Karte: Taste, mit der der Typ aus der Auswahl entfernt wird (Klick ohne Taste = nur dieser Typ). */
+  cardRemoveModifier: 'shift' | 'ctrl' | 'both';
   sound: boolean;
   soundVolume: number;
   lastScenario: string | null;
@@ -42,6 +44,7 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   shadows: true,
   showFps: true,
   uiScale: 100,
+  cardRemoveModifier: 'both',
   sound: true,
   soundVolume: 0.5,
   lastScenario: null,
