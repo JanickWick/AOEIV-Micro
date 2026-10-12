@@ -1,6 +1,6 @@
 import { buildUnitDefs, effectiveRules, loadCalibration, unverifiedPaths, type CalibrationState } from './app/calibration';
 import { Game } from './app/game';
-import { HotkeyMap } from './app/hotkeys';
+import { HotkeyMap, loadKeyboardLayout } from './app/hotkeys';
 import { importBundle, loadSettings, saveSettings, type DisplaySettings } from './app/settings';
 import { buildSettingsPanel } from './app/settingsPanel';
 import type { RoundSummary } from './app/summary';
@@ -29,6 +29,11 @@ const randomStart = $<HTMLInputElement>('random-start');
 const btnPause = $<HTMLButtonElement>('btn-pause');
 const result = $('result');
 const settingsOverlay = $('settings');
+const modeInfo = $('mode-info');
+let keyboardLayout: Map<string, string> | undefined;
+void loadKeyboardLayout().then((m) => {
+  keyboardLayout = m;
+});
 
 for (const sc of SCENARIOS) {
   const opt = document.createElement('option');
@@ -98,12 +103,15 @@ function rebuildSettingsPanel(): void {
       refreshHud();
     },
     onDisplayChanged: () => refreshHud(),
+    onHotkeysChanged: () => refreshHud(),
+    keyboardLayout,
     onImport: (json) => {
       try {
         const r = importBundle(json);
         Object.assign(settings, r.settings);
         calibration = r.calibration;
         hotkeys = r.hotkeys;
+        game.hotkeys = hotkeys;
         game.setDefs(buildUnitDefs(calibration), effectiveRules(calibration));
         game.restart();
         rebuildSettingsPanel();
@@ -115,11 +123,14 @@ function rebuildSettingsPanel(): void {
   });
 }
 function openSettings(): void {
+  if (!settingsOverlay.hidden) return;
+  game.exitPointerLock();
   rebuildSettingsPanel();
   settingsOverlay.hidden = false;
   game.inputBlocked = true;
   if (game.outcome === 'running' && !game.paused) game.togglePause();
 }
+game.onOpenSettings = openSettings;
 function closeSettings(): void {
   settingsOverlay.hidden = true;
   game.inputBlocked = false;
@@ -189,6 +200,8 @@ function refreshHud(): void {
     counts.set(name, (counts.get(name) ?? 0) + 1);
   }
   selectionInfo.textContent = counts.size === 0 ? 'Keine Auswahl' : [...counts].map(([n, c]) => `${c}× ${n}`).join(', ');
+  modeInfo.hidden = !game.targeting;
+  modeInfo.textContent = game.targeting === 'attackMove' ? 'Angriffsbewegung: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)' : game.targeting === 'patrol' ? 'Patrouille: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)' : '';
 }
 game.onStateChanged = () => {
   refreshHud();

@@ -237,7 +237,7 @@ describe('Automatisches Angreifen', () => {
     const w = makeWorld();
     const archer = spawn(w, 'archer', 10, 10);
     const far = passive(spawn(w, 'spearman', 18, 10, 1)); // außerhalb von 5 Tiles
-    stepWorld(w, [{ kind: 'hold', unitIds: [archer.id] }]);
+    stepWorld(w, [{ kind: 'hold', unitIds: [archer.id], queue: false }]);
     const ev = collect(w, 120);
     expect(ev.some((e) => e.kind === 'attackStarted')).toBe(false);
     expect(dist(archer.pos, { x: 10, y: 10 })).toBeLessThan(0.01);

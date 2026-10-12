@@ -1,7 +1,8 @@
 /** Einstellungs- und Kalibrierungsmenü (HTML). Änderungen werden sofort gespeichert und übernommen. */
 import { listCalibrationEntries, RULE_ENTRIES, ruleDefault, saveCalibration, type CalibrationState } from './calibration';
-import { ACTIONS, describeBinding, type HotkeyMap } from './hotkeys';
+import { ACTIONS, bindingFromEvent, describeBinding, PRESET_UNSURE, type ActionId, type HotkeyMap, type KeyBinding } from './hotkeys';
 import { exportBundle, saveSettings, type DisplaySettings, type HealthBarMode } from './settings';
+void (0 as unknown as KeyBinding);
 
 export interface SettingsPanelDeps {
   root: HTMLElement;
@@ -12,6 +13,8 @@ export interface SettingsPanelDeps {
   onCalibrationChanged: () => void;
   onDisplayChanged: () => void;
   onImport: (json: string) => void;
+  onHotkeysChanged: () => void;
+  keyboardLayout?: Map<string, string>;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, string> = {}, children: (Node | string)[] = []): HTMLElementTagNameMap[K] {
@@ -57,12 +60,22 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
+  const plock = el('input', { type: 'checkbox', id: 'set-pointerlock' });
+  plock.checked = d.settings.pointerLock;
+  plock.addEventListener('change', () => {
+    d.settings.pointerLock = plock.checked;
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
   root.append(
     el('div', { class: 'row' }, [
       el('label', {}, ['Lebensbalken ', hb]),
       el('label', {}, [ring, ' Reichweitenring (Kalibrierhilfe: Zoom so einstellen, dass der Ring so groß wirkt wie im Spiel)']),
     ]),
     el('div', { class: 'row' }, [el('label', {}, [timing, ' Angriffs-Timing unter eigenen Einheiten (gelb = Ausholen, blau = Nachlauf, grau = Abklingzeit)'])]),
+    el('div', { class: 'row' }, [
+      el('label', {}, [plock, ' Mauszeiger im Spielfeld einsperren (Pointer-Lock, eigener Zeiger; Rand-Scrolling auch im Fenster; Esc gibt frei, nächster Klick sperrt wieder)']),
+    ]),
     el('div', { class: 'note', text: `Aktueller Zoom: ${d.settings.zoom.toFixed(1)} px/Tile (wird gespeichert). Standard 48 = ca. 40 Tiles Breite bei 1920 px.` }),
   );
 
@@ -151,13 +164,71 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
   }
   root.append(ct);
 
-  // -------- Hotkeys (Übersicht; frei belegbar ab M3)
-  root.append(el('h3', { text: 'Hotkeys (Belegung ab M3 änderbar)' }));
+  // -------- Hotkeys
+  root.append(
+    el('h3', { text: 'Hotkeys' }),
+    el('div', { class: 'note', text: 'Klick auf "Belegen", dann Tastenkombination drücken (Esc bricht ab). "Entfernen" löscht die Belegung. Orange = Standardtaste des Spiels nicht sicher bekannt, bitte mit deinem Layout abgleichen. Tasten werden als physische Taste gespeichert (deutsches Layout wird berücksichtigt).' }),
+  );
   const ht = el('table');
+  ht.append(el('tr', {}, [el('th', { text: 'Aktion' }), el('th', { text: 'Taste(n)' }), el('th', { text: '' })]));
+  let lastCat = '';
+  const describeAll = (id: ActionId) => d.hotkeys.get(id).map((b) => describeBinding(b, d.keyboardLayout)).join(', ') || '–';
   for (const a of ACTIONS) {
-    ht.append(el('tr', {}, [el('td', { text: a.label }), el('td', { text: d.hotkeys.get(a.id).map(describeBinding).join(', ') })]));
+    if (a.category !== lastCat) {
+      lastCat = a.category;
+      ht.append(el('tr', {}, [el('th', { text: a.category, colspan: '3' })]));
+    }
+    const keysCell = el('td', { text: describeAll(a.id) });
+    const unsure = PRESET_UNSURE.has(a.id) && !d.hotkeys.isCustom(a.id);
+    const badge = el('span', { class: `badge ${unsure ? 'unverified' : 'set'}`, text: unsure ? 'unsicher' : '' });
+    if (!unsure) badge.hidden = true;
+    const bindBtn = el('button', { text: 'Belegen' });
+    const conflictNote = el('span', { class: 'note' });
+    bindBtn.addEventListener('click', () => {
+      bindBtn.textContent = 'Taste drücken …';
+      conflictNote.textContent = '';
+      const onKey = (e: KeyboardEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.code === 'Escape') {
+          cleanup();
+          return;
+        }
+        const b = bindingFromEvent(e);
+        if (!b) return; // nur Modifier gedrückt
+        const conflicts = d.hotkeys.conflicts(b, a.id);
+        for (const other of conflicts) d.hotkeys.set(other, d.hotkeys.get(other).filter((x) => !(x.code === b.code && !!x.ctrl === !!b.ctrl && !!x.shift === !!b.shift && !!x.alt === !!b.alt)));
+        d.hotkeys.set(a.id, [b]);
+        d.hotkeys.save();
+        d.onHotkeysChanged();
+        if (conflicts.length) conflictNote.textContent = `Entfernt von: ${conflicts.map((c) => ACTIONS.find((x) => x.id === c)?.label ?? c).join(', ')}`;
+        cleanup();
+        buildSettingsPanel(d);
+      };
+      const cleanup = () => {
+        window.removeEventListener('keydown', onKey, true);
+        bindBtn.textContent = 'Belegen';
+      };
+      window.addEventListener('keydown', onKey, true);
+    });
+    const clearBtn = el('button', { text: 'Entfernen' });
+    clearBtn.addEventListener('click', () => {
+      d.hotkeys.set(a.id, []);
+      d.hotkeys.save();
+      d.onHotkeysChanged();
+      buildSettingsPanel(d);
+    });
+    ht.append(el('tr', {}, [el('td', {}, [a.label, ' ', badge]), keysCell, el('td', {}, [bindBtn, ' ', clearBtn, ' ', conflictNote])]));
   }
   root.append(ht);
+  const resetHk = el('button', { text: 'Hotkeys auf AoE4-Preset zurücksetzen' });
+  resetHk.addEventListener('click', () => {
+    d.hotkeys.resetToPreset();
+    d.hotkeys.save();
+    d.onHotkeysChanged();
+    buildSettingsPanel(d);
+  });
+  root.append(el('div', { class: 'row' }, [resetHk]));
 
   // -------- Export / Import
   root.append(el('h3', { text: 'Export / Import' }));

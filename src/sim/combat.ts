@@ -43,7 +43,7 @@ export function clearTarget(world: World, u: UnitState, reason: 'move' | 'retarg
 
 /** Wird von Befehlen aufgerufen, die die Warteschlange ersetzen. */
 export function onNewOrder(world: World, u: UnitState, order: Order): void {
-  if (order.kind === 'move' || order.kind === 'attackMove' || order.kind === 'hold') clearTarget(world, u, 'move');
+  if (order.kind === 'move' || order.kind === 'attackMove' || order.kind === 'patrol' || order.kind === 'hold') clearTarget(world, u, 'move');
   else if (order.kind === 'attack') {
     if (u.attack.targetId !== order.targetId) clearTarget(world, u, 'retarget');
     u.attack.targetId = order.targetId;
@@ -249,6 +249,7 @@ function runOrders(world: World, u: UnitState): void {
       fight(world, u, target, { chase: true, leash: false });
       return;
     }
+    case 'patrol':
     case 'attackMove': {
       let target = isEnemyAlive(world, u, a.targetId);
       if (!target && (world.tick + u.id) % SCAN_INTERVAL === 0) {
@@ -263,6 +264,11 @@ function runOrders(world: World, u: UnitState): void {
         return;
       }
       if (a.targetId !== null) clearTarget(world, u, 'targetDied');
+      if (order.kind === 'patrol') {
+        const r = moveTowards(world, u, order.leg === 1 ? order.to : order.from, 0);
+        if (r !== 'moving') order.leg = order.leg === 1 ? 0 : 1;
+        return;
+      }
       const r = moveTowards(world, u, order.target, 0);
       if (r !== 'moving') finishOrder(world, u);
       return;

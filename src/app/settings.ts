@@ -11,6 +11,8 @@ export interface DisplaySettings {
   speed: number;
   randomStart: boolean;
   showTimingBars: boolean;
+  /** Mauszeiger im Spielfeld einsperren (Pointer-Lock mit eigenem Zeiger). */
+  pointerLock: boolean;
   lastScenario: string | null;
 }
 
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   speed: 1,
   randomStart: false,
   showTimingBars: true,
+  pointerLock: false,
   lastScenario: null,
 };
 

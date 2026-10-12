@@ -99,5 +99,17 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
     Geschwindigkeit einstellbar; folgt im Einstellungsmenü (M3).
 20. (A) Lebensbalken standardmäßig immer sichtbar (einstellbar).
 21. (A) Hotkeys werden als physische Taste (KeyboardEvent.code) gespeichert, damit Y/Z auf
-    deutschem Layout stimmen. Neustart F4, Pause F3, Stopp S sind Vorschläge.
+    deutschem Layout stimmen. Im Preset sind nur Kamera (Pfeiltasten) und Kontrollgruppen
+    (Strg/Shift/Zahl) sicher; A (Angriffsbewegung), S (Stopp), H (Halten), P (Patrouille),
+    Strg+Shift+M/T (Auswahl), F3/F4/F10 sind Vorschläge und im Menü als "unsicher" markiert.
+37. (A) Angriffsbewegung und Patrouille: Hotkey drücken, dann Linksklick auf das Ziel (wie im
+    Spiel). Mit Shift beim Klick bleibt der Modus aktiv und der Befehl wird eingereiht.
+38. (A) Rechtsklick-Ziehen richtet die Formation aus: der normale Bewegungsbefehl wird sofort beim
+    Drücken erteilt und beim Loslassen (ab 14 px Ziehen) durch denselben Befehl mit Blickrichtung
+    ersetzt. Nicht kombinierbar mit Shift-Einreihen.
+39. (A) Patrouille pendelt zwischen Standort beim Befehl und Zielpunkt, greift unterwegs Gegner in
+    Erfassungsreichweite an und läuft danach weiter; danach eingereihte Befehle werden nie erreicht.
+40. (A) Position halten: Einheit verfolgt nicht, greift aber Gegner in Waffenreichweite an.
+41. (V) Pointer-Lock zeichnet einen eigenen Mauszeiger; Browser geben ihn mit Esc frei, der
+    nächste Klick ins Spielfeld sperrt wieder.
 22. (V) Spieltempo 50/75/100 % skaliert die Simulationszeit, nicht den Takt.

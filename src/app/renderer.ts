@@ -27,6 +27,14 @@ export interface RenderState {
   rangeRing: boolean;
   timingBars: boolean;
   hoverEnemyId: UnitId | null;
+  /** Zielwahl-Modus (Angriffsbewegung/Patrouille): Fadenkreuz am Zeiger. */
+  targeting: 'attackMove' | 'patrol' | null;
+  mouse: Vec2;
+  /** Eigener Mauszeiger bei Pointer-Lock. */
+  drawCursor: boolean;
+  /** Rechtsklick-Ziehen: Pfeil vom Ziel in Blickrichtung. */
+  facingDrag: { from: Vec2; to: Vec2 } | null;
+  groupsOf: (id: UnitId) => number[];
 }
 
 export interface MinimapLayout {
@@ -82,7 +90,9 @@ export function render(ctx: CanvasRenderingContext2D, s: RenderState): void {
   drawUnits(ctx, s);
   drawProjectiles(ctx, s);
   drawDragRect(ctx, s);
+  drawFacingDrag(ctx, s);
   drawMinimap(ctx, s);
+  drawCursor(ctx, s);
   if (s.paused) {
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.fillRect(0, 0, W, H);
@@ -255,6 +265,20 @@ function drawUnits(ctx: CanvasRenderingContext2D, s: RenderState): void {
       ctx.fillText(UNIT_CODE[u.defId] ?? '?', sp.x, sp.y + 0.5);
     }
 
+    // Kontrollgruppen-Nummer
+    if (u.player === 0) {
+      const gs = s.groupsOf(u.id);
+      if (gs.length) {
+        ctx.fillStyle = 'rgba(0,0,0,0.75)';
+        ctx.fillRect(sp.x + r - 2, sp.y + r - 6, 7 * gs.length + 3, 11);
+        ctx.fillStyle = '#fde68a';
+        ctx.font = 'bold 9px system-ui, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(gs.join(''), sp.x + r, sp.y + r - 5);
+      }
+    }
+
     // Lebensbalken
     const showBar = s.healthBars === 'always' || selected || (s.healthBars === 'selectedOrDamaged' && u.hp < u.maxHp);
     if (showBar) {
@@ -353,20 +377,27 @@ function drawWaypoints(ctx: CanvasRenderingContext2D, s: RenderState): void {
     let prev = camera.worldToScreen(interpolatedPos(u, s.alpha));
     ctx.beginPath();
     ctx.moveTo(prev.x, prev.y);
+    const points: { p: Vec2; kind: string }[] = [];
     for (const o of u.orders) {
-      if (o.kind !== 'move' && o.kind !== 'attackMove') continue;
-      const p = camera.worldToScreen(o.target);
+      if (o.kind === 'move' || o.kind === 'attackMove') points.push({ p: o.target, kind: o.kind });
+      else if (o.kind === 'patrol') {
+        points.push({ p: o.from, kind: 'patrol' });
+        points.push({ p: o.to, kind: 'patrol' });
+      }
+    }
+    for (const pt of points) {
+      const p = camera.worldToScreen(pt.p);
       ctx.lineTo(p.x, p.y);
       prev = p;
     }
+    void prev;
     ctx.strokeStyle = 'rgba(134,239,172,0.5)';
     ctx.stroke();
-    for (const o of u.orders) {
-      if (o.kind !== 'move' && o.kind !== 'attackMove') continue;
-      const p = camera.worldToScreen(o.target);
+    for (const pt of points) {
+      const p = camera.worldToScreen(pt.p);
       ctx.beginPath();
       ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-      ctx.fillStyle = o.kind === 'attackMove' ? 'rgba(252,165,165,0.9)' : 'rgba(134,239,172,0.8)';
+      ctx.fillStyle = pt.kind === 'attackMove' ? 'rgba(252,165,165,0.9)' : pt.kind === 'patrol' ? 'rgba(253,224,71,0.9)' : 'rgba(134,239,172,0.8)';
       ctx.fill();
     }
   }
@@ -393,6 +424,69 @@ function drawMarkers(ctx: CanvasRenderingContext2D, s: RenderState): void {
     ctx.lineWidth = 1;
     ctx.stroke();
   }
+}
+
+function drawFacingDrag(ctx: CanvasRenderingContext2D, s: RenderState): void {
+  const f = s.facingDrag;
+  if (!f) return;
+  const a = s.camera.worldToScreen(f.from);
+  const b = s.camera.worldToScreen(f.to);
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const l = Math.hypot(dx, dy);
+  if (l < 1) return;
+  const ux = dx / l;
+  const uy = dy / l;
+  ctx.strokeStyle = 'rgba(134,239,172,0.9)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.moveTo(b.x, b.y);
+  ctx.lineTo(b.x - ux * 10 - uy * 6, b.y - uy * 10 + ux * 6);
+  ctx.moveTo(b.x, b.y);
+  ctx.lineTo(b.x - ux * 10 + uy * 6, b.y - uy * 10 - ux * 6);
+  ctx.stroke();
+  // Formationslinie quer zur Blickrichtung
+  ctx.strokeStyle = 'rgba(134,239,172,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(a.x - uy * 40, a.y + ux * 40);
+  ctx.lineTo(a.x + uy * 40, a.y - ux * 40);
+  ctx.stroke();
+}
+
+function drawCursor(ctx: CanvasRenderingContext2D, s: RenderState): void {
+  const m = s.mouse;
+  if (s.targeting) {
+    ctx.strokeStyle = s.targeting === 'attackMove' ? '#fca5a5' : '#fde68a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, 9, 0, Math.PI * 2);
+    ctx.moveTo(m.x - 14, m.y);
+    ctx.lineTo(m.x - 4, m.y);
+    ctx.moveTo(m.x + 4, m.y);
+    ctx.lineTo(m.x + 14, m.y);
+    ctx.moveTo(m.x, m.y - 14);
+    ctx.lineTo(m.x, m.y - 4);
+    ctx.moveTo(m.x, m.y + 4);
+    ctx.lineTo(m.x, m.y + 14);
+    ctx.stroke();
+  }
+  if (!s.drawCursor) return;
+  ctx.beginPath();
+  ctx.moveTo(m.x, m.y);
+  ctx.lineTo(m.x, m.y + 16);
+  ctx.lineTo(m.x + 4, m.y + 12);
+  ctx.lineTo(m.x + 7, m.y + 18);
+  ctx.lineTo(m.x + 9, m.y + 17);
+  ctx.lineTo(m.x + 6, m.y + 11);
+  ctx.lineTo(m.x + 11, m.y + 11);
+  ctx.closePath();
+  ctx.fillStyle = '#f9fafb';
+  ctx.fill();
+  ctx.strokeStyle = '#111827';
+  ctx.lineWidth = 1;
+  ctx.stroke();
 }
 
 function drawDragRect(ctx: CanvasRenderingContext2D, s: RenderState): void {

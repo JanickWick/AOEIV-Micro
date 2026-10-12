@@ -33,8 +33,18 @@ npm run data:unverified# Alle Werte mit "verified": false auflisten
 | Doppelklick auf Einheit | Alle sichtbaren Einheiten dieses Typs |
 | Shift + Linksklick / Rahmen | Zur Auswahl hinzufügen bzw. entfernen |
 | Rechtsklick | Bewegen; auf einen Gegner: angreifen (Befehl wird beim Drücken ausgelöst, nicht beim Loslassen) |
+| Rechtsklick ziehen | Formation am Ziel in Zugrichtung ausrichten (Befehl wird beim Loslassen ersetzt) |
 | Shift + Rechtsklick | Befehl einreihen (Wegpunkte); bei gehaltenem Shift werden die Wegpunkte angezeigt |
+| A, dann Linksklick | Angriffsbewegung (Shift beim Klick = einreihen; Rechtsklick/Esc bricht ab) |
 | S | Stopp |
+| H | Position halten (Shift = einreihen) |
+| P, dann Linksklick | Patrouille zwischen Standort und Ziel |
+| Strg + 1–9 | Kontrollgruppe auf die aktuelle Auswahl setzen (alle anderen fallen raus) |
+| Shift + 1–9 | Auswahl zur Kontrollgruppe hinzufügen |
+| 1–9 | Kontrollgruppe auswählen; Doppeltipp zentriert die Kamera |
+| Strg + Shift + M | Alle Militäreinheiten auswählen |
+| Strg + Shift + T | Alle eigenen Einheiten des ausgewählten Typs auswählen |
+| F10 | Einstellungen (auch Hotkey-Menü) |
 | Pfeiltasten, Bildschirmrand, mittlere Maustaste ziehen | Kamera |
 | Mausrad | Zoom |
 | Minimap Linksklick / ziehen | Kamera springt |
@@ -42,10 +52,13 @@ npm run data:unverified# Alle Werte mit "verified": false auflisten
 | F4 | Szenario sofort neu starten |
 | F3 | Pause |
 
-Alle Tasten sind in `src/app/hotkeys.ts` als Preset hinterlegt und werden in M3 über ein
-Einstellungsmenü frei belegbar. Browser-Standardaktionen (Kontextmenü, Strg+Zahl, Leertaste,
-F-Tasten außer F11/F12, Tab, Alt) werden im Spiel unterdrückt. Vollbild über den Button
-(mit Keyboard-Lock, sofern der Browser es unterstützt – Chrome/Edge).
+Alle Tasten sind im Einstellungsmenü frei belegbar (Belegen, Entfernen, Konflikte werden
+aufgelöst, Reset auf das AoE4-Preset). Tasten werden als physische Taste gespeichert, deutsche
+Layouts funktionieren. Preset-Tasten, deren Standard im Spiel nicht sicher bekannt ist, sind im
+Menü orange markiert. Browser-Standardaktionen (Kontextmenü, Strg+Zahl, Leertaste, F-Tasten außer
+F11/F12, Tab, Alt) werden im Spiel unterdrückt. Vollbild über den Button (mit Keyboard-Lock in
+Chrome/Edge). Optional Pointer-Lock: der Mauszeiger bleibt im Spielfeld (eigener Zeiger), damit
+Rand-Scrolling auch im Fenster funktioniert; Esc gibt ihn frei.
 
 ## Einstellungen und Kalibrierung
 
@@ -118,6 +131,7 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 - [x] M1: Projektgerüst, Simulationskern mit Tests, Karte, Kamera, Auswahl, Bewegen, Datenimport
 - [x] M2: Kampfmodell (Windup/Cooldown, Projektile, Flächenschaden, Auto-Angriff, Ansturm,
       Abwehrstellung), leichte KI, Kalibrierungsmenü, Szenario 1 spielbar
-- [ ] M3: Kontrollgruppen, Befehlsketten, Attack-Move/Stopp/Halten/Patrouille, Hotkey-Menü, Vollbild
+- [x] M3: Kontrollgruppen, Befehlsketten, Attack-Move/Stopp/Halten/Patrouille, Formation ausrichten,
+      Hotkey-Menü mit AoE4-Preset, Pointer-Lock
 - [ ] M4: Gegner-KI in 3 Stufen, Szenarien 2 bis 8
 - [ ] M5: Auswertung, Verlauf, Hotkey-Drill, Editor

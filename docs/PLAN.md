@@ -77,13 +77,16 @@
   erhält Bonus", "Rüstung senkt Schaden, Minimum 1", "Pfeil trifft nach Flugzeit", "Mangonel
   trifft Fläche, ausgewichenes Ziel nicht", "Ansturm", "Abwehrstellung", "Szenario 1 deterministisch".
 
-### M3 – Befehle und Hotkeys
-- Attack-Move, Stopp, Position halten, Patrouille als Hotkeys; Shift-Ketten für alle Befehle;
-  Rechtsklick-Ziehen zum Ausrichten der Formation (niedrige Priorität).
-- Kontrollgruppen (Strg/Shift/Zahl, Doppeltipp zentriert), "alle Militäreinheiten",
-  "alle dieses Typs".
-- Einstellungsmenü für alle Hotkeys mit AoE4-Preset, Vollbild mit Keyboard-/Pointer-Lock,
-  Scroll-Geschwindigkeit.
+### M3 – erledigt
+- Angriffsbewegung (A + Klick), Stopp (S), Position halten (H), Patrouille (P + Klick); Shift reiht
+  alle Befehle ein; Rechtsklick-Ziehen richtet die Formation aus.
+- Kontrollgruppen: Strg+Zahl setzen (ersetzt), Shift+Zahl hinzufügen, Zahl auswählen, Doppeltipp
+  zentriert; Gruppennummern an den Einheiten. "Alle Militäreinheiten", "alle dieses Typs",
+  Kamera auf Auswahl (unbelegt).
+- Hotkey-Menü: alle Aktionen belegbar, Konflikte werden aufgelöst, AoE4-Preset mit Markierung
+  unsicherer Tasten, Anzeige im Browser-Tastaturlayout. Pointer-Lock mit eigenem Zeiger.
+- Offen: Scroll-Geschwindigkeit als Einstellung (kommt mit M5-Einstellungen), deine Hotkey-
+  Screenshots einarbeiten.
 
 ### M4 – KI und Szenarien 2 bis 8
 - KI-Stufen Leicht/Mittel/Schwer mit einstellbarer Reaktionszeit, nur über normale Befehle.

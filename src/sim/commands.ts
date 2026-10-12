@@ -38,6 +38,7 @@ function plannedPos(u: UnitState): Vec2 {
   for (let i = u.orders.length - 1; i >= 0; i--) {
     const o = u.orders[i]!;
     if (o.kind === 'move' || o.kind === 'attackMove') return o.target;
+    if (o.kind === 'patrol') return o.to;
   }
   return u.pos;
 }
@@ -49,7 +50,7 @@ export function applyCommand(world: World, cmd: Command): void {
       if (units.length === 0) return;
       // Für eingereihte Befehle wird die Formation vom geplanten Endpunkt aus berechnet.
       const ghosts = units.map((u) => (cmd.queue ? { ...u, pos: plannedPos(u) } : u));
-      const slots = computeFormation(world, ghosts, cmd.target);
+      const slots = computeFormation(world, ghosts, cmd.target, cmd.facing);
       const groupId = world.nextGroupId++;
       let speedCap: number | undefined;
       if (world.rules.formationSpeedMatching && units.length > 1) {
@@ -67,10 +68,22 @@ export function applyCommand(world: World, cmd: Command): void {
       const units = resolveUnits(world, cmd.unitIds);
       if (units.length === 0) return;
       const ghosts = units.map((u) => (cmd.queue ? { ...u, pos: plannedPos(u) } : u));
-      const slots = computeFormation(world, ghosts, cmd.target);
+      const slots = computeFormation(world, ghosts, cmd.target, cmd.facing);
       for (const slot of slots) {
         const u = getUnit(world, slot.unitId)!;
         pushOrder(world, u, { kind: 'attackMove', target: clampToMap(world, slot.target, u.radius) }, cmd.queue);
+      }
+      return;
+    }
+    case 'patrol': {
+      const units = resolveUnits(world, cmd.unitIds);
+      if (units.length === 0) return;
+      const ghosts = units.map((u) => (cmd.queue ? { ...u, pos: plannedPos(u) } : u));
+      const slots = computeFormation(world, ghosts, cmd.target);
+      for (const slot of slots) {
+        const u = getUnit(world, slot.unitId)!;
+        const from = cmd.queue ? plannedPos(u) : { x: u.pos.x, y: u.pos.y };
+        pushOrder(world, u, { kind: 'patrol', from: { x: from.x, y: from.y }, to: clampToMap(world, slot.target, u.radius), leg: 1 }, cmd.queue);
       }
       return;
     }
@@ -84,7 +97,7 @@ export function applyCommand(world: World, cmd: Command): void {
       return;
     }
     case 'hold': {
-      for (const u of resolveUnits(world, cmd.unitIds)) pushOrder(world, u, { kind: 'hold' }, false);
+      for (const u of resolveUnits(world, cmd.unitIds)) pushOrder(world, u, { kind: 'hold' }, cmd.queue);
       return;
     }
     case 'stop': {

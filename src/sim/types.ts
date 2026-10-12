@@ -17,6 +17,8 @@ export type Order =
     }
   | { kind: 'attack'; targetId: UnitId }
   | { kind: 'attackMove'; target: Vec2 }
+  /** Patrouille zwischen `from` und `to`; greift unterwegs an und läuft dann weiter. Endet nie von selbst. */
+  | { kind: 'patrol'; from: Vec2; to: Vec2; leg: 0 | 1 }
   | { kind: 'hold' };
 
 export type AttackPhase = 'idle' | 'windup' | 'recovery';
@@ -101,11 +103,13 @@ export interface Projectile {
 
 /** Spieler-/KI-Befehle, die zu Beginn eines Ticks angewendet werden. */
 export type Command =
-  | { kind: 'move'; unitIds: UnitId[]; target: Vec2; queue: boolean }
+  /** `facing`: Blickrichtung der Formation (Rechtsklick-Ziehen); sonst Richtung zum Ziel. */
+  | { kind: 'move'; unitIds: UnitId[]; target: Vec2; queue: boolean; facing?: Vec2 }
   | { kind: 'attack'; unitIds: UnitId[]; targetId: UnitId; queue: boolean }
-  | { kind: 'attackMove'; unitIds: UnitId[]; target: Vec2; queue: boolean }
+  | { kind: 'attackMove'; unitIds: UnitId[]; target: Vec2; queue: boolean; facing?: Vec2 }
+  | { kind: 'patrol'; unitIds: UnitId[]; target: Vec2; queue: boolean }
   | { kind: 'stop'; unitIds: UnitId[] }
-  | { kind: 'hold'; unitIds: UnitId[] };
+  | { kind: 'hold'; unitIds: UnitId[]; queue: boolean };
 
 export interface SimRules {
   /** Ticks pro Sekunde. */
