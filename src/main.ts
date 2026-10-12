@@ -5,7 +5,7 @@ import { EDITOR_SCENARIO_ID, loadEditorState, scenarioFromEditor } from './app/e
 import { buildEditorPanel } from './app/editorPanel';
 import { Game } from './app/game';
 import { Hud, type GroupMarker, type SelectionCard, type UnitDetail } from './app/hud';
-import { subgroupsOf, unitCode, unitName } from './app/subgroups';
+import { subgroupsOf, unitClass, unitCode, unitName } from './app/subgroups';
 import { attemptFromSummary, bestAttempt, getAttempts, isBetter, recordAttempt, type Attempt } from './app/history';
 import { HotkeyMap, loadKeyboardLayout, type ActionId } from './app/hotkeys';
 import { importBundle, loadSettings, saveSettings, type DisplaySettings } from './app/settings';
@@ -45,10 +45,12 @@ const hud = new Hud($('hud'), {
     canvas.focus();
   },
   onCardClick: (defId, mods) => {
-    const m = settings.cardRemoveModifier;
-    const remove = (mods.shift && m !== 'ctrl') || (mods.ctrl && m !== 'shift');
+    const swapped = settings.cardModifiers === 'swapped';
+    const remove = swapped ? mods.ctrl : mods.shift;
+    const only = swapped ? mods.shift : mods.ctrl;
     if (remove) game.selectionRemoveType(defId);
-    else game.selectionOnlyType(defId);
+    else if (only) game.selectionOnlyType(defId);
+    else game.setActiveSubgroup(game.activeSubgroup === defId ? null : defId);
     canvas.focus();
   },
   onAllClick: () => {
@@ -382,11 +384,11 @@ function cardsFor(ids: Iterable<UnitId>): { cards: SelectionCard[]; total: numbe
   return { cards, total: groups.reduce((n, g) => n + g.ids.length, 0) };
 }
 
-/** Einzelansicht: bei aktiver Untergruppe oder nur einem Typ in der Auswahl. */
+/** Einzelansicht: wie im Spiel (Clip 6/7) nur bei genau einer ausgewählten Einheit. */
 function detailFor(ids: Iterable<UnitId>, active: string | null): UnitDetail | null {
   const groups = subgroupsOf(game.world.units, ids);
   const g = active ? groups.find((x) => x.defId === active) : groups.length === 1 ? groups[0] : undefined;
-  if (!g) return null;
+  if (!g || g.ids.length !== 1) return null;
   const units = g.ids.map((id) => game.world.units[id - 1]!);
   const first = units[0]!;
   const def = game.world.defs.get(g.defId);
@@ -428,7 +430,7 @@ function refreshGroups(): void {
     if (ids.length === 0) continue;
     const { cards, total } = cardsFor(ids);
     const lead = cards[0];
-    markers.push({ n: k, count: total, code: cards.length > 1 ? '+' : (lead?.code ?? '?'), label: cards.map((c) => `${c.count}× ${c.name}`).join(', ') });
+    markers.push({ n: k, count: total, cls: cards.length > 1 ? 'mixed' : lead ? unitClass(lead.defId) : 'mixed', label: cards.map((c) => `${c.count}× ${c.name}`).join(', ') });
   }
   hud.setGroups(markers);
 }
@@ -438,7 +440,7 @@ function refreshGrid(): void {
   let holding = 0;
   const formations = new Map<Formation, number>();
   for (const id of game.commandIds()) {
-    const u = game.world.units.find((x) => x.id === id);
+    const u = game.world.units[id - 1];
     if (!u || !u.alive) continue;
     alive++;
     if (u.orders[0]?.kind === 'hold') holding++;
@@ -477,7 +479,7 @@ function refreshCounts(): void {
     }
   }
   let selected = 0;
-  for (const id of game.selection) if (game.world.units.find((x) => x.id === id)?.alive) selected++;
+  for (const id of game.selection) if (game.world.units[id - 1]?.alive) selected++;
   hud.setCounts({ mine, theirs, lostMine, lostTheirs, valueLost, valueKilled, selected });
   hud.setTime(game.world.tick * game.world.dt, age ?? game.scenario.groups[0]?.age ?? null);
 }
@@ -521,7 +523,8 @@ function loop(now: number): void {
   if (now - lastStats > 250) {
     lastStats = now;
     refreshCounts();
-    hud.setFps(settings.showFps ? `${Math.round(game.stats.fps)} FPS` : '');
+    const st = game.stats;
+    hud.setFps(settings.showFps ? `${Math.round(st.fps)} FPS · Sim ${st.simMs.toFixed(1)} ms · Bild ${st.renderMs.toFixed(1)} ms · ${st.mine + st.theirs} Einh.` : '');
     // Auswahl, Gruppen, Formations- und Halten-Zustand ändern sich auch ohne Eingabe (Einheiten sterben, Befehle enden)
     refreshSelection();
     refreshGroups();

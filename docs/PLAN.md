@@ -202,5 +202,14 @@
 - Offen: Formationsabstände nicht kalibrierbar im Menü (Spielwerte unbekannt), Reihenfolge der
   Typ-Karten im Spiel nicht belegt.
 
-### G5 – Feinschliff
-- 200 Einheiten bei 60 FPS (Instancing, FPS-Anzeige), Vergleich mit Screenshots, Abweichungsliste.
+### G5 – erledigt
+- Formationen nach Clips 8–10: Linie (Reihen nach Klasse, Kavallerie hinten), Keil (1/3/5/…),
+  aufgelockert (Faktor 2); Tests in `tests/minimap.test.ts`.
+- HUD nach Clip 6: Kartenreihenfolge Reiter/Bogen/Speer, Gruppenmarken (Anzahl, Klassenwappen,
+  Gruppennummer), Minimap-Scheibe mit Ring und "N", Zeitalter-Ring, Maße der unteren Paneele,
+  Einzelansicht nur bei einer Einheit, Halten-Symbol Stiefel.
+- Leistung: Szenario 11 (100 gegen 100), FPS-Anzeige mit Sim- und Bild-ms, Simulation ≈ 1 ms/Tick
+  bei 200 Einheiten; Bildrate auf Grafikhardware vom Nutzer zu prüfen.
+- Vergleich: `docs/G5-VERGLEICH.md` mit Bildern in `docs/vergleich/` und Abweichungsliste.
+- Offen (siehe Abweichungsliste): Gelände/Deko-Detail, Figuren-Detail, Spiel-Icons, Ressourcen-
+  und Bevölkerungsanzeige (bewusst ersetzt), Porträts, Minimap-Symbole.

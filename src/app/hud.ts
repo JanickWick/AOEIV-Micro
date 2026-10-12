@@ -32,7 +32,8 @@ export interface GridState {
 export interface GroupMarker {
   n: number;
   count: number;
-  code: string;
+  /** Einheitenklasse für das Symbol; 'mixed' bei gemischten Gruppen. */
+  cls: 'cavalry' | 'ranged' | 'infantry' | 'siege' | 'mixed';
   label: string;
 }
 
@@ -71,7 +72,12 @@ const ICONS: Record<string, string> = {
   line: '<circle cx="4" cy="12" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="20" cy="12" r="1.6"/>',
   wedge: '<circle cx="12" cy="6" r="1.6"/><circle cx="8" cy="11" r="1.6"/><circle cx="16" cy="11" r="1.6"/><circle cx="4" cy="16" r="1.6"/><circle cx="12" cy="16" r="1.6"/><circle cx="20" cy="16" r="1.6"/>',
   spread: '<circle cx="5" cy="6" r="1.6"/><circle cx="14" cy="5" r="1.6"/><circle cx="20" cy="10" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="4" cy="18" r="1.6"/><circle cx="15" cy="17" r="1.6"/>',
-  hold: '<path d="M6 4 V13 H4 V20 H11 V14 H9 V4 Z"/><path d="M15 4 V13 H13 V20 H20 V14 H18 V4 Z"/>',
+  hold: '<path d="M7 3 H11 V12 L14 14 V18 H4 V14 L7 12 Z"/><path d="M13 3 H17 V12 L20 14 V18 H15"/><path d="M4 18 H14 M7 8 H11"/>',
+  cavalry: '<path d="M6 4 C6 11 8 16 12 18 C16 16 18 11 18 4"/><path d="M6 4 L4 6 M18 4 L20 6"/><path d="M9 10 H10 M14 10 H15"/>',
+  ranged: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/>',
+  infantry: '<path d="M4 4 L20 20"/><path d="M20 4 L4 20"/><path d="M4 4 L8 4 M4 4 L4 8 M20 4 L16 4 M20 4 L20 8"/>',
+  siege: '<path d="M4 18 H20"/><path d="M8 18 L12 8 L16 18"/><circle cx="12" cy="6" r="2"/>',
+  mixed: '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><circle cx="12" cy="16" r="3"/>',
   delete: '<circle cx="12" cy="10" r="6"/><circle cx="9.5" cy="9.5" r="1.2" fill="currentColor"/><circle cx="14.5" cy="9.5" r="1.2" fill="currentColor"/><path d="M9 16 V20 M12 16 V20 M15 16 V20"/>',
   gear: '<circle cx="12" cy="12" r="3.5"/><path d="M12 2 V5 M12 19 V22 M2 12 H5 M19 12 H22 M4.9 4.9 L7 7 M17 17 L19.1 19.1 M4.9 19.1 L7 17 M17 7 L19.1 4.9"/>',
   restart: '<path d="M20 12 A8 8 0 1 1 14 4.3"/><path d="M14 2 L15 5 L12 6"/>',
@@ -203,6 +209,7 @@ export class Hud {
     // Oben Mitte: Zeitalter-Ornament und Spielzeit
     const tc = el('div', 'hud-tc');
     this.age = el('div', 'hud-age', 'II');
+    this.age.title = 'Zeitalter';
     this.time = el('div', 'hud-time', '00:00');
     tc.append(this.age, this.time);
     root.append(tc);
@@ -306,13 +313,13 @@ export class Hud {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     this.time.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    const roman = age === null ? '' : ['', 'I', 'II', 'III', 'IV'][age] ?? '';
-    this.age.textContent = roman ? `Zeitalter ${roman}` : '';
+    this.age.textContent = age === null ? '' : ['', 'I', 'II', 'III', 'IV'][age] ?? '';
   }
 
   setFps(text: string): void {
     this.fps.textContent = text;
     this.fps.hidden = !text;
+    this.fps.title = 'Bilder pro Sekunde · Simulation ms je Bild · Darstellung (JS-Anteil) ms je Bild · Einheiten lebend';
   }
 
   setCounts(c: { mine: number; theirs: number; lostMine: number; lostTheirs: number; valueLost: number; valueKilled: number; selected: number }): void {
@@ -334,13 +341,13 @@ export class Hud {
 
   setGroups(groups: GroupMarker[]): void {
     // Nur neu aufbauen, wenn sich etwas geändert hat (sonst gehen Klicks auf gerade ersetzte Knöpfe verloren)
-    const sig = groups.map((g) => `${g.n}:${g.count}:${g.code}:${g.label}`).join('|');
+    const sig = groups.map((g) => `${g.n}:${g.count}:${g.cls}:${g.label}`).join('|');
     if (sig === this.groupsSig) return;
     this.groupsSig = sig;
     this.groups.replaceChildren();
     for (const g of groups) {
-      const b = el('button', 'group-marker');
-      b.innerHTML = `<span class="gn">${g.n}</span><span class="gi">${g.code}</span><span class="gc">${g.count}</span>`;
+      const b = el('button', `group-marker ${g.cls}`);
+      b.innerHTML = `<span class="gc">${g.count}</span><span class="gi">${svg(g.cls, 18)}</span><span class="gn">${g.n}</span>`;
       b.title = `Kontrollgruppe ${g.n}: ${g.count}× ${g.label} (Klick wählt, Doppelklick zentriert)`;
       b.addEventListener('click', () => {
         const now = performance.now();
@@ -367,7 +374,7 @@ export class Hud {
         for (const c of cards) {
           const card = el('button', `sel-card${active === c.defId ? ' active' : ''}`);
           card.innerHTML = `<span class="cnt">${c.count}</span><span class="code">${c.code}</span>`;
-          card.title = `${c.count}× ${c.name} – Klick: nur diesen Typ, Shift/Strg+Klick: Typ entfernen`;
+          card.title = `${c.count}× ${c.name} – Klick: Untergruppe, Shift+Klick: Typ entfernen, Strg+Klick: nur diesen Typ`;
           card.addEventListener('click', (e) => this.cb.onCardClick(c.defId, { shift: e.shiftKey, ctrl: e.ctrlKey || e.metaKey }));
           this.selectionCards.append(card);
         }

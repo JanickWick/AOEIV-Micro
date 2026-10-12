@@ -5,8 +5,20 @@
  */
 import type { UnitId, UnitState } from '../sim/types';
 
-/** Feste Reihenfolge der Typ-Karten: Infanterie, Fernkampf, Kavallerie, Belagerung. */
-export const TYPE_ORDER = ['spearman', 'man-at-arms', 'archer', 'crossbowman', 'horseman', 'knight', 'mangonel', 'springald'];
+/**
+ * Feste Reihenfolge der Typ-Karten. In Clip 6/7 (reference/videos) zeigt das Spiel bei einer
+ * gemischten Auswahl Reiter, Bogenschütze, Speerkämpfer in dieser Reihenfolge; die übrigen Typen
+ * sind nach demselben Muster (Kavallerie, Fernkampf, Infanterie, Belagerung) eingeordnet.
+ */
+export const TYPE_ORDER = ['horseman', 'knight', 'archer', 'crossbowman', 'spearman', 'man-at-arms', 'mangonel', 'springald'];
+
+/** Einheitenklasse für die Gruppenmarke (Spiel: Hufeisen = Kavallerie, Zielscheibe = Fernkampf, Schwerter = Infanterie). */
+export function unitClass(defId: string): 'cavalry' | 'ranged' | 'infantry' | 'siege' {
+  if (defId === 'horseman' || defId === 'knight') return 'cavalry';
+  if (defId === 'archer' || defId === 'crossbowman') return 'ranged';
+  if (defId === 'mangonel' || defId === 'springald') return 'siege';
+  return 'infantry';
+}
 
 export const UNIT_CODE: Record<string, string> = {
   spearman: 'S',

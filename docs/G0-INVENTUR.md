@@ -116,6 +116,18 @@ durch ausgelassene Bilder; Zeitstempel sind erhalten, Messunsicherheit je Zeitpu
 | clip3 | 9,4 s | Stehende Formation, Kamera fährt | wenig (Einheiten am Bildrand) |
 | clip4 | 8,4 s | Bogenschützen laufen und kämpfen | Bewegung |
 | clip5 | 10,3 s | 15 Bogenschützen ziehen sich vor Speerkämpfern zurück, Kamera 3,0–5,0 s statisch | Maßstab, Formationsabstand Infanterie |
+| clip6 | 17,3 s | Vollständiges HUD bei gemischter Auswahl (5 Reiter, 5 Bogen, 5 Speer): Typ-Karten, Tab-Untergruppe (weißer Rahmen), Gruppenmarken 4/5/6, Minimap-Scheibe | HUD-Vergleich (G5), Kartenreihenfolge |
+| clip7 | 10,1 s | Karten-Klicks: Shift+Klick entfernt den Typ (15 → 10), Strg+Klick behält nur ihn (→ 5) | Auswahl-Leiste (G4) |
+| clip8 | 12,3 s | Formation Linie (Z): Block 3 Reihen zu 5 nach Klasse, Bewegung und Neuordnung | Formationen (G5) |
+| clip9 | 10,2 s | Formation Keil (X): Reihen 1 / 3 / 5 / 6 von hinten, Reiter an der Spitze | Formationen (G5) |
+| clip10 | 11,3 s | Formation aufgelockert (C): gleiche Ordnung mit ≈ doppeltem Abstand | Formationen (G5) |
+
+**Formationen (Clips 8–10, 1080p, 55,6 px/Tile).** Linie: Reiter in der hintersten Reihe, Bogenschützen
+in der Mitte, Speerkämpfer vorn (vorn = Richtung der letzten Bewegung, in Clip 8 nach unten links).
+Spaltenabstand im Block ≈ 50 px Infanterie, ≈ 55 px Reiter (0,9 bzw. 1,0 Tiles), Reihenabstand ≈ 1 Tile.
+Keil: Reihenbreiten 1, 3, 5 und Rest (6) von der Spitze (hinten, Reiter) nach vorn. Aufgelockert:
+Reiter ≈ 120 px, Infanterie ≈ 90–95 px Spaltenabstand, Reihen ≈ 90 px, also etwa Faktor 2.
+Die Rasterzelle der gewählten Formation blitzt beim Drücken kurz auf (Clip 8 bei Z, Clip 10 bei C).
 
 **Maßstab (Pixel pro Tile).** In Clip 5 ist die Kamera zwischen 3,0 und 5,0 s unbewegt (Differenzbild
 des Hintergrunds dunkel). Der Schwerpunkt der pinken Bogenschützen wandert von (1084, 407) nach

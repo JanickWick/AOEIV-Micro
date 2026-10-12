@@ -78,6 +78,11 @@ export class Game {
   private accumulator = 0;
   private lastFrame = 0;
   private fps = 0;
+  /** Mittlere CPU-Zeit je Bild (ms): Simulation (alle Ticks) und Darstellung (JS-Anteil von Three.js + Overlay). */
+  private simMs = 0;
+  private renderMs = 0;
+  private simAcc = 0;
+  private renderAcc = 0;
   private fpsAcc = 0;
   private fpsFrames = 0;
 
@@ -254,13 +259,18 @@ export class Game {
     this.fpsFrames++;
     if (this.fpsAcc >= 0.5) {
       this.fps = this.fpsFrames / this.fpsAcc;
+      this.simMs = this.simAcc / this.fpsFrames;
+      this.renderMs = this.renderAcc / this.fpsFrames;
       this.fpsAcc = 0;
       this.fpsFrames = 0;
+      this.simAcc = 0;
+      this.renderAcc = 0;
     }
 
     if (!this.inputBlocked) this.updateCamera(dtReal);
 
     const running = !this.paused && this.outcome === 'running';
+    const simStart = performance.now();
     if (running) {
       this.accumulator += dtReal * this.settings.speed;
       let ticks = 0;
@@ -283,6 +293,7 @@ export class Game {
       }
       if (ticks >= MAX_TICKS_PER_FRAME) this.accumulator = 0; // Rechner zu langsam: Zeit verwerfen statt Spirale
     }
+    this.simAcc += performance.now() - simStart;
 
     if (this.drill && this.drill.phase !== 'done') {
       const before: string = this.drill.phase;
@@ -305,6 +316,7 @@ export class Game {
       this.audio.consume(this.world, this.frameEvents, nowMs);
       this.frameEvents = [];
     }
+    const renderStart = performance.now();
     if (this.view === '3d' && this.scene3d) this.scene3d.render(this.world, this.cam3d, alpha, this.selection, hoverEnemyId, nowMs);
     render(this.ctx, {
       mode: this.view,
@@ -329,13 +341,14 @@ export class Game {
       groupsOf: (id) => this.groups.groupsOf(id),
       drillMarker: this.drill?.marker ?? null,
     });
+    this.renderAcc += performance.now() - renderStart;
   }
 
-  get stats(): { tick: number; fps: number; simTime: number; mine: number; theirs: number } {
+  get stats(): { tick: number; fps: number; simMs: number; renderMs: number; simTime: number; mine: number; theirs: number } {
     let mine = 0;
     let theirs = 0;
     for (const u of this.world.units) if (u.alive) u.player === MY_PLAYER ? mine++ : theirs++;
-    return { tick: this.world.tick, fps: this.fps, simTime: this.world.tick * this.world.dt, mine, theirs };
+    return { tick: this.world.tick, fps: this.fps, simMs: this.simMs, renderMs: this.renderMs, simTime: this.world.tick * this.world.dt, mine, theirs };
   }
 
   get pointerLockActive(): boolean {

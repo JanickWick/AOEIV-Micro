@@ -18,11 +18,12 @@ describe('Untergruppen', () => {
   it('ordnet die Typ-Karten in fester Reihenfolge, unabhängig von der Auswahlreihenfolge', () => {
     const { world, all } = mixedWorld();
     const g = subgroupsOf(world.units, all);
-    expect(g.map((x) => x.defId)).toEqual(['spearman', 'archer', 'horseman']);
+    // Reihenfolge wie im Spiel (Clip 6/7): Reiter, Bogenschütze, Speerkämpfer
+    expect(g.map((x) => x.defId)).toEqual(['horseman', 'archer', 'spearman']);
     expect(g.map((x) => x.ids.length)).toEqual([2, 3, 2]);
   });
 
-  it('Tab wechselt zyklisch Alle → Speer → Bogen → Reiter → Alle, Strg+Tab rückwärts', () => {
+  it('Tab wechselt zyklisch Alle → Reiter → Bogen → Speer → Alle, Strg+Tab rückwärts', () => {
     const { world, all } = mixedWorld();
     const g = subgroupsOf(world.units, all);
     let a: string | null = null;
@@ -31,9 +32,9 @@ describe('Untergruppen', () => {
       a = cycleSubgroup(a, g, 1);
       seen.push(a);
     }
-    expect(seen).toEqual(['spearman', 'archer', 'horseman', null]);
-    expect(cycleSubgroup(null, g, -1)).toBe('horseman');
-    expect(cycleSubgroup('spearman', g, -1)).toBe(null);
+    expect(seen).toEqual(['horseman', 'archer', 'spearman', null]);
+    expect(cycleSubgroup(null, g, -1)).toBe('spearman');
+    expect(cycleSubgroup('horseman', g, -1)).toBe(null);
   });
 
   it('Tab bei nur einem Typ bleibt auf Alle', () => {
@@ -57,7 +58,7 @@ describe('Untergruppen', () => {
     const { world, all, a } = mixedWorld();
     for (const id of a) world.units[id - 1]!.alive = false;
     const g = subgroupsOf(world.units, all);
-    expect(g.map((x) => x.defId)).toEqual(['spearman', 'horseman']);
+    expect(g.map((x) => x.defId)).toEqual(['horseman', 'spearman']);
     expect(resolveActive('archer', g)).toBe(null);
     expect(commandTargets(world.units, all, 'archer').length).toBe(4);
   });
@@ -72,7 +73,7 @@ describe('Untergruppen', () => {
     // Stirbt ein Reiter, verschwindet nur er aus der Gruppe
     world.units[h[0]! - 1]!.alive = false;
     expect(groups.get(1, world.units).length).toBe(6);
-    expect(subgroupsOf(world.units, groups.get(1, world.units)).map((g) => g.defId)).toEqual(['spearman', 'archer', 'horseman']);
+    expect(subgroupsOf(world.units, groups.get(1, world.units)).map((g) => g.defId)).toEqual(['horseman', 'archer', 'spearman']);
   });
 });
 

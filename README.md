@@ -69,18 +69,27 @@ Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spi
 - Unten rechts die Minimap als Raute (3D) mit Kamera-Trapez, als Rechteck in der 2D-Ansicht.
 - UI-Größe in Prozent in den Einstellungen (60 bis 160 %), wie die UI-Skalierung im Spiel.
 
-Formationen wirken auf die Abstände beim nächsten Bewegungsbefehl (versetzt = Reihen um den halben
-Abstand verschoben, aufgelockert = größerer Abstand); Löschen tötet die Auswahl sofort und zählt
-als Verlust.
+Formationen (nach den Clips 8–10): Linie = Block in Reihen nach Klasse (Nahkampf vorn, Schützen
+dahinter, Kavallerie hinten), Keil = Reihen 1/3/5/… mit der Kavallerie an der Spitze, aufgelockert
+= gleiche Ordnung mit doppeltem Abstand. Sie wirken beim nächsten Bewegungsbefehl; Löschen tötet
+die Auswahl sofort und zählt als Verlust.
+
+### Vergleich mit dem Spiel und Leistung (G5)
+
+`docs/G5-VERGLEICH.md` stellt Trainer und Spiel (Clip 6, 1920×1080) nebeneinander
+(`docs/vergleich/`) und listet die verbleibenden sichtbaren Abweichungen. Szenario 11 ist der
+Lasttest mit 200 Einheiten; die FPS-Anzeige oben rechts zeigt Bilder pro Sekunde, Simulationszeit
+und Darstellungszeit (JS-Anteil) je Bild. Figuren sind pro Körperteil instanziert, die Simulation
+braucht mit 200 Einheiten etwa 1 ms je Tick.
 
 ### Auswahl-Leiste und Untergruppen (G4)
 
 Die Leiste zeigt "ALLE (n)" und eine Karte je Einheitentyp in fester Reihenfolge (Speerkämpfer,
 Soldat, Bogenschütze, Armbrustschütze, Reiter, Ritter, Mangonel, Springald). Tab wählt die nächste
 Untergruppe, Strg+Tab die vorige (Zyklus über "Alle"); die aktive Karte ist gold umrandet und alle
-Befehle (Raster, Tasten, Rechtsklick) gehen nur an diese Einheiten. Klick auf eine Karte behält nur
-diesen Typ, Shift- oder Strg-Klick entfernt ihn (Taste in den Einstellungen wählbar), Klick auf
-"ALLE" hebt die Untergruppe auf. Bei einem Typ oder aktiver Untergruppe erscheint die Einzelansicht
+Befehle (Raster, Tasten, Rechtsklick) gehen nur an diese Einheiten. Klick auf eine Karte aktiviert
+die Untergruppe, Shift-Klick entfernt den Typ aus der Auswahl, Strg-Klick behält nur ihn (wie im
+Spiel; in den Einstellungen vertauschbar), Klick auf "ALLE" hebt die Untergruppe auf. Bei einem Typ oder aktiver Untergruppe erscheint die Einzelansicht
 mit Porträt-Kachel, Name, Zeitalter, Lebenspunkten (Summe / Maximum), Angriff, Rüstung
 Nahkampf/Fernkampf, Reichweite und Tempo; sie wird laufend aktualisiert. Stirbt der aktive Typ
 vollständig, fällt die Auswahl auf "Alle" zurück; Kontrollgruppen behalten ihre Zusammensetzung.
@@ -107,7 +116,7 @@ Untergruppe, Kontrollgruppen-Zusammensetzung, Drill-Schritte).
 | Z / X / C | Formation Linie / versetzt / aufgelockert |
 | ENTF | Ausgewählte eigene Einheiten löschen |
 | Tab / Strg + Tab | Untergruppe (Einheitentyp) der Auswahl weiter / zurück; Befehle gehen dann nur an diese |
-| Klick auf Typ-Karte | Nur diesen Typ behalten; Shift/Strg + Klick: Typ aus der Auswahl entfernen |
+| Klick auf Typ-Karte | Untergruppe aktivieren; Shift + Klick: Typ aus der Auswahl entfernen; Strg + Klick: nur diesen Typ behalten |
 | Strg + 0–9 | Kontrollgruppe auf die aktuelle Auswahl setzen (alle anderen fallen raus) |
 | Shift + 0–9 | Auswahl zur Kontrollgruppe hinzufügen |
 | Strg + Shift + 0–9 | Auswahl exklusiv in die Gruppe (aus allen anderen entfernen) |
@@ -197,6 +206,7 @@ Die Darstellung interpoliert zwischen zwei Simulationsticks; Befehle werden im n
 | 8 | Zwei-Gruppen-Micro | 8 Bogen + 4 Reiter gegen 6 Speer + 4 Bogen (II) | mittel |
 | 9 | Hotkey-Drill (ohne Kampf) | 3 vorbelegte Kontrollgruppen, 20 Ansagen auf Zeit | keine |
 | 10 | Untergruppen-Drill (ohne Kampf) | Gemischte Truppe, Ansagen mit Tab-Untergruppen und Karten-Klicks auf Zeit | keine |
+| 11 | Leistungstest 100 gegen 100 | Je 100 Einheiten, zum Prüfen der Bildrate (FPS-Anzeige mit Sim- und Bildzeit) | schwer |
 | – | Sandbox | 10 Bogen + 4 Reiter gegen 6 passive Speer | keine |
 | – | Editor | frei: Einheiten, Zeitalter, Anzahl, Upgrades, KI, Abstand | wählbar |
 
@@ -271,4 +281,4 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 - [x] G2: Prozedurale Figuren mit Gelenken, sim-gesteuerte Animationen, Projektile, Effekte, Ton
 - [x] G3: HUD nach AoE4-Vorbild (Paneele, Befehlsraster mit Tastenbeschriftung, Gruppen-Marken, Minimap-Raute, Formationen, Löschen)
 - [x] G4: Auswahl-Leiste mit Untergruppen (Tab/Strg+Tab, Karten-Klicks, Einzelansicht), Untergruppen-Drill, Tests
-- [ ] G5: Feinschliff, Leistung, Vergleich mit den Screenshots
+- [x] G5: Formationen nach Clips, HUD-Maße nach Clip 6, Lasttest 100 gegen 100, Vergleich in `docs/G5-VERGLEICH.md`

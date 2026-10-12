@@ -550,12 +550,28 @@ function drawMinimap(ctx: CanvasRenderingContext2D, s: RenderState): void {
     ctx.closePath();
   };
   ctx.save();
-  // Paneel-Hintergrund (das HUD lässt den Rahmen der Minimap durchsichtig, damit der Canvas hier zeichnen kann)
-  const grad = ctx.createLinearGradient(0, m.y0, 0, m.y1);
-  grad.addColorStop(0, '#142a44');
-  grad.addColorStop(1, '#0f1c2e');
-  ctx.fillStyle = grad;
-  ctx.fillRect(m.x0 - 8, m.y0 - 8, m.x1 - m.x0 + 16, m.y1 - m.y0 + 16);
+  // Hintergrund: im 3D-Modus eine runde Scheibe mit Goldring und "N" wie im Spiel, im 2D-Debug ein Paneel
+  if (m.rotation !== 0) {
+    const r = (m.x1 - m.x0) / 2 + 6;
+    ctx.beginPath();
+    ctx.arc(m.cx, m.cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(12, 18, 28, 0.85)';
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(201, 162, 77, 0.8)';
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(201, 162, 77, 0.9)';
+    ctx.font = 'bold 11px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('N', m.cx, m.cy - r + 12);
+  } else {
+    const grad = ctx.createLinearGradient(0, m.y0, 0, m.y1);
+    grad.addColorStop(0, '#142a44');
+    grad.addColorStop(1, '#0f1c2e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(m.x0 - 8, m.y0 - 8, m.x1 - m.x0 + 16, m.y1 - m.y0 + 16);
+  }
   // Karte mit etwas Rand (Raute im 3D-Modus, Rechteck in 2D)
   ctx.lineJoin = 'round';
   outline();

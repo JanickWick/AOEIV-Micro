@@ -1,0 +1,20 @@
+{
+  "id": "leistungstest",
+  "name": "11 · Leistungstest 100 gegen 100",
+  "description": "Je 100 Einheiten (Speerkämpfer, Soldaten, Bogenschützen, Reiter) auf beiden Seiten, Zeitalter II, harte KI. Zum Prüfen der Bildrate: FPS-Anzeige oben rechts zeigt Bilder pro Sekunde, Simulations- und Darstellungszeit je Bild.",
+  "goal": "Kein Trainingsziel. Ziel der Stufe G5: 200 Einheiten bei 60 Bildern pro Sekunde.",
+  "map": { "width": 80, "height": 60 },
+  "seed": 11,
+  "victory": "annihilation",
+  "ai": { "level": "hard", "reactionMs": 400 },
+  "groups": [
+    { "player": 0, "unit": "spearman", "age": 2, "count": 30, "center": { "x": 24, "y": 24 }, "facing": 0 },
+    { "player": 0, "unit": "man-at-arms", "age": 2, "count": 20, "center": { "x": 24, "y": 32 }, "facing": 0 },
+    { "player": 0, "unit": "archer", "age": 2, "count": 30, "center": { "x": 18, "y": 28 }, "facing": 0 },
+    { "player": 0, "unit": "horseman", "age": 2, "count": 20, "center": { "x": 22, "y": 38 }, "facing": 0 },
+    { "player": 1, "unit": "spearman", "age": 2, "count": 30, "center": { "x": 56, "y": 24 }, "facing": 180 },
+    { "player": 1, "unit": "man-at-arms", "age": 2, "count": 20, "center": { "x": 56, "y": 32 }, "facing": 180 },
+    { "player": 1, "unit": "archer", "age": 2, "count": 30, "center": { "x": 62, "y": 28 }, "facing": 180 },
+    { "player": 1, "unit": "horseman", "age": 2, "count": 20, "center": { "x": 58, "y": 38 }, "facing": 180 }
+  ]
+}

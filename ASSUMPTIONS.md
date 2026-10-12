@@ -234,23 +234,50 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
 
 ## Auswahl-Leiste und Untergruppen (G4)
 
-78. (A) Typ-Karten in fester Reihenfolge Speerkämpfer, Soldat, Bogenschütze, Armbrustschütze,
-    Reiter, Ritter, Mangonel, Springald (Infanterie, Fernkampf, Kavallerie, Belagerung), unabhängig
-    von der Auswahlreihenfolge. Die Reihenfolge des Spiels ist nicht aus den Unterlagen belegt.
+78. (V) Typ-Karten in fester Reihenfolge Reiter, Ritter, Bogenschütze, Armbrustschütze,
+    Speerkämpfer, Soldat, Mangonel, Springald, unabhängig von der Auswahlreihenfolge. Clip 6/7
+    zeigen Reiter, Bogenschütze, Speerkämpfer in dieser Reihenfolge; die Einordnung der übrigen
+    Typen (Kavallerie, Fernkampf, Infanterie, Belagerung) ist daraus abgeleitet.
 79. (V) Tab = nächste Untergruppe, Strg+Tab = vorige (aus der Hotkey-Datei). Der Zyklus enthält
     "Alle": Alle → erster Typ → … → letzter Typ → Alle. Bei nur einem Typ bleibt Tab wirkungslos.
     Ob das Spiel "Alle" im Zyklus hat, ist nicht geprüft.
 80. (A) Befehle (Raster, Tasten, Rechtsklick) gehen an die aktive Untergruppe; Kontrollgruppen
     (Strg/Shift+Zahl) werden dagegen aus der ganzen Auswahl gesetzt. Jede Auswahländerung setzt
     die Untergruppe auf "Alle" zurück; stirbt der aktive Typ vollständig, ebenfalls.
-81. (V) Karten-Klick ohne Taste = nur diesen Typ behalten; mit Shift oder Strg (einstellbar:
-    Shift, Strg oder beides) = Typ aus der Auswahl entfernen. Klick auf "ALLE" hebt die
-    Untergruppe auf. Kontrollgruppen behalten ihre Zusammensetzung, auch wenn die Auswahl Typen
+81. (V) Karten-Klick: Shift+Klick entfernt den Typ aus der Auswahl, Strg+Klick behält nur ihn
+    (Angabe des Nutzers, wie im Spiel; in den Einstellungen vertauschbar). Klick ohne Taste
+    aktiviert die Untergruppe (wie Tab), Klick auf "ALLE" hebt sie auf. Kontrollgruppen behalten ihre Zusammensetzung, auch wenn die Auswahl Typen
     verliert.
-82. (A) Einzelansicht (ein Typ in der Auswahl oder aktive Untergruppe): Porträt als Kürzel-Kachel
-    (keine Spielgrafik), Name, Zeitalter, Lebenspunkte als Summe der Auswahl / Maximum, Angriff,
-    Rüstung Nahkampf/Fernkampf (inkl. Schmiede-Upgrades), Reichweite, Tempo.
+82. (V) Einzelansicht nur bei genau einer ausgewählten Einheit (Clip 6/7: bei 5 Einheiten eines
+    Typs zeigt das Spiel nur die Karte): Porträt als Kürzel-Kachel (keine Spielgrafik), Name,
+    Zeitalter, Lebenspunkte, Angriff, Rüstung Nahkampf/Fernkampf (inkl. Schmiede-Upgrades),
+    Reichweite, Tempo.
 83. (A) Untergruppen-Drill (Szenario 10): jede Aufgabe beginnt mit "Alle auswählen"; ein Befehl
     zählt nur, wenn genau die Einheiten des verlangten Typs ihn bekommen. Typnamen deutsch
     (eigene Tabelle), da die Datendateien englische Namen führen.
+
+## Formationen und Feinschliff (G5)
+
+84. (V) Linie (Z): Block in Reihen nach Klasse, Nahkampf-Infanterie vorn, Fernkampf und Belagerung
+    dahinter, Kavallerie hinten; vorn = Richtung der letzten Bewegung (Clip 8). Spaltenzahl einer
+    Klasse ≈ √(2,5·n) (3 → 3, 10 → 5); in den Clips bildet jede Klasse mit 5 Einheiten eine eigene
+    Reihe, die Breite einer einzelnen großen Klasse ist nicht belegt.
+85. (V) Keil (X): Reihenbreiten 1, 3, 5, … von hinten (Spitze, Kavallerie) nach vorn, letzte Reihe
+    nimmt den Rest (Clip 9: 1/3/5/6). Ob die Spitze im Spiel vorn oder hinten liegt, ist aus dem
+    Clip nicht sicher; hier liegt sie hinten (Reiter zuletzt in Bewegungsrichtung).
+86. (V) Aufgelockert (C): gleiche Ordnung wie Linie mit Faktor 2 auf Spalten- und Reihenabstand
+    (Clip 10: Reiter 2,2 : 1,0, Infanterie 1,7 : 0,9 Tiles).
+87. (A) Spaltenabstand je Reihe = 2·Radius der größten Einheit der Reihe + 0,2 Tiles
+    (Infanterie 0,64, Reiter 1,0); Reihenabstand = 2·größter Radius der Gruppe + 0,2. Clip 10 misst
+    im Block ≈ 0,9 Tiles für Infanterie; der Unterschied (0,64) ist nicht aufgelöst, da
+    Nr. 58 (Radien) aus Clip 5 stammt.
+88. (V) Gruppenmarken links wie im Spiel: kleine Anzahl oben links, Wappen mit Klassensymbol
+    (Zielscheibe Fernkampf, gekreuzte Schwerter Infanterie, Hufeisen Kavallerie; eigene Zeichnungen),
+    große Gruppennummer unten rechts; gemischte Gruppen mit drei Punkten.
+89. (V) Minimap im 3D-Modus als runde Scheibe mit Goldring und "N" oben, Karte als Raute darin
+    (Clip 6); Durchmesser ≈ 26 em (Spiel: ≈ 380 px bei 1080p). Untere Paneele ≈ 16 em hoch, Auswahl
+    + Raster ≈ 54 em breit (Spiel: ≈ 240 px hoch, ≈ 700 px breit bei 1080p).
+90. (A) Leistung: Simulation mit 200 Einheiten ≈ 1,0 ms je Tick (Node, Vitest), Darstellung
+    (JS-Anteil) ≈ 5 ms je Bild bei 1080p im Software-Renderer des Containers. Echte Bildraten auf
+    Grafikhardware konnten hier nicht gemessen werden; die FPS-Anzeige zeigt FPS, Sim-ms und Bild-ms.
 

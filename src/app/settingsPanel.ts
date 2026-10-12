@@ -114,19 +114,18 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
   });
   const cardMod = el('select', { id: 'set-cardmod' });
   for (const [v, label] of [
-    ['both', 'Shift oder Strg'],
-    ['shift', 'nur Shift'],
-    ['ctrl', 'nur Strg'],
+    ['game', 'Shift entfernt den Typ, Strg behält nur ihn (wie im Spiel)'],
+    ['swapped', 'Strg entfernt den Typ, Shift behält nur ihn'],
   ] as const)
     cardMod.append(el('option', { value: v, text: label }));
-  cardMod.value = d.settings.cardRemoveModifier;
+  cardMod.value = d.settings.cardModifiers;
   cardMod.addEventListener('change', () => {
-    d.settings.cardRemoveModifier = cardMod.value as DisplaySettings['cardRemoveModifier'];
+    d.settings.cardModifiers = cardMod.value as DisplaySettings['cardModifiers'];
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
   root.append(
-    el('div', { class: 'row' }, [el('label', {}, ['UI-Größe ', ui, ' ', uiLabel]), el('label', {}, ['Typ-Karte: Typ entfernen mit ', cardMod]), el('span', { class: 'note', text: '(Klick ohne Taste = nur diesen Typ behalten, Tab / Strg+Tab = Untergruppe wechseln)' })]),
+    el('div', { class: 'row' }, [el('label', {}, ['UI-Größe ', ui, ' ', uiLabel]), el('label', {}, ['Typ-Karten: ', cardMod]), el('span', { class: 'note', text: '(Klick ohne Taste = Untergruppe aktivieren, Tab / Strg+Tab = Untergruppe wechseln)' })]),
     el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, [shadows, ' Schatten (3D)']), el('label', {}, [fps, ' FPS anzeigen']), el('label', {}, [sound, ' Ton']), el('label', {}, ['Lautstärke ', vol])]),
     el('div', { class: 'row' }, [
       el('label', {}, ['Lebensbalken ', hb]),
