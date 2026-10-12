@@ -32,7 +32,7 @@ npm run data:unverified# Alle Werte mit "verified": false auflisten
 | Linksklick ziehen | Auswahlrahmen |
 | Doppelklick auf Einheit | Alle sichtbaren Einheiten dieses Typs |
 | Shift + Linksklick / Rahmen | Zur Auswahl hinzufügen bzw. entfernen |
-| Rechtsklick | Bewegen (Befehl wird beim Drücken ausgelöst, nicht beim Loslassen) |
+| Rechtsklick | Bewegen; auf einen Gegner: angreifen (Befehl wird beim Drücken ausgelöst, nicht beim Loslassen) |
 | Shift + Rechtsklick | Befehl einreihen (Wegpunkte); bei gehaltenem Shift werden die Wegpunkte angezeigt |
 | S | Stopp |
 | Pfeiltasten, Bildschirmrand, mittlere Maustaste ziehen | Kamera |
@@ -47,6 +47,23 @@ Einstellungsmenü frei belegbar. Browser-Standardaktionen (Kontextmenü, Strg+Za
 F-Tasten außer F11/F12, Tab, Alt) werden im Spiel unterdrückt. Vollbild über den Button
 (mit Keyboard-Lock, sofern der Browser es unterstützt – Chrome/Edge).
 
+## Einstellungen und Kalibrierung
+
+Der Button **Einstellungen** (pausiert das Spiel) öffnet:
+
+- Anzeige: Lebensbalken (immer / bei Auswahl oder Schaden / nur Auswahl), Reichweitenring als
+  Zoom-Kalibrierhilfe, Angriffs-Timing-Balken unter eigenen Einheiten (gelb = Ausholen, blau =
+  Nachlauf, grau = Abklingzeit). Der Zoom wird gespeichert.
+- Simulationsregeln: Abklingzeit beim Laufen, Auto-Angriffsreichweite, Verfolgungsgrenze,
+  Nahkampf-Treffertoleranz, Belagerungsschaden vs. Rüstung, Blickwinkel-Toleranz, Gruppen-Tempo.
+- Kalibrierung: jeder Wert mit `"verified": false` aus den Einheitendaten ist editierbar
+  (Kollisionsradius, Beschleunigung, Drehrate, Projektiltempo, Mangonel-Radius, Ansturm,
+  Abwehrstellung). Ein gesetzter Wert gilt als nachgemessen; leeres Feld stellt den Platzhalter
+  wieder her. Werte pro Zeitalter werden gemeinsam gesetzt.
+- Export/Import aller Einstellungen (Anzeige, Kalibrierung, Hotkeys) als JSON-Datei.
+
+Alle Werte liegen in localStorage des Browsers.
+
 ## Projektstruktur
 
 ```
@@ -57,12 +74,17 @@ src/sim/            Simulation, reine Logik ohne Browser (fester Takt 60 Ticks/s
   types.ts          Welt, Einheiten, Befehle, Regeln
   world.ts          Welt anlegen, Einheiten spawnen
   formation.ts      Lockere Blockformation für Gruppenbefehle
-  commands.ts       Befehle anwenden (Bewegen, Stopp, Einreihen)
+  commands.ts       Befehle anwenden (Bewegen, Angreifen, Attack-Move, Halten, Stopp, Einreihen)
   movement.ts       Beschleunigung, Drehen, Ankunft, Kollision, Blockade-Erkennung
+  combat.ts         Zielerfassung, Angriffsablauf (Windup/Treffer/Recovery/Cooldown), Ansturm, Abwehrstellung
+  damage.ts         Schadensformel (Angriff + Bonus - Rüstung, Resistenz, mindestens 1)
+  projectiles.ts    Pfeile (zielsuchend) und Mangonel-Geschosse (Bodenpunkt, Flächenschaden)
+  ai.ts             Gegner-KI (M2: Stufe leicht)
   step.ts           Ein Tick
   scenario.ts       Szenario-Datei -> Welt
   hash.ts           Zustands-Hash für Determinismus-Tests
-src/app/            Browser-Seite: Kamera, Eingabe, Darstellung (Canvas 2D), Hotkeys
+src/app/            Browser-Seite: Kamera, Eingabe, Darstellung (Canvas 2D), Hotkeys,
+                    Einstellungen/Kalibrierung, Rundenauswertung
 src/data/units/     Einheitendaten (JSON), erzeugt von scripts/import-units.mjs
 src/data/scenarios/ Szenarien (JSON)
 scripts/            Datenimport und Prüfskripte
@@ -94,7 +116,8 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 ## Meilensteine
 
 - [x] M1: Projektgerüst, Simulationskern mit Tests, Karte, Kamera, Auswahl, Bewegen, Datenimport
-- [ ] M2: Kampfmodell (Windup/Cooldown, Projektile, Flächenschaden), Szenario 1 spielbar
+- [x] M2: Kampfmodell (Windup/Cooldown, Projektile, Flächenschaden, Auto-Angriff, Ansturm,
+      Abwehrstellung), leichte KI, Kalibrierungsmenü, Szenario 1 spielbar
 - [ ] M3: Kontrollgruppen, Befehlsketten, Attack-Move/Stopp/Halten/Patrouille, Hotkey-Menü, Vollbild
 - [ ] M4: Gegner-KI in 3 Stufen, Szenarien 2 bis 8
 - [ ] M5: Auswertung, Verlauf, Hotkey-Drill, Editor

@@ -22,8 +22,10 @@ export function createWorld(opts: WorldOptions): World {
     rng: createRng(seed),
     defs: opts.defs,
     units: [],
+    projectiles: [],
     nextUnitId: 1,
     nextGroupId: 1,
+    nextProjectileId: 1,
     events: [],
   };
 }
@@ -39,6 +41,7 @@ export interface SpawnOptions {
 export function spawnUnit(world: World, o: SpawnOptions): UnitState {
   const def = world.defs.get(o.defId);
   const ages = world.defs.ageStats(o.defId, o.age);
+  const hasCharge = def.abilities.charge?.enabled === true;
   const unit: UnitState = {
     id: world.nextUnitId++,
     player: o.player,
@@ -56,10 +59,15 @@ export function spawnUnit(world: World, o: SpawnOptions): UnitState {
     hp: ages.hp,
     maxHp: ages.hp,
     alive: true,
+    diedTick: -1,
     orders: [],
     stuckTicks: 0,
     lastDist: Infinity,
     idleSince: world.tick,
+    attack: { targetId: null, auto: false, phase: 'idle', phaseEndsTick: 0, startTick: 0, cooldownLeft: 0, leashOrigin: null },
+    charge: hasCharge ? { runUp: 0, charging: false, cooldownLeft: 0 } : null,
+    braceUntilTick: -1,
+    lastHitTick: -1000,
   };
   world.units.push(unit);
   return unit;
@@ -77,4 +85,9 @@ export function aliveUnits(world: World, player?: PlayerId): UnitState[] {
 
 export function isIdle(u: UnitState): boolean {
   return u.orders.length === 0;
+}
+
+/** Abstand Rand zu Rand (negativ bei Überlappung). */
+export function edgeDistance(a: UnitState, b: UnitState): number {
+  return Math.hypot(a.pos.x - b.pos.x, a.pos.y - b.pos.y) - a.radius - b.radius;
 }

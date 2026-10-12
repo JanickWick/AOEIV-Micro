@@ -1,4 +1,5 @@
 /** Wendet Spieler-/KI-Befehle auf Einheiten an. Befehle wirken im selben Tick ohne Verzögerung. */
+import { clearTarget, onNewOrder } from './combat';
 import { computeFormation } from './formation';
 import { clamp, type Vec2 } from './math';
 import type { Command, Order, UnitState, World } from './types';
@@ -27,6 +28,7 @@ function pushOrder(world: World, u: UnitState, order: Order, queue: boolean): vo
     u.orders = [order];
     u.stuckTicks = 0;
     u.lastDist = Infinity;
+    onNewOrder(world, u, order);
   }
   world.events.push({ kind: 'orderAccepted', unitId: u.id, tick: world.tick, order: order.kind });
 }
@@ -35,7 +37,7 @@ function pushOrder(world: World, u: UnitState, order: Order, queue: boolean): vo
 function plannedPos(u: UnitState): Vec2 {
   for (let i = u.orders.length - 1; i >= 0; i--) {
     const o = u.orders[i]!;
-    if (o.kind === 'move') return o.target;
+    if (o.kind === 'move' || o.kind === 'attackMove') return o.target;
   }
   return u.pos;
 }
@@ -61,12 +63,38 @@ export function applyCommand(world: World, cmd: Command): void {
       }
       return;
     }
+    case 'attackMove': {
+      const units = resolveUnits(world, cmd.unitIds);
+      if (units.length === 0) return;
+      const ghosts = units.map((u) => (cmd.queue ? { ...u, pos: plannedPos(u) } : u));
+      const slots = computeFormation(world, ghosts, cmd.target);
+      for (const slot of slots) {
+        const u = getUnit(world, slot.unitId)!;
+        pushOrder(world, u, { kind: 'attackMove', target: clampToMap(world, slot.target, u.radius) }, cmd.queue);
+      }
+      return;
+    }
+    case 'attack': {
+      const target = getUnit(world, cmd.targetId);
+      if (!target || !target.alive) return;
+      for (const u of resolveUnits(world, cmd.unitIds)) {
+        if (u.player === target.player) continue;
+        pushOrder(world, u, { kind: 'attack', targetId: cmd.targetId }, cmd.queue);
+      }
+      return;
+    }
+    case 'hold': {
+      for (const u of resolveUnits(world, cmd.unitIds)) pushOrder(world, u, { kind: 'hold' }, false);
+      return;
+    }
     case 'stop': {
       for (const u of resolveUnits(world, cmd.unitIds)) {
         u.orders = [];
         u.speed = 0;
         u.stuckTicks = 0;
         u.idleSince = world.tick;
+        clearTarget(world, u, 'stop');
+        u.attack.leashOrigin = { x: u.pos.x, y: u.pos.y };
       }
       return;
     }

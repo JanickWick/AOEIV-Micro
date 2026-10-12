@@ -107,6 +107,10 @@
         "melee": 0,
         "ranged": 0
       },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
       "cost": {
         "food": 80,
         "wood": 0,
@@ -166,6 +170,10 @@
       "name": "Elite Crossbowman",
       "hp": 95,
       "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
         "melee": 0,
         "ranged": 0
       },

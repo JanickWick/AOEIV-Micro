@@ -1,17 +1,20 @@
 /**
- * Spielzustand im Browser: Welt, Kamera, Auswahl, Eingabe (Maus/Tastatur) und
- * die feste Simulationsschleife mit interpolierter Darstellung.
+ * Spielzustand im Browser: Welt, Kamera, Auswahl, Eingabe (Maus/Tastatur), KI-Anbindung
+ * und die feste Simulationsschleife mit interpolierter Darstellung.
  */
 import { SCENARIOS } from '../data/scenarios/index';
+import { createAi, type AiController } from '../sim/ai';
 import type { Vec2 } from '../sim/math';
-import { buildWorldFromScenario, type ScenarioDef } from '../sim/scenario';
+import { buildWorldFromScenario, evaluateOutcome, type Outcome, type ScenarioDef } from '../sim/scenario';
 import { stepWorld } from '../sim/step';
-import type { Command, UnitId, World } from '../sim/types';
+import type { Command, SimRules, UnitId, World } from '../sim/types';
 import type { UnitDefLibrary } from '../sim/unitDefs';
 import { Camera } from './camera';
 import { HotkeyMap, type ActionId } from './hotkeys';
 import { computeMinimapLayout, render, type Marker, type MinimapLayout } from './renderer';
 import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitsInRect, unitsOfTypeInRect, type Rect } from './selection';
+import type { DisplaySettings } from './settings';
+import { SummaryTracker, type RoundSummary } from './summary';
 
 const DRAG_THRESHOLD_PX = 4;
 const DOUBLE_CLICK_MS = 350;
@@ -37,9 +40,11 @@ export class Game {
   private pending: Command[] = [];
   private markers: Marker[] = [];
   paused = false;
-  speed = 1;
-  randomStart = false;
   private seedOffset = 0;
+  private ai: AiController | null = null;
+  private tracker = new SummaryTracker();
+  outcome: Outcome = 'running';
+  summary: RoundSummary | null = null;
 
   private accumulator = 0;
   private lastFrame = 0;
@@ -54,13 +59,18 @@ export class Game {
   private lastClick: { atMs: number; unitId: UnitId | null } = { atMs: 0, unitId: null };
   private minimap!: MinimapLayout;
   private ctx: CanvasRenderingContext2D;
+  /** Eingabe blockiert, solange ein Menü offen ist. */
+  inputBlocked = false;
 
   onStateChanged: (() => void) | null = null;
+  onRoundFinished: ((s: RoundSummary) => void) | null = null;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
-    private readonly defs: UnitDefLibrary,
+    private defs: UnitDefLibrary,
     public readonly hotkeys: HotkeyMap,
+    public readonly settings: DisplaySettings,
+    private ruleOverrides: Partial<SimRules>,
     scenario: ScenarioDef = SCENARIOS[0]!,
   ) {
     this.scenario = scenario;
@@ -68,6 +78,7 @@ export class Game {
     if (!ctx) throw new Error('Canvas 2D nicht verfügbar');
     this.ctx = ctx;
     this.camera = new Camera(scenario.map.width, scenario.map.height);
+    this.camera.zoom = settings.zoom;
     this.restart();
     this.attachInput();
     this.resize();
@@ -75,16 +86,28 @@ export class Game {
 
   // ---------------------------------------------------------------- Szenario
 
+  /** Neue Einheitendaten/Regeln (Kalibrierung) übernehmen; wirkt ab dem nächsten Neustart. */
+  setDefs(defs: UnitDefLibrary, rules: Partial<SimRules>): void {
+    this.defs = defs;
+    this.ruleOverrides = rules;
+  }
+
   restart(scenario?: ScenarioDef): void {
     if (scenario) this.scenario = scenario;
-    const seed = (this.scenario.seed ?? 1) + (this.randomStart ? this.seedOffset++ : 0);
-    this.world = buildWorldFromScenario(this.defs, this.scenario, { seed, randomStart: this.randomStart });
+    const sc = this.scenario;
+    const seed = (sc.seed ?? 1) + (this.settings.randomStart ? this.seedOffset++ : 0);
+    const merged: ScenarioDef = { ...sc, rules: { ...(sc.rules ?? {}), ...this.ruleOverrides } };
+    this.world = buildWorldFromScenario(this.defs, merged, { seed, randomStart: this.settings.randomStart });
+    this.ai = sc.ai && sc.ai.level !== 'none' ? createAi(1, sc.ai) : null;
+    this.tracker = new SummaryTracker();
+    this.outcome = 'running';
+    this.summary = null;
     this.selection.clear();
     this.pending = [];
     this.markers = [];
     this.accumulator = 0;
+    this.paused = false;
     this.camera.setMap(this.world.map.width, this.world.map.height);
-    // Kamera auf die eigenen Einheiten zentrieren
     const mine = this.world.units.filter((u) => u.player === MY_PLAYER);
     if (mine.length) {
       const cx = mine.reduce((s, u) => s + u.pos.x, 0) / mine.length;
@@ -118,23 +141,32 @@ export class Game {
       this.fpsFrames = 0;
     }
 
-    this.updateCamera(dtReal);
+    if (!this.inputBlocked) this.updateCamera(dtReal);
 
-    if (!this.paused) {
-      this.accumulator += dtReal * this.speed;
+    const running = !this.paused && this.outcome === 'running';
+    if (running) {
+      this.accumulator += dtReal * this.settings.speed;
       let ticks = 0;
-      while (this.accumulator >= this.world.dt && ticks < MAX_TICKS_PER_FRAME) {
-        stepWorld(this.world, this.pending);
+      while (this.accumulator >= this.world.dt && ticks < MAX_TICKS_PER_FRAME && this.outcome === 'running') {
+        const cmds = this.ai ? [...this.pending, ...this.ai.think(this.world)] : this.pending;
+        stepWorld(this.world, cmds);
         this.pending = [];
+        this.tracker.consume(this.world, this.world.events);
         this.accumulator -= this.world.dt;
         ticks++;
+        this.outcome = evaluateOutcome(this.world, this.scenario, MY_PLAYER);
+        if (this.outcome !== 'running') {
+          this.summary = this.tracker.finish(this.world, this.outcome);
+          this.onRoundFinished?.(this.summary);
+        }
       }
       if (ticks >= MAX_TICKS_PER_FRAME) this.accumulator = 0; // Rechner zu langsam: Zeit verwerfen statt Spirale
     }
 
-    const alpha = this.paused ? 1 : Math.min(1, this.accumulator / this.world.dt);
+    const alpha = running ? Math.min(1, this.accumulator / this.world.dt) : 1;
     this.markers = this.markers.filter((m) => nowMs - m.bornMs < 700);
     this.minimap = computeMinimapLayout(this.camera, this.world);
+    const hover = this.mouseInside && !this.drag ? unitAtPoint(this.world.units, this.camera.screenToWorld(this.mouse)) : null;
     render(this.ctx, {
       world: this.world,
       camera: this.camera,
@@ -146,11 +178,18 @@ export class Game {
       nowMs,
       minimap: this.minimap,
       paused: this.paused,
+      healthBars: this.settings.healthBars,
+      rangeRing: this.settings.rangeRing,
+      timingBars: this.settings.showTimingBars,
+      hoverEnemyId: hover && hover.player !== MY_PLAYER && this.selection.size > 0 ? hover.id : null,
     });
   }
 
-  get stats(): { tick: number; fps: number; simTime: number } {
-    return { tick: this.world.tick, fps: this.fps, simTime: this.world.tick * this.world.dt };
+  get stats(): { tick: number; fps: number; simTime: number; mine: number; theirs: number } {
+    let mine = 0;
+    let theirs = 0;
+    for (const u of this.world.units) if (u.alive) u.player === MY_PLAYER ? mine++ : theirs++;
+    return { tick: this.world.tick, fps: this.fps, simTime: this.world.tick * this.world.dt, mine, theirs };
   }
 
   private updateCamera(dt: number): void {
@@ -181,13 +220,20 @@ export class Game {
   }
 
   private selectedIds(): UnitId[] {
-    this.selection = new Set(pruneSelection([...this.selection], this.world.units));
+    this.selection = new Set(pruneSelection([...this.selection], this.world.units).filter((id) => this.world.units[id - 1]?.player === MY_PLAYER));
     return [...this.selection];
   }
 
-  commandMove(target: Vec2, queue: boolean): void {
+  /** Rechtsklick: Angriff auf Gegner unter dem Zeiger, sonst Bewegung. */
+  commandAt(target: Vec2, queue: boolean): void {
     const ids = this.selectedIds();
     if (ids.length === 0) return;
+    const hit = unitAtPoint(this.world.units, target);
+    if (hit && hit.player !== MY_PLAYER) {
+      this.issue({ kind: 'attack', unitIds: ids, targetId: hit.id, queue });
+      this.markers.push({ pos: { x: hit.pos.x, y: hit.pos.y }, bornMs: performance.now(), kind: 'attack' });
+      return;
+    }
     this.issue({ kind: 'move', unitIds: ids, target, queue });
     this.markers.push({ pos: { x: target.x, y: target.y }, bornMs: performance.now(), kind: queue ? 'queue' : 'move' });
   }
@@ -198,6 +244,7 @@ export class Game {
   }
 
   togglePause(): void {
+    if (this.outcome !== 'running') return;
     this.paused = !this.paused;
     this.onStateChanged?.();
   }
@@ -219,7 +266,6 @@ export class Game {
       return;
     }
     if (hit.player !== MY_PLAYER) {
-      // Gegner anklicken: zeigt ihn an, ersetzt aber keine Mehrfachauswahl (wie im Spiel: Einzelauswahl)
       if (!shift) this.setSelection([hit.id]);
       return;
     }
@@ -270,14 +316,14 @@ export class Game {
     });
 
     c.addEventListener('mousedown', (e) => {
+      if (this.inputBlocked) return;
       const p = this.screenPos(e);
       this.mouse = p;
       c.focus();
       const onMini = this.onMinimap(p);
       if (e.button === 2) {
-        // Rechtsklick: Befehl sofort beim Drücken (minimale Latenz)
         const target = onMini ? this.minimapToWorld(p) : this.camera.screenToWorld(p);
-        this.commandMove(target, e.shiftKey);
+        this.commandAt(target, e.shiftKey);
         e.preventDefault();
         return;
       }
@@ -289,15 +335,12 @@ export class Game {
     window.addEventListener('mousemove', (e) => {
       const p = this.screenPos(e);
       this.mouse = p;
-      this.mouseInside = p.x >= 0 && p.y >= 0 && p.x <= this.camera.viewportW && p.y <= this.camera.viewportH;
+      this.mouseInside = !this.inputBlocked && p.x >= 0 && p.y >= 0 && p.x <= this.camera.viewportW && p.y <= this.camera.viewportH;
       const d = this.drag;
       if (!d) return;
       if (!d.moved && Math.hypot(p.x - d.startScreen.x, p.y - d.startScreen.y) > DRAG_THRESHOLD_PX) d.moved = true;
-      if (d.button === 1) {
-        this.camera.panPixels(d.lastScreen.x - p.x, d.lastScreen.y - p.y);
-      } else if (d.button === 0 && d.onMinimap) {
-        this.camera.lookAt(this.minimapToWorld(p));
-      }
+      if (d.button === 1) this.camera.panPixels(d.lastScreen.x - p.x, d.lastScreen.y - p.y);
+      else if (d.button === 0 && d.onMinimap) this.camera.lookAt(this.minimapToWorld(p));
       d.lastScreen = p;
     });
 
@@ -320,7 +363,10 @@ export class Game {
       'wheel',
       (e) => {
         e.preventDefault();
-        this.camera.zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, this.screenPos(e));
+        if (this.inputBlocked) return;
+        this.camera.zoomAt(e.deltaY < 0 ? 1.08 : 1 / 1.08, this.screenPos(e));
+        this.settings.zoom = this.camera.zoom;
+        this.onStateChanged?.();
       },
       { passive: false },
     );
@@ -328,7 +374,7 @@ export class Game {
     window.addEventListener('keydown', (e) => {
       const target = e.target as HTMLElement | null;
       const inField = target != null && (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA');
-      if (inField) return;
+      if (inField || this.inputBlocked) return;
       this.keysDown.add(e.code);
       if (shouldPreventDefault(e) || this.hotkeys.isBound(e.code)) e.preventDefault();
       if (e.repeat) return;

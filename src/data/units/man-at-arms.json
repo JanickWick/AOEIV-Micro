@@ -114,6 +114,10 @@
         "melee": 2,
         "ranged": 3
       },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
       "cost": {
         "food": 90,
         "wood": 0,
@@ -160,6 +164,10 @@
       "armor": {
         "melee": 3,
         "ranged": 3
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
       },
       "cost": {
         "food": 90,
@@ -208,6 +216,10 @@
         "melee": 4,
         "ranged": 4
       },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
       "cost": {
         "food": 90,
         "wood": 0,
@@ -255,6 +267,10 @@
       "armor": {
         "melee": 5,
         "ranged": 6
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
       },
       "cost": {
         "food": 90,

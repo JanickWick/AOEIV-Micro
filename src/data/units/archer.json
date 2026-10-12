@@ -125,6 +125,10 @@
         "melee": 0,
         "ranged": 0
       },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
       "cost": {
         "food": 30,
         "wood": 50,
@@ -199,6 +203,10 @@
         "melee": 0,
         "ranged": 0
       },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
       "cost": {
         "food": 30,
         "wood": 50,
@@ -270,6 +278,10 @@
       "name": "Elite Archer",
       "hp": 95,
       "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
         "melee": 0,
         "ranged": 0
       },

@@ -2,7 +2,7 @@
  * Bewegungsmodell: Beschleunigung, Drehrate, Ankunft mit Abbremsen, weiche Kollision
  * zwischen Einheiten (kein Ineinanderlaufen) und Blockade-Erkennung.
  */
-import { angleOf, clamp, dist, turnTowards, wrapAngle } from './math';
+import { angleOf, clamp, dist, turnTowards, wrapAngle, type Vec2 } from './math';
 import { SpatialGrid } from './spatial';
 import type { UnitState, World } from './types';
 
@@ -11,29 +11,35 @@ const STUCK_TICKS_NEAR = 30; // nahe am Ziel: nach 0,5 s aufgeben
 const STUCK_TICKS_FAR = 150; // weit weg: nach 2,5 s aufgeben
 const STUCK_NEAR_DIST = 1.5;
 
-export function updateMovement(world: World, u: UnitState): void {
-  const order = u.orders[0];
-  if (!order || order.kind !== 'move') {
-    u.speed = 0;
-    return;
-  }
-  const dt = world.dt;
-  const dx = order.target.x - u.pos.x;
-  const dy = order.target.y - u.pos.y;
-  const d = Math.hypot(dx, dy);
+export type MoveResult = 'moving' | 'arrived' | 'blocked';
 
-  if (d <= world.rules.arriveTolerance) {
-    arrive(world, u);
-    return;
+/**
+ * Bewegt die Einheit einen Tick auf `target` zu. `arriveDist` ist der Abstand, ab dem das
+ * Ziel als erreicht gilt. Liefert, ob die Einheit angekommen ist oder blockiert aufgibt.
+ */
+export function moveTowards(world: World, u: UnitState, target: Vec2, arriveDist: number, speedCap?: number, speedMul = 1): MoveResult {
+  const dt = world.dt;
+  const dx = target.x - u.pos.x;
+  const dy = target.y - u.pos.y;
+  const d = Math.hypot(dx, dy);
+  const remaining = d - arriveDist;
+
+  if (remaining <= world.rules.arriveTolerance) {
+    u.speed = 0;
+    u.stuckTicks = 0;
+    u.lastDist = Infinity;
+    return 'arrived';
   }
 
   // Blockade-Erkennung: Fortschritt zum Ziel messen.
   if (u.lastDist - d < STUCK_PROGRESS) u.stuckTicks++;
   else u.stuckTicks = 0;
   u.lastDist = d;
-  if ((d < STUCK_NEAR_DIST && u.stuckTicks >= STUCK_TICKS_NEAR) || u.stuckTicks >= STUCK_TICKS_FAR) {
-    arrive(world, u);
-    return;
+  if ((remaining < STUCK_NEAR_DIST && u.stuckTicks >= STUCK_TICKS_NEAR) || u.stuckTicks >= STUCK_TICKS_FAR) {
+    u.speed = 0;
+    u.stuckTicks = 0;
+    u.lastDist = Infinity;
+    return 'blocked';
   }
 
   // Drehen
@@ -42,14 +48,14 @@ export function updateMovement(world: World, u: UnitState): void {
   const misalign = Math.abs(wrapAngle(desired - u.heading));
 
   // Tempo: beschleunigen, Tempo-Deckel der Gruppe, zum Ziel hin abbremsen.
-  const cap = Math.min(u.maxSpeed, order.speedCap ?? Infinity);
-  const arriveSpeed = Math.sqrt(2 * u.accel * d);
-  let target = Math.min(cap, arriveSpeed);
-  if (misalign > Math.PI / 2) target = Math.min(target, 0.25 * cap); // erst drehen, dann laufen
-  u.speed = Math.min(u.speed + u.accel * dt, target);
+  const cap = Math.min(u.maxSpeed * speedMul, speedCap ?? Infinity);
+  const arriveSpeed = Math.sqrt(2 * u.accel * Math.max(remaining, 0.001));
+  let goal = Math.min(cap, arriveSpeed);
+  if (misalign > Math.PI / 2) goal = Math.min(goal, 0.25 * cap); // erst drehen, dann laufen
+  u.speed = Math.min(u.speed + u.accel * dt, goal);
 
   // Bewegen: bei kleiner Abweichung direkt aufs Ziel, sonst entlang der Blickrichtung.
-  const step = Math.min(u.speed * dt, d);
+  const step = Math.min(u.speed * dt, remaining);
   if (misalign < 0.02) {
     u.pos.x += (dx / d) * step;
     u.pos.y += (dy / d) * step;
@@ -57,15 +63,14 @@ export function updateMovement(world: World, u: UnitState): void {
     u.pos.x += Math.cos(u.heading) * step;
     u.pos.y += Math.sin(u.heading) * step;
   }
+  return 'moving';
 }
 
-function arrive(world: World, u: UnitState): void {
-  u.orders.shift();
-  u.speed = 0;
-  u.stuckTicks = 0;
-  u.lastDist = Infinity;
-  if (u.orders.length === 0) u.idleSince = world.tick;
-  world.events.push({ kind: 'arrived', unitId: u.id, tick: world.tick });
+/** Dreht die Einheit zum Punkt; liefert die verbleibende Abweichung in Radiant. */
+export function faceTowards(world: World, u: UnitState, target: Vec2): number {
+  const desired = angleOf({ x: target.x - u.pos.x, y: target.y - u.pos.y });
+  u.heading = turnTowards(u.heading, desired, u.turnRate * world.dt);
+  return Math.abs(wrapAngle(desired - u.heading));
 }
 
 const grid = new SpatialGrid(2);
@@ -96,8 +101,8 @@ export function resolveCollisions(world: World): void {
         }
         const overlap = minDist - d;
         // Stehende Einheiten weichen weniger aus als laufende, damit Blöcke stabil bleiben.
-        const aMoving = a.orders.length > 0;
-        const bMoving = b.orders.length > 0;
+        const aMoving = a.speed > 0;
+        const bMoving = b.speed > 0;
         const wa = aMoving === bMoving ? 0.5 : aMoving ? 0.7 : 0.3;
         const nx = dx / d;
         const ny = dy / d;

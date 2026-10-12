@@ -1,6 +1,8 @@
-/** Ein Simulationstick: Befehle anwenden, bewegen, Kollisionen auflösen. Deterministisch. */
+/** Ein Simulationstick: Befehle anwenden, Einheiten (Kampf + Bewegung), Projektile, Kollisionen. Deterministisch. */
+import { updateUnit } from './combat';
 import { applyCommand } from './commands';
-import { resolveCollisions, updateMovement } from './movement';
+import { resolveCollisions } from './movement';
+import { updateProjectiles } from './projectiles';
 import type { Command, World } from './types';
 
 export function stepWorld(world: World, commands: readonly Command[] = []): void {
@@ -11,12 +13,13 @@ export function stepWorld(world: World, commands: readonly Command[] = []): void
     u.prevHeading = u.heading;
   }
   for (const c of commands) applyCommand(world, c);
-  for (const u of world.units) if (u.alive) updateMovement(world, u);
+  for (const u of world.units) if (u.alive) updateUnit(world, u);
+  updateProjectiles(world);
   resolveCollisions(world);
   world.tick++;
 }
 
 /** Führt n Ticks aus (Hilfsfunktion für Tests und Vergleichssimulationen). */
-export function runTicks(world: World, n: number): void {
-  for (let i = 0; i < n; i++) stepWorld(world);
+export function runTicks(world: World, n: number, commandsPerTick?: (tick: number) => readonly Command[]): void {
+  for (let i = 0; i < n; i++) stepWorld(world, commandsPerTick ? commandsPerTick(world.tick) : []);
 }

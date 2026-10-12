@@ -81,6 +81,10 @@
         "melee": 3,
         "ranged": 0
       },
+      "resistance": {
+        "melee": 0,
+        "ranged": 55
+      },
       "cost": {
         "food": 0,
         "wood": 150,

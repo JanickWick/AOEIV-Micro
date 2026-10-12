@@ -1,0 +1,83 @@
+/** Anzeige-Einstellungen (localStorage) und Export/Import aller Einstellungen als JSON. */
+import { ACTIONS, HotkeyMap, type ActionId, type KeyBinding } from './hotkeys';
+import { emptyCalibration, saveCalibration, type CalibrationState } from './calibration';
+
+export type HealthBarMode = 'always' | 'selectedOrDamaged' | 'selected';
+
+export interface DisplaySettings {
+  healthBars: HealthBarMode;
+  rangeRing: boolean;
+  zoom: number;
+  speed: number;
+  randomStart: boolean;
+  showTimingBars: boolean;
+  lastScenario: string | null;
+}
+
+export const DEFAULT_SETTINGS: DisplaySettings = {
+  healthBars: 'always',
+  rangeRing: false,
+  zoom: 48,
+  speed: 1,
+  randomStart: false,
+  showTimingBars: true,
+  lastScenario: null,
+};
+
+const STORAGE_KEY = 'aoe4micro.settings.v1';
+
+export function loadSettings(): DisplaySettings {
+  try {
+    const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
+    if (raw) return { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<DisplaySettings>) };
+  } catch {
+    /* ignorieren */
+  }
+  return { ...DEFAULT_SETTINGS };
+}
+
+export function saveSettings(s: DisplaySettings): void {
+  try {
+    globalThis.localStorage?.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch {
+    /* ignorieren */
+  }
+}
+
+export interface ExportBundle {
+  format: 'aoe4micro-settings';
+  version: 1;
+  exportedAt: string;
+  settings: DisplaySettings;
+  calibration: CalibrationState;
+  hotkeys: Partial<Record<ActionId, KeyBinding[]>>;
+}
+
+export function exportBundle(settings: DisplaySettings, calibration: CalibrationState, hotkeys: HotkeyMap): ExportBundle {
+  const hk: Partial<Record<ActionId, KeyBinding[]>> = {};
+  for (const a of ACTIONS) hk[a.id] = hotkeys.get(a.id);
+  return { format: 'aoe4micro-settings', version: 1, exportedAt: new Date().toISOString(), settings, calibration, hotkeys: hk };
+}
+
+export interface ImportResult {
+  settings: DisplaySettings;
+  calibration: CalibrationState;
+  hotkeys: HotkeyMap;
+}
+
+/** Liest ein Export-Bundle; wirft bei ungültigem Format. */
+export function importBundle(json: string): ImportResult {
+  const b = JSON.parse(json) as Partial<ExportBundle>;
+  if (b.format !== 'aoe4micro-settings') throw new Error('Keine Einstellungsdatei dieses Tools.');
+  const settings = { ...DEFAULT_SETTINGS, ...(b.settings ?? {}) };
+  const calibration: CalibrationState = { ...emptyCalibration(), ...(b.calibration ?? {}) };
+  const hotkeys = new HotkeyMap();
+  for (const a of ACTIONS) {
+    const bind = b.hotkeys?.[a.id];
+    if (Array.isArray(bind)) hotkeys.set(a.id, bind);
+  }
+  saveSettings(settings);
+  saveCalibration(calibration);
+  hotkeys.save();
+  return { settings, calibration, hotkeys };
+}

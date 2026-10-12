@@ -62,6 +62,8 @@ export interface AgeStats {
   name: string;
   hp: number;
   armor: { melee: number; ranged: number };
+  /** Prozentuale Schadensminderung (0–100), z. B. Mangonel 85 gegen Fernkampf. */
+  resistance: { melee: number; ranged: number };
   cost: { food: number; wood: number; gold: number; stone: number; total: number };
   weapon: WeaponDef;
 }
@@ -139,6 +141,7 @@ export function validateUnitDef(d: UnitDef): void {
   for (const [age, s] of Object.entries(d.ages)) {
     must(s.hp > 0, `hp für Zeitalter ${age} fehlt`);
     must(typeof s.armor?.melee === 'number' && typeof s.armor?.ranged === 'number', `armor für Zeitalter ${age} fehlt`);
+    must(typeof s.resistance?.melee === 'number' && typeof s.resistance?.ranged === 'number', `resistance für Zeitalter ${age} fehlt`);
     const w = s.weapon;
     must(!!w && typeof w.damage === 'number', `weapon für Zeitalter ${age} fehlt`);
     must(w.range.max >= w.range.min, `range für Zeitalter ${age} ungültig`);

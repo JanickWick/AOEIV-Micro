@@ -131,10 +131,14 @@ function convertAge(v, kind) {
   const w = primaryWeapon(v);
   const armor = { melee: 0, ranged: 0 };
   for (const a of v.armor ?? []) if (a.type in armor) armor[a.type] = a.value;
+  // Prozentuale Schadensminderung (z. B. Mangonel 85 % gegen Fernkampf).
+  const resistance = { melee: 0, ranged: 0 };
+  for (const r of v.resistance ?? []) if (r.type in resistance) resistance[r.type] = r.value;
   return {
     name: v.name,
     hp: v.hitpoints,
     armor,
+    resistance,
     cost: { food: v.costs.food, wood: v.costs.wood, gold: v.costs.gold, stone: v.costs.stone, total: v.costs.total },
     weapon: convertWeapon(w, kind),
     otherWeapons: v.weapons.filter((x) => x !== w).map((x) => x.name),

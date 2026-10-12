@@ -14,12 +14,12 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
    `windup = aim + windup`, Schaden/Abschuss am Ende des Windups, `recovery = attack + winddown`,
    `cooldown = reload + cooldown`. Die Summe entspricht der angegebenen Angriffsperiode.
    Ob der Schaden am Anfang oder Ende der 0,125 s "attack"-Phase anfällt, ist nicht belegt.
-3. (A, M) Der Cooldown läuft weiter, während die Einheit nach dem Schuss läuft (Kiten kostet
-   keine Angriffe, solange man rechtzeitig wieder in Reichweite ist). In M2 als Regel
-   `cooldownRunsWhileMoving` schaltbar. Bitte im Spiel prüfen: Schießt ein Bogenschütze nach
-   kurzem Laufen sofort wieder, oder beginnt die Nachladezeit von vorn?
-4. (M) `setup`/`teardown` (Mangonel 1,0 s Teardown, Springald 0,25 s) werden ab M2 als
-   Verzögerung vor dem Losfahren nach einem Schuss interpretiert. Nachmessen.
+3. (A, M) Die Abklingzeit läuft weiter, während die Einheit nach dem Schuss läuft. Kiten kostet
+   nur die Zeit über den Cooldown hinaus plus Anhalten/Drehen und die erneute Ausholzeit.
+   Laut deiner Angabe so umgesetzt, aber noch nicht im Spiel nachgemessen. Regel
+   `cooldownRunsWhileMoving` im Einstellungsmenü abschaltbar.
+4. (V, M) `setup`/`teardown` (Mangonel 1,0 s Teardown, Springald 0,25 s) werden derzeit nicht
+   simuliert; Belagerung fährt nach dem Schuss sofort los. Nachmessen, dann einbauen.
 5. (A, M) Kollisionsradius: Infanterie 0,25, Kavallerie 0,35, Belagerung 0,6 Tiles. Nicht in
    der Quelle. Messvorschlag: Abstand zweier stehender Speerkämpfer in Formation (Mitte zu Mitte).
 6. (A, M) Beschleunigung (10 / 5 / 2 Tiles/s²) und Drehrate (720 / 360 / 120 °/s) für
@@ -35,6 +35,45 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
 10. (V) Sichtweite (`sight.line`, z. B. 36) wird nicht für Nebel benutzt; die Auto-Angriffs-
     reichweite für untätige Einheiten wird in M2 als eigene Regel definiert (Vorschlag:
     Waffenreichweite + 6 Tiles, nachmessen).
+
+## Kampf
+
+23. (A) Bewegungsbefehl im Windup bricht den Angriff ohne Schaden ab; Neuwahl des Ziels ebenso.
+    Nach dem Schadenszeitpunkt darf die Einheit sofort laufen (Recovery wird abgebrochen).
+24. (A, M) Nahkampf verfehlt, wenn das Ziel beim Schadenszeitpunkt weiter als Reichweite + 0,15
+    Tiles (Regel `meleeHitTolerance`) entfernt ist. Im Spiel: Läuft ein Speerstoß ins Leere, wenn
+    der Schütze während der Ausholzeit wegläuft?
+25. (A) Reichweite wird Rand zu Rand gemessen (Abstand der Mittelpunkte minus beide
+    Kollisionsradien), für Nah- und Fernkampf.
+26. (A) Schaden wird nach Resistenz auf ganze Zahlen gerundet, mindestens 1.
+27. (A, M) Die 85-%-Fernkampf-Resistenz von Mangonel/Springald (aus aoe4world) gilt nicht für
+    Angriffe von Belagerungseinheiten (Springald). Belagerungsschaden (Mangonel) ignoriert
+    Rüstung (Regel `siegeIgnoresArmor`).
+28. (A) Pfeile/Bolzen folgen dem Ziel und treffen immer; stirbt das Ziel vorher, verpufft der
+    Pfeil. Mangonel: 3 Geschosse pro Schuss (Burst aus den Daten) auf die Zielposition zum
+    Abschusszeitpunkt, zwei davon mit zufälliger Streuung bis 0,8 × Flächenradius; kein
+    Eigenbeschuss; Flächenschaden ohne Abnahme (Platzhalter `splashFalloff` 0).
+29. (A) Vor dem Angriff dreht sich die Einheit bis auf 15° zum Ziel (Regel `attackFacingTolerance`),
+    mit ihrer Drehrate. Das ist der "Drehen"-Anteil der Kiting-Kosten.
+30. (A, M) Untätige Einheiten erfassen den nächsten Gegner im Abstand max(Waffenreichweite, 8 Tiles)
+    (Regel `autoAcquireRange`), verfolgen bis 12 Tiles von ihrer Ausgangsposition (`leashRange`) und
+    bleiben dann stehen. Zielsuche alle 6 Ticks (0,1 s).
+31. (A) Kein Overkill-Schutz: jede Einheit wählt ihr Ziel unabhängig; laufende Projektile zählen
+    nicht als "schon tot".
+32. (A, M) Ritter-Ansturm: nach 3 Tiles zusammenhängendem Anlauf auf ein Ziel wird die Einheit
+    1,4× so schnell, der nächste Treffer erhält +10 Schaden, danach 10 s Abklingzeit. Alle Werte
+    Platzhalter (kalibrierbar). Im Spiel ist der Ansturm an die Angriffsanimation gebunden; das
+    Modell hier ist eine Näherung.
+33. (A, M) Speer-Abwehrstellung: ein stehender Speerkämpfer stellt sich auf, wenn anstürmende
+    Kavallerie bis auf 2 Tiles kommt; erreicht sie ihn, erleidet sie 20 Schaden, der Ansturm
+    bricht ab. Platzhalter.
+34. (V) Belagerungseinheiten (Mangonel) innerhalb der Mindestreichweite bleiben stehen statt
+    zurückzuweichen.
+35. (A) Gegner-KI "leicht": alle 0,5 s (einstellbare Reaktionszeit) Attack-Move der untätigen
+    Einheiten auf den Schwerpunkt der Spielertruppe.
+36. (A) Szenario 1 startet die Speerkämpfer ca. 9 Tiles vor den Schützen (knapp außerhalb der
+    Reichweite), weil 10 Bogenschützen 6 Speerkämpfer aus großer Entfernung auch ohne Micro
+    verlustfrei besiegen.
 
 ## Bewegung und Formation
 
@@ -58,7 +97,7 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
     etwa 27 Tiles Breite bei 1280 px, zoombar 28 bis 80 px/Tile.
 19. (A) Rand-Scrolling bei ≤ 6 px zum Rand mit 1100 px/s, Pfeiltasten ebenso. Im Spiel ist die
     Geschwindigkeit einstellbar; folgt im Einstellungsmenü (M3).
-20. (A) Lebensbalken werden bei Auswahl oder Schaden gezeigt.
+20. (A) Lebensbalken standardmäßig immer sichtbar (einstellbar).
 21. (A) Hotkeys werden als physische Taste (KeyboardEvent.code) gespeichert, damit Y/Z auf
     deutschem Layout stimmen. Neustart F4, Pause F3, Stopp S sind Vorschläge.
 22. (V) Spieltempo 50/75/100 % skaliert die Simulationszeit, nicht den Takt.
