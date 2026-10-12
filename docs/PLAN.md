@@ -146,6 +146,10 @@
   Videos bitte als Datei (mp4, ≤ 100 MB) unter `reference/videos/` hochladen, YouTube kann ich hier
   nicht abrufen.
 
+### G1b – Videoauswertung (nachgereicht)
+- Maßstab 55,6 px/Tile (1080p) aus Clip 5; Kollisionsradien 0,22 / 0,40, Formationsabstand +0,2,
+  Kameraabstand 31, Figurgrößen 0,6 / 0,8 Tiles. Timing-Werte nicht messbar (siehe Inventur 4b).
+
 ### G1 – ursprünglicher Plan
 - Three.js-Szene parallel zum 2D-Canvas, umschaltbar (Einstellung "Ansicht: 3D / 2D-Debug").
 - Perspektivische Kamera, Neigung ca. 50–55°, Sichtfeld und Zoom nach Screenshot-Maß (Gruppe

@@ -34,7 +34,7 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   showTimingBars: true,
   pointerLock: false,
   view: '3d',
-  zoom3d: 52,
+  zoom3d: 31,
   shadows: true,
   showFps: true,
   lastScenario: null,

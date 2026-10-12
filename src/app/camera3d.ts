@@ -10,9 +10,10 @@ import type { ViewCamera, ViewRect } from './viewCamera';
 
 export const CAMERA_PITCH_DEG = 45;
 export const CAMERA_FOV_DEG = 35;
-export const DEFAULT_DISTANCE = 52; // Tiles; ergibt ≈ 44 px pro Tile in Bildmitte bei 2560×1440 (wie im Screenshot)
-export const MIN_DISTANCE = 18;
-export const MAX_DISTANCE = 90;
+/** Kameraabstand in Tiles: ergibt ≈ 74 px pro Tile in Bildmitte bei 2560×1440 (Maßstab aus den Videos, 55,6 px/Tile bei 1080p). */
+export const DEFAULT_DISTANCE = 31;
+export const MIN_DISTANCE = 12;
+export const MAX_DISTANCE = 70;
 
 const S = Math.SQRT1_2;
 /** Bildschirm-rechts und Bildschirm-oben als Bodenrichtungen. */

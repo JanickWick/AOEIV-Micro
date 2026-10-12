@@ -69,16 +69,24 @@ describe('KI schwer', () => {
     if (mv && mv.kind === 'move') expect(mv.target.x).toBeLessThan(10); // weg vom Speer
   });
 
-  it('zieht angeschlagene Einheiten zurück', () => {
+  it('zieht angeschlagene Einheiten zurück, solange gesunde Verbündete kämpfen', () => {
     const w = makeWorld();
     const maa = spawn(w, 'man-at-arms', 10, 10, 1);
     maa.hp = 20;
+    spawn(w, 'man-at-arms', 10, 12, 1); // gesunder Verbündeter
     passive(spawn(w, 'man-at-arms', 11, 10, 0));
     const ai = createAi(1, { level: 'hard', reactionMs: 100 });
     const cmds = ai.think(w);
-    const mv = cmds.find((c) => c.kind === 'move');
+    const mv = cmds.find((c) => c.kind === 'move' && c.unitIds[0] === maa.id);
     expect(mv).toBeDefined();
     if (mv && mv.kind === 'move') expect(mv.target.x).toBeLessThan(10);
+    // ohne gesunde Verbündete kämpft sie weiter
+    const w2 = makeWorld();
+    const lone = spawn(w2, 'man-at-arms', 10, 10, 1);
+    lone.hp = 20;
+    passive(spawn(w2, 'man-at-arms', 11, 10, 0));
+    const ai2 = createAi(1, { level: 'hard', reactionMs: 100 });
+    expect(ai2.think(w2).some((c) => c.kind === 'move')).toBe(false);
   });
 
   it('weicht Mangonel-Geschossen aus', () => {

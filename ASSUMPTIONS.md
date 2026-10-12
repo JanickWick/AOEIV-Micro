@@ -20,8 +20,9 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
    `cooldownRunsWhileMoving` im Einstellungsmenü abschaltbar.
 4. (V, M) `setup`/`teardown` (Mangonel 1,0 s Teardown, Springald 0,25 s) werden derzeit nicht
    simuliert; Belagerung fährt nach dem Schuss sofort los. Nachmessen, dann einbauen.
-5. (A, M) Kollisionsradius: Infanterie 0,25, Kavallerie 0,35, Belagerung 0,6 Tiles. Nicht in
-   der Quelle. Messvorschlag: Abstand zweier stehender Speerkämpfer in Formation (Mitte zu Mitte).
+5. (M, aus Video) Kollisionsradius: Infanterie 0,22, Kavallerie 0,40 (Auswahlring-Durchmesser
+   0,45 bzw. 0,99 Tiles in den Clips, ±15 %), Belagerung 0,6 geschätzt. `verified` bleibt false,
+   da nicht aus einer Spieldatei. Siehe `docs/G0-INVENTUR.md`, Abschnitt 4b.
 6. (A, M) Beschleunigung (10 / 5 / 2 Tiles/s²) und Drehrate (720 / 360 / 120 °/s) für
    Infanterie / Kavallerie / Belagerung sind Schätzungen.
 7. (M) Projektile: Pfeil-/Bolzengeschwindigkeit 12 Tiles/s, Mangonel-Geschoss 6 Tiles/s und
@@ -106,11 +107,9 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
 ## 3D-Darstellung (G1)
 
 59. (M) Kamera: Neigung 45°, vertikales Sichtfeld 35°, aus dem Minimap-Trapez des Screenshots
-    (Breite fern/nah 1,94, Tiefe/nahe Breite 1,12) gelöst; Messunsicherheit der Ablesung etwa ±5 px
-    auf 270 px, also ±3° bei der Neigung. Drehung 45° (Karte als Raute). Standardabstand 52 Tiles
-    so gewählt, dass eine Einheit in Bildmitte ≈ 44 px pro Tile einnimmt (Abstand benachbarter
-    Einheiten in der Screenshot-Gruppe ≈ 25 px bei 1456 px Breite). Ein Screenshot mit bekanntem Maß
-    (Reichweitenring) würde Zoom und Sichtfeld bestätigen.
+    (Breite fern/nah 1,94, Tiefe/nahe Breite 1,12) gelöst; ±3° bei der Neigung. Drehung 45° (Karte
+    als Raute). Standardabstand 31 Tiles aus dem Video-Maßstab (55,6 px/Tile bei 1080p ≈ 74 px/Tile
+    bei 1440p, ±15 %). Figurhöhe Infanterie ≈ 0,6 Tiles, Kavallerie ≈ 0,8 (Bildhöhe 25 px im Clip).
 60. (A) Bildschirm-rechts entspricht der Weltrichtung (+x, +y)/√2, Bildschirm-oben (+x, −y)/√2.
     Spieler-Gruppen (kleines x) liegen damit links unten, Gegner rechts oben. Kamera-Drehung
     ([ ] im Spiel) ist nicht umgesetzt.
@@ -150,9 +149,10 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
 
 11. (A) Gemischte Gruppen laufen mit dem Tempo der langsamsten Einheit (Regel
     `formationSpeedMatching`, abschaltbar).
-12. (A) Formation: breiter Block (Spalten ≈ √(2,5·n)), Nahkämpfer vorn, Schützen dahinter,
-    Belagerung hinten; Platzabstand = 2·Radius + 0,5 Tiles; Block um den Zielpunkt zentriert.
-    Das echte Spiel hat mehrere wählbare Formationen; hier nur diese eine.
+12. (A, M) Formation: breiter Block (Spalten ≈ √(2,5·n)), Nahkämpfer vorn, Schützen dahinter,
+    Belagerung hinten; Platzabstand = 2·Radius + 0,2 Tiles (aus Video: Infanterie 0,65, Kavallerie
+    0,93 Tiles Mitte zu Mitte); Block um den Zielpunkt zentriert. Linie/versetzt/aufgelockert folgen
+    in G4.
 13. (V) Keine Wegfindung, keine Hindernisse: offenes Feld, Einheiten laufen geradeaus und
     schieben sich weich auseinander. Blockierte Einheiten geben in Zielnähe nach 0,5 s auf.
 14. (A) Ankunftstoleranz 0,06 Tiles; Einheiten bremsen mit ihrer Beschleunigung ab.

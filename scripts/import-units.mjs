@@ -37,8 +37,8 @@ const WANTED = {
 
 /** Platzhalter für Werte, die aoe4world nicht liefert (verified:false). */
 const MOVEMENT_DEFAULTS = {
-  infantry: { collisionRadius: 0.25, acceleration: 10, turnRate: 720 },
-  cavalry: { collisionRadius: 0.35, acceleration: 5, turnRate: 360 },
+  infantry: { collisionRadius: 0.22, acceleration: 10, turnRate: 720 }, // Radius aus Video (docs/G0-INVENTUR.md)
+  cavalry: { collisionRadius: 0.4, acceleration: 5, turnRate: 360 },
   siege: { collisionRadius: 0.6, acceleration: 2, turnRate: 120 },
 };
 

@@ -24,11 +24,11 @@ describe('3D-Kamera', () => {
     }
   });
 
-  it('Standardzoom: etwa 44 px pro Tile in Bildmitte bei 2560×1440 (Screenshot-Maß)', () => {
+  it('Standardzoom: etwa 74 px pro Tile in Bildmitte bei 2560×1440 (Video-Maßstab)', () => {
     const c = cam();
     const scale = c.scaleAt({ x: 32, y: 24 });
-    expect(scale).toBeGreaterThan(40);
-    expect(scale).toBeLessThan(48);
+    expect(scale).toBeGreaterThan(68);
+    expect(scale).toBeLessThan(80);
   });
 
   it('Bildschirm-rechts und -oben entsprechen den Diagonalen der Karte', () => {
@@ -78,7 +78,7 @@ describe('Auswahl im Bildschirmraum', () => {
       cam.lookAt({ x: 32, y: 24 });
       const footA = cam.worldToScreen(a.pos);
       expect(unitAtScreenPoint(w.units, defs, footA, cam)?.id).toBe(a.id);
-      const headB = cam.worldToScreen(b.pos, 1.5);
+      const headB = cam.worldToScreen(b.pos, 0.6);
       expect(unitAtScreenPoint(w.units, defs, headB, cam)?.id).toBe(b.id);
       expect(unitAtScreenPoint(w.units, defs, { x: footA.x, y: footA.y + 200 }, cam)).toBeNull();
       const sa = cam.worldToScreen(a.pos);

@@ -155,7 +155,7 @@ export const DEFAULT_RULES: SimRules = {
   tickRate: 60,
   formationSpeedMatching: true,
   arriveTolerance: 0.06,
-  formationGap: 0.5,
+  formationGap: 0.2, // aus Video: Abstand Mitte zu Mitte ≈ 2·Radius + 0,2 Tiles
   separationIterations: 2,
   cooldownRunsWhileMoving: true,
   autoAcquireRange: 8,

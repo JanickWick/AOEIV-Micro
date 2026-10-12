@@ -31,7 +31,7 @@ export const RULE_ENTRIES: readonly RuleEntry[] = [
   { key: 'siegeIgnoresArmor', label: 'Belagerungsschaden ignoriert Rüstung', type: 'boolean', note: 'Annahme für Mangonel-Schaden.' },
   { key: 'attackFacingTolerance', label: 'Blickwinkel-Toleranz vor Angriff (Grad)', type: 'number', step: 1, note: 'Einheit muss sich bis auf diesen Winkel zum Ziel drehen, bevor der Angriff beginnt.' },
   { key: 'formationSpeedMatching', label: 'Gruppe läuft mit langsamster Einheit', type: 'boolean', note: 'Gilt nur für Bewegungsbefehle; bei Angriffen läuft jede Einheit mit eigenem Tempo.' },
-  { key: 'formationGap', label: 'Formationsabstand (Tiles)', type: 'number', step: 0.1, note: 'Zusätzlicher Abstand zwischen Formationsplätzen.' },
+  { key: 'formationGap', label: 'Formationsabstand (Tiles)', type: 'number', step: 0.05, note: 'Zusätzlicher Abstand zwischen Formationsplätzen (Mitte zu Mitte = 2·Radius + Wert). Aus Video: Infanterie 0,65, Kavallerie 0,93 Tiles.' },
 ];
 
 export interface CalibrationEntry {

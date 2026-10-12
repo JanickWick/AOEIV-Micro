@@ -54,7 +54,8 @@
     "collisionRadius": {
       "value": 0.6,
       "verified": false,
-      "note": "Kollisionsradius in Tiles – nicht in aoe4world; Schätzung nach Klasse."
+      "note": "Kollisionsradius in Tiles – nicht in aoe4world, nicht im Video; Schätzung nach Klasse.",
+      "measured": false
     },
     "acceleration": {
       "value": 2,

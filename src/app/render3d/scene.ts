@@ -72,16 +72,17 @@ export class Scene3D {
       this.scene.add(m);
       return m;
     };
-    const infantry = new THREE.CapsuleGeometry(0.28, 0.9, 4, 10);
-    infantry.translate(0, 0.73, 0);
-    const cavalry = new THREE.CapsuleGeometry(0.34, 1.2, 4, 10);
+    // Platzhalter in Video-Maßstab: Infanterie ≈ 0,6 Tiles hoch, Kavallerie ≈ 0,8 lang/hoch, Belagerung ≈ 1 Tile.
+    const infantry = new THREE.CapsuleGeometry(0.12, 0.36, 4, 10);
+    infantry.translate(0, 0.3, 0);
+    const cavalry = new THREE.CapsuleGeometry(0.17, 0.5, 4, 10);
     cavalry.rotateZ(Math.PI / 2);
-    cavalry.translate(0, 1.0, 0);
-    const siege = new THREE.BoxGeometry(1.3, 0.8, 1.0);
-    siege.translate(0, 0.45, 0);
+    cavalry.translate(0, 0.45, 0);
+    const siege = new THREE.BoxGeometry(1.0, 0.5, 0.8);
+    siege.translate(0, 0.28, 0);
     this.units = { infantry: mk(infantry), cavalry: mk(cavalry), siege: mk(siege) };
 
-    const ringGeo = new THREE.RingGeometry(0.42, 0.56, 28);
+    const ringGeo = new THREE.RingGeometry(0.44, 0.52, 28);
     ringGeo.rotateX(-Math.PI / 2);
     this.rings = new THREE.InstancedMesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0x86efac, transparent: true, opacity: 0.9 }), MAX_UNITS);
     this.rings.count = 0;
@@ -227,7 +228,7 @@ export class Scene3D {
       mesh.setColorAt(i, this.color);
       if (!dead && selection.has(u.id)) {
         this.dummy.rotation.set(0, 0, 0);
-        this.dummy.scale.setScalar(Math.max(0.6, u.radius * 2.2));
+        this.dummy.scale.setScalar(Math.max(0.3, u.radius * 2.1));
         this.dummy.position.y = 0;
         this.dummy.updateMatrix();
         this.rings.setMatrixAt(ringCount++, this.dummy.matrix);
@@ -235,7 +236,7 @@ export class Scene3D {
       if (!dead && hoverId === u.id) {
         this.hoverRing.visible = true;
         this.hoverRing.position.set(p.x, 0.02, p.y);
-        this.hoverRing.scale.setScalar(Math.max(0.6, u.radius * 2.2));
+        this.hoverRing.scale.setScalar(Math.max(0.3, u.radius * 2.1));
       }
     }
     for (const k of ['infantry', 'cavalry', 'siege'] as const) {

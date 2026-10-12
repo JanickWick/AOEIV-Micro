@@ -28,8 +28,10 @@ npm run data:unverified# Alle Werte mit "verified": false auflisten
 
 Standard ist die 3D-Ansicht (Three.js): perspektivische Kamera schräg von oben (Neigung 45°,
 Sichtfeld 35°, aus dem Minimap-Trapez des Spiel-Screenshots berechnet), um 45° gedreht, sodass die
-Karte als Raute erscheint. Der Standardabstand ergibt in Bildmitte etwa 44 px pro Tile bei
-2560×1440, wie im Screenshot. Gelände, Bäume, Felsen, Büsche und Gebäude-Kulisse sind prozedural
+Karte als Raute erscheint. Der Standardabstand ergibt in Bildmitte etwa 74 px pro Tile bei
+2560×1440; dieser Maßstab, die Kollisionsradien (Infanterie 0,22, Kavallerie 0,40 Tiles) und der
+Formationsabstand (2·Radius + 0,2 Tiles) stammen aus den Videoclips unter `reference/videos/`
+(Messung in `docs/G0-INVENTUR.md`, Abschnitt 4b). Gelände, Bäume, Felsen, Büsche und Gebäude-Kulisse sind prozedural
 erzeugt; Bäume und Felsen haben Kollision (Einheiten laufen um sie herum), die Kampfzone in der
 Kartenmitte bleibt frei. Einheiten sind in G1 noch Platzhalter (Kapseln in Teamfarbe).
 Der Knopf "Ansicht" (oder Einstellungen → Ansicht) schaltet auf die bisherige 2D-Draufsicht als

@@ -40,6 +40,7 @@ const HARD: Tactics = { kite: true, retreat: true, dodge: true, flank: true };
 
 export function createAi(player: PlayerId, cfg: AiConfig): AiController {
   let nextThink = 0;
+  const memory: AiMemory = { retreating: new Set() };
   return {
     player,
     level: cfg.level,
@@ -51,7 +52,7 @@ export function createAi(player: PlayerId, cfg: AiConfig): AiController {
       const enemies = aliveUnits(world, player === 0 ? 1 : 0);
       if (mine.length === 0 || enemies.length === 0) return [];
       if (cfg.level === 'easy') return easyThink(mine, enemies);
-      return tacticalThink(world, player, mine, enemies, cfg.level === 'hard' ? HARD : MEDIUM);
+      return tacticalThink(world, player, mine, enemies, cfg.level === 'hard' ? HARD : MEDIUM, memory);
     },
   };
 }
@@ -72,8 +73,16 @@ function easyThink(mine: UnitState[], enemies: UnitState[]): Command[] {
   return [{ kind: 'attackMove', unitIds: idle.map((u) => u.id), target: centroid(enemies), queue: false }];
 }
 
+interface AiMemory {
+  /** Einheiten, die sich gerade zurückziehen (Hysterese: erst ab 9 Tiles Abstand wieder angreifen). */
+  retreating: Set<UnitId>;
+}
+
 interface Ctx {
   world: World;
+  memory: AiMemory;
+  /** Zahl gesunder (≥ 35 % HP) eigener Einheiten, die nicht zurückweichen. */
+  healthyCount: number;
   player: PlayerId;
   mine: UnitState[];
   enemies: UnitState[];
@@ -84,10 +93,12 @@ interface Ctx {
   t: Tactics;
 }
 
-function tacticalThink(world: World, player: PlayerId, mine: UnitState[], enemies: UnitState[], t: Tactics): Command[] {
+function tacticalThink(world: World, player: PlayerId, mine: UnitState[], enemies: UnitState[], t: Tactics, memory: AiMemory): Command[] {
   const focus = new Map<UnitId, number>();
   for (const u of mine) if (u.attack.targetId !== null) focus.set(u.attack.targetId, (focus.get(u.attack.targetId) ?? 0) + 1);
-  const ctx: Ctx = { world, player, mine, enemies, enemyCentroid: centroid(enemies), ownCentroid: centroid(mine), focus, t };
+  for (const id of [...memory.retreating]) if (!mine.some((u) => u.id === id)) memory.retreating.delete(id);
+  const healthyCount = mine.filter((u) => u.hp / u.maxHp >= 0.35 && !memory.retreating.has(u.id)).length;
+  const ctx: Ctx = { world, player, mine, enemies, enemyCentroid: centroid(enemies), ownCentroid: centroid(mine), focus, t, memory, healthyCount };
   const cmds: Command[] = [];
   const idleForAttackMove: UnitId[] = [];
   for (const u of mine) {
@@ -168,14 +179,25 @@ function decideUnit(ctx: Ctx, u: UnitState): Command[] | 'attackMove' | null {
     }
   }
 
-  // 2. Angeschlagene Einheiten zurückziehen
-  if (t.retreat && !info.siege && u.hp / u.maxHp < 0.35) {
+  // 2. Angeschlagene Einheiten zurückziehen – nur solange gesunde Verbündete den Kampf tragen,
+  //    mit Hysterese (Rückzug ab 4,5 Tiles Bedrohung, Wiedereintritt erst ab 9 Tiles), sonst Patt.
+  if (t.retreat && !info.siege && u.hp / u.maxHp < 0.35 && ctx.healthyCount > 0) {
+    const wasRetreating = ctx.memory.retreating.has(u.id);
     const threat = nearest(ctx.enemies, u, (e) => isMelee(world, e) || edgeDistance(u, e) < 3);
-    if (threat && threat.d < 4.5) {
+    const limit = wasRetreating ? 9 : 4.5;
+    if (threat && threat.d < limit) {
+      ctx.memory.retreating.add(u.id);
       const target = awayFrom(u, threat.u.pos, 7, ctx.enemyCentroid);
       if (u.orders[0]?.kind === 'move' && dist(u.orders[0].target, target) < 2) return null;
       return [{ kind: 'move', unitIds: [u.id], target, queue: false }];
     }
+    if (wasRetreating) {
+      // Außer Gefahr: stehen bleiben (Halten), nicht wieder in den Nahkampf laufen
+      ctx.memory.retreating.delete(u.id);
+      return [{ kind: 'hold', unitIds: [u.id], queue: false }];
+    }
+  } else {
+    ctx.memory.retreating.delete(u.id);
   }
 
   // 3. Ziel wählen

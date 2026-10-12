@@ -135,9 +135,10 @@
   "movement": {
     "speed": 1.25,
     "collisionRadius": {
-      "value": 0.25,
+      "value": 0.22,
       "verified": false,
-      "note": "Kollisionsradius in Tiles – nicht in aoe4world; Schätzung nach Klasse."
+      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 5: Auswahlring-Durchmesser 0,45 Tiles, Formationsabstand 0,65 Tiles; Maßstab 55,6 px/Tile ±15 %); nicht aus Spieldatei.",
+      "measured": true
     },
     "acceleration": {
       "value": 10,

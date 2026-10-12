@@ -104,6 +104,54 @@ importiere ich mit `--qwertz-chars`.
 - Farben: Paneele dunkelblau (#0e1b2d bis #142a44), Rahmen fein hell, Akzente gold (#c9a24d),
   Teamfarbe lila; Schrift hell serifenlos.
 
+## 4b. Videos (nachgereicht)
+
+Fünf Clips unter `reference/videos/` (1920×1080, nominell 59,94 fps, tatsächlich ≈ 26–29 Bilder/s
+durch ausgelassene Bilder; Zeitstempel sind erhalten, Messunsicherheit je Zeitpunkt ±1 Bild ≈ ±40 ms).
+
+| Clip | Dauer | Inhalt | Nutzbar für |
+| --- | --- | --- | --- |
+| clip1 | 8,1 s | Lanzenreiter (Ritter, Zeitalter III: 230 HP, 24 Angriff, 4/4 Rüstung, Tempo 1,62) im Nahkampf, Kamera schwenkt | Werte im Infofeld |
+| clip2 | 10,8 s | 8 Lanzenreiter in Keilformation, Anlauf und Ansturm auf Speerkämpfer | Formationsabstand Kavallerie, Ansturm sichtbar |
+| clip3 | 9,4 s | Stehende Formation, Kamera fährt | wenig (Einheiten am Bildrand) |
+| clip4 | 8,4 s | Bogenschützen laufen und kämpfen | Bewegung |
+| clip5 | 10,3 s | 15 Bogenschützen ziehen sich vor Speerkämpfern zurück, Kamera 3,0–5,0 s statisch | Maßstab, Formationsabstand Infanterie |
+
+**Maßstab (Pixel pro Tile).** In Clip 5 ist die Kamera zwischen 3,0 und 5,0 s unbewegt (Differenzbild
+des Hintergrunds dunkel). Der Schwerpunkt der pinken Bogenschützen wandert von (1084, 407) nach
+(1201, 354) Pixel, gleichmäßig in beiden Sekunden (72 und 66 px/s), also durchgehendes Laufen mit
+1,25 Tiles/s = 2,5 Tiles. Mit Neigung 45° (vertikale Bildkomponente durch sin 45° geteilt) ergibt
+das **55,6 px/Tile** bei 1080p. Gegenprobe: Lanzenreiter in Clip 2, Bild 0–12 bei stehender Kamera,
+1,62 Tiles/s → 50,5 px/Tile. Unsicherheit etwa ±15 % (Annahme "läuft durchgehend", Ablesung ±10 px).
+
+**Abgeleitete Werte** (alle "aus Video", `verified` bleibt false):
+
+| Größe | Messung | Tiles | Bisher | Neu im Tool |
+| --- | --- | --- | --- | --- |
+| Bogenschütze, Abstand Mitte–Mitte in Formation | 36 px | 0,65 | 1,0 (2·0,25 + 0,5) | 0,64 (2·0,22 + 0,2) |
+| Bogenschütze, Auswahlring-Durchmesser | 25 px | 0,45 | – | Kollisionsradius 0,22 (vorher 0,25) |
+| Lanzenreiter, Abstand in Formation | 52 px | 0,93 | 1,2 (2·0,35 + 0,5) | 1,0 (2·0,40 + 0,2) |
+| Lanzenreiter, Auswahlring-Durchmesser | 55 px | 0,99 | – | Kollisionsradius 0,40 (vorher 0,35) |
+| Figurhöhe Infanterie (Bildhöhe) | 25 px | 0,45 | Platzhalter 1,6 | 0,6 (Kavallerie 0,8) |
+| Zoom der Aufnahmen | 55,6 px/Tile (1080p) | ≈ 74 px/Tile bei 1440p | Kameraabstand 52 (44 px/Tile) | Kameraabstand 31 |
+
+Der Zoom der Clips und des Screenshots stimmen nach den Einheitenabständen in etwa überein
+(Screenshot ≈ 68 px/Tile bei 2560 hochgerechnet); die frühere Annahme "Abstand = 1 Tile" war der
+Grund für den zu großen Kameraabstand.
+
+**Nicht messbar aus diesen Clips** (Einheiten ≈ 25 px, Pfeile wenige Pixel, Kameraschwenks,
+26 Bilder/s): Zeit zwischen Schüssen mit/ohne Laufen, Ausholzeit, Schadenszeitpunkt,
+Projektilgeschwindigkeit, Drehrate, Beschleunigung, Ansturm-Bonus/Anlaufstrecke. Der Ansturm der
+Lanzenreiter ist in Clip 2 sichtbar (Staub/Streifen etwa 2,0–3,0 s, ≈ 1 s, danach Normaltempo),
+Zahlen dazu bleiben Platzhalter. Die Annahmen zu Kiten (Nachladen läuft beim Laufen weiter) und zum
+Schadenszeitpunkt bleiben unverändert und unbestätigt.
+
+**Was es für die offenen Werte bräuchte:** Clips mit maximalem Zoom (Kamera nah) auf 2–3 Einheiten,
+Kamera unbewegt, Aufnahme mit konstanten 60 fps (OBS: "Bildrate 60 fest", kein variabler Modus):
+(a) ein Bogenschütze schießt dreimal stehend; (b) derselbe schießt, läuft 1 s, schießt wieder;
+(c) ein Speerkämpfer stößt zu, während das Ziel wegläuft; (d) ein Ritter läuft 10 Tiles an und
+trifft; (e) eine Mangonel schießt auf 8 Tiles Entfernung.
+
 ## 5. Weiterhin unbestätigt
 
 | Wert | Woher die Klärung kommt |
