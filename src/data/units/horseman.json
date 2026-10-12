@@ -1,0 +1,389 @@
+{
+  "id": "horseman",
+  "name": "Horseman",
+  "kind": "cavalry",
+  "shape": "diamond",
+  "displayClass": "Light Melee Cavalry",
+  "tags": [
+    "annihilation_condition",
+    "cavalry",
+    "cavalry_light",
+    "find_non_siege_land_military",
+    "formational",
+    "horse",
+    "human",
+    "included_by_military_hotkeys",
+    "land_military",
+    "light",
+    "melee",
+    "military",
+    "military_cavalry",
+    "torch_thrower"
+  ],
+  "source": {
+    "provider": "aoe4world",
+    "url": "https://data.aoe4world.com/units/all.json",
+    "version": "0.0.2",
+    "importedAt": "2026-10-12",
+    "variants": {
+      "1": {
+        "id": "horseman-1",
+        "attribName": "unit_horseman_1_mon_ha_gol",
+        "pbgid": 6017151,
+        "civs": [
+          "gol"
+        ]
+      },
+      "2": {
+        "id": "horseman-2",
+        "attribName": "unit_horseman_2_abb",
+        "pbgid": 199715,
+        "civs": [
+          "ab",
+          "ay",
+          "by",
+          "ch",
+          "en",
+          "fr",
+          "gol",
+          "hr",
+          "ja",
+          "je",
+          "jin",
+          "kt",
+          "mac",
+          "mo",
+          "ru",
+          "zx"
+        ]
+      },
+      "3": {
+        "id": "horseman-3",
+        "attribName": "unit_horseman_3_abb",
+        "pbgid": 199716,
+        "civs": [
+          "ab",
+          "ay",
+          "by",
+          "ch",
+          "en",
+          "fr",
+          "gol",
+          "hr",
+          "ja",
+          "je",
+          "jin",
+          "kt",
+          "mac",
+          "mo",
+          "ru",
+          "zx"
+        ]
+      },
+      "4": {
+        "id": "horseman-4",
+        "attribName": "unit_horseman_4_abb",
+        "pbgid": 199717,
+        "civs": [
+          "ab",
+          "ay",
+          "by",
+          "ch",
+          "en",
+          "fr",
+          "gol",
+          "hr",
+          "ja",
+          "je",
+          "jin",
+          "kt",
+          "mac",
+          "mo",
+          "ru",
+          "zx"
+        ]
+      }
+    }
+  },
+  "movement": {
+    "speed": 1.875,
+    "collisionRadius": {
+      "value": 0.35,
+      "verified": false,
+      "note": "Kollisionsradius in Tiles – nicht in aoe4world; Schätzung nach Klasse."
+    },
+    "acceleration": {
+      "value": 5,
+      "verified": false,
+      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
+    },
+    "turnRate": {
+      "value": 360,
+      "verified": false,
+      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
+    }
+  },
+  "sight": {
+    "line": 28,
+    "base": 13.6
+  },
+  "abilities": {},
+  "ages": {
+    "1": {
+      "name": "Early Horseman",
+      "hp": 110,
+      "armor": {
+        "melee": 0,
+        "ranged": 2
+      },
+      "cost": {
+        "food": 100,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 120
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 8,
+        "range": {
+          "min": 0,
+          "max": 0.375
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.375,
+          "cooldown": 1.125,
+          "period": 1.75,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.25,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 1.125
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "ranged"
+              ]
+            ],
+            "damage": 8
+          },
+          {
+            "targetTags": [
+              [
+                "siege"
+              ]
+            ],
+            "damage": 8
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    },
+    "2": {
+      "name": "Horseman",
+      "hp": 125,
+      "armor": {
+        "melee": 0,
+        "ranged": 2
+      },
+      "cost": {
+        "food": 100,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 120
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 9,
+        "range": {
+          "min": 0,
+          "max": 0.375
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.375,
+          "cooldown": 1.125,
+          "period": 1.75,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.25,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 1.125
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "ranged"
+              ]
+            ],
+            "damage": 9
+          },
+          {
+            "targetTags": [
+              [
+                "siege"
+              ]
+            ],
+            "damage": 9
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    },
+    "3": {
+      "name": "Veteran Horseman",
+      "hp": 155,
+      "armor": {
+        "melee": 0,
+        "ranged": 3
+      },
+      "cost": {
+        "food": 100,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 120
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 11,
+        "range": {
+          "min": 0,
+          "max": 0.375
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.375,
+          "cooldown": 1.125,
+          "period": 1.75,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.25,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 1.125
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "ranged"
+              ]
+            ],
+            "damage": 11
+          },
+          {
+            "targetTags": [
+              [
+                "siege"
+              ]
+            ],
+            "damage": 11
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    },
+    "4": {
+      "name": "Elite Horseman",
+      "hp": 180,
+      "armor": {
+        "melee": 0,
+        "ranged": 5
+      },
+      "cost": {
+        "food": 100,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 120
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 13,
+        "range": {
+          "min": 0,
+          "max": 0.375
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.375,
+          "cooldown": 1.125,
+          "period": 1.75,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.25,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 1.125
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "ranged"
+              ]
+            ],
+            "damage": 13
+          },
+          {
+            "targetTags": [
+              [
+                "siege"
+              ]
+            ],
+            "damage": 13
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    }
+  }
+}

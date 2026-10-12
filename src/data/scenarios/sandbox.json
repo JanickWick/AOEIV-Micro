@@ -1,0 +1,13 @@
+{
+  "id": "sandbox",
+  "name": "Sandbox: Auswahl & Bewegung",
+  "description": "Kein Kampf. Zum Testen von Auswahl, Formation, Befehlsketten und Kamera. 10 Bogenschützen + 4 Reiter (du) gegen 6 Speerkämpfer (Gegner, passiv).",
+  "map": { "width": 64, "height": 48 },
+  "seed": 1,
+  "randomStart": false,
+  "groups": [
+    { "player": 0, "unit": "archer", "age": 2, "count": 10, "center": { "x": 20, "y": 24 }, "facing": 0 },
+    { "player": 0, "unit": "horseman", "age": 2, "count": 4, "center": { "x": 16, "y": 30 }, "facing": 0 },
+    { "player": 1, "unit": "spearman", "age": 2, "count": 6, "center": { "x": 44, "y": 24 }, "facing": 180 }
+  ]
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AoE4 Micro Trainer</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game"></canvas>
+      <div id="hud">
+        <div id="hud-top-left" class="hud-panel">
+          <div id="scenario-name"></div>
+          <div id="stats" class="muted"></div>
+        </div>
+        <div id="hud-top-right" class="hud-panel">
+          <label>Szenario <select id="scenario-select"></select></label>
+          <button id="btn-restart" title="Neustart (F4)">Neustart</button>
+          <button id="btn-pause" title="Pause (F3)">Pause</button>
+          <label>Tempo
+            <select id="speed-select">
+              <option value="0.5">50 %</option>
+              <option value="0.75">75 %</option>
+              <option value="1" selected>100 %</option>
+            </select>
+          </label>
+          <label><input type="checkbox" id="random-start" /> Zufällige Startpositionen</label>
+          <button id="btn-fullscreen" title="Vollbild">Vollbild</button>
+        </div>
+        <div id="hud-bottom-right" class="hud-panel">
+          <div id="selection-info" class="muted">Keine Auswahl</div>
+        </div>
+        <div id="hud-help" class="hud-panel muted">
+          Linksklick/Ziehen: Auswahl · Doppelklick: alle des Typs · Shift: hinzufügen/entfernen · Rechtsklick: Bewegen · Shift+Rechtsklick: einreihen · Pfeiltasten/Rand/Mittlere Maustaste: Kamera · Mausrad: Zoom · F4: Neustart · F3: Pause
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
