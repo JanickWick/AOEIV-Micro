@@ -96,7 +96,14 @@
   Werte (5, 6, 7). Alle laufen ohne Spielereingriff deterministisch bis zum Ende (Test).
 - Wertung je Szenario (gerettete Einheiten, Kite-Effizienz usw.) kommt mit M5.
 
-### M5 – Auswertung, Drill, Editor
-- Kampfstatistik (Verluste, Ressourcenwert, APM/eAPM, Kite-Effizienz, Overkill, Idle-Zeit,
-  Windup-Abbrüche), Verlauf der letzten 20 Versuche, Vergleichslauf "nur Attack-Move".
-- Hotkey-Drill, freier Editor.
+### M5 – erledigt
+- Kampfstatistik (Verluste, Ressourcenwert, APM/eAPM, Befehle pro Typ, Kite-Effizienz,
+  Nahkampfschaden, Overkill, gleichzeitige Ziele, Idle-Zeit, Windup-Abbrüche, Fehlschläge),
+  Bestwert, Verlauf der letzten 20 Versuche als Diagramm, Vergleichslauf "nur Attack-Move".
+- Hotkey-Drill (Szenario 9) mit Reaktionszeit und Fehlgriffen, eigener Verlauf.
+- Freier Editor mit Schmiede-Upgrades pro Seite; Verlauf im JSON-Export enthalten.
+
+### Offen / Ideen nach M5
+- Deine Hotkey-Belegung als Preset einarbeiten (Screenshots).
+- Nachgemessene Werte eintragen (Kalibrierungsmenü), danach Szenarien 5 bis 7 neu bewerten.
+- Setup/Teardown der Belagerung, Wegfindung um stehende Blöcke, weitere Formationen.

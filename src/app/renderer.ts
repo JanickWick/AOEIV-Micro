@@ -35,6 +35,8 @@ export interface RenderState {
   /** Rechtsklick-Ziehen: Pfeil vom Ziel in Blickrichtung. */
   facingDrag: { from: Vec2; to: Vec2 } | null;
   groupsOf: (id: UnitId) => number[];
+  /** Hotkey-Drill: Zielmarker. */
+  drillMarker: Vec2 | null;
 }
 
 export interface MinimapLayout {
@@ -85,6 +87,7 @@ export function render(ctx: CanvasRenderingContext2D, s: RenderState): void {
 
   drawMap(ctx, s);
   drawRangeRings(ctx, s);
+  drawDrillMarker(ctx, s);
   drawWaypoints(ctx, s);
   drawMarkers(ctx, s);
   drawUnits(ctx, s);
@@ -424,6 +427,26 @@ function drawMarkers(ctx: CanvasRenderingContext2D, s: RenderState): void {
     ctx.lineWidth = 1;
     ctx.stroke();
   }
+}
+
+function drawDrillMarker(ctx: CanvasRenderingContext2D, s: RenderState): void {
+  if (!s.drillMarker) return;
+  const p = s.camera.worldToScreen(s.drillMarker);
+  const pulse = 0.5 + 0.5 * Math.sin(s.nowMs / 180);
+  ctx.strokeStyle = '#fde68a';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 14 + pulse * 6, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(253,230,138,0.35)';
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fde68a';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('MARKER', p.x, p.y - 22);
 }
 
 function drawFacingDrag(ctx: CanvasRenderingContext2D, s: RenderState): void {

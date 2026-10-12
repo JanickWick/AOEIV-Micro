@@ -29,10 +29,12 @@
             </select>
           </label>
           <label><input type="checkbox" id="random-start" /> Zufallsstart</label>
+          <button id="btn-editor" title="Freier Szenario-Editor">Editor</button>
           <button id="btn-settings" title="Einstellungen und Kalibrierung">Einstellungen</button>
           <button id="btn-fullscreen" title="Vollbild">Vollbild</button>
         </div>
         <div id="mode-info" class="hud-panel warn" hidden></div>
+        <div id="drill-prompt" class="hud-panel drill" hidden></div>
         <div id="hud-bottom-right" class="hud-panel">
           <div id="selection-info" class="muted">Keine Auswahl</div>
         </div>
@@ -43,10 +45,24 @@
           <div class="dialog">
             <h2 id="result-title"></h2>
             <table id="result-table"></table>
+            <div id="result-chart-wrap" class="chart-wrap" hidden>
+              <h3>Verlauf der letzten 20 Versuche</h3>
+              <canvas id="result-chart" width="560" height="190"></canvas>
+              <div id="chart-tooltip" class="tooltip" hidden></div>
+            </div>
             <div class="row">
               <button id="result-restart">Neustart (F4)</button>
               <button id="result-close">Schließen</button>
             </div>
+          </div>
+        </div>
+        <div id="editor" class="overlay" hidden>
+          <div class="dialog wide">
+            <div class="row space">
+              <h2>Szenario-Editor</h2>
+              <button id="editor-close">Schließen (Esc)</button>
+            </div>
+            <div id="editor-body"></div>
           </div>
         </div>
         <div id="settings" class="overlay" hidden>

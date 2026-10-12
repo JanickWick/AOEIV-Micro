@@ -95,6 +95,29 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
     Spezifikation; Szenario 5 und 7 geben Mangonels Speerkämpfer als Schutz, damit "splitten"
     und "an den Speeren vorbei" trainiert werden.
 
+## Auswertung, Drill, Upgrades
+
+48. (A) APM zählt jede Eingabe (Befehl, Auswahländerung, Kontrollgruppe) pro Minute Spielzeit;
+    effektive APM zählt nur Befehle und ignoriert eine identische Wiederholung innerhalb von 0,5 s.
+    Das Spiel zählt anders (Klicks/Tasten); die Werte sind untereinander, nicht mit dem Spiel vergleichbar.
+49. (A) Kite-Effizienz = abgegebene Fernkampfangriffe / mögliche Angriffe; "möglich" = Summe der
+    Ticks, in denen ein Gegner in Waffenreichweite stand, geteilt durch die Angriffsperiode.
+    Ein Schütze, der ohne Laufen in Reichweite steht, erreicht knapp 100 %.
+50. (A) Overkill = Schaden über die Rest-HP hinaus plus der Schaden aller zielsuchenden Projektile,
+    deren Ziel vor dem Einschlag starb. Gleichzeitig beschossene Ziele = verschiedene Ziele je Tick
+    (Einheiten im Windup plus Projektile in der Luft), gemittelt über Ticks mit mindestens einem.
+51. (A) Idle-Zeit wird erst ab dem ersten Treffer gezählt: Einheit ohne Befehl und ohne Ziel.
+52. (A) Vergleichslauf "nur Attack-Move": derselbe Seed, die leichte KI steuert deine Seite,
+    Abbruch nach 180 s Spielzeit.
+53. (A) Bestwert: Sieg vor Niederlage, dann geringster Verlustwert, dann kürzeste Dauer. Drill:
+    mittlere Reaktionszeit plus 500 ms je Fehlgriff.
+54. (A) Drill: Marker liegt bis 9 Tiles vom Schwerpunkt der Einheiten, Befehlsziel darf 3 Tiles
+    abweichen; Pause zwischen Ansagen 0,9 bis 2,2 s; Zeit läuft in Echtzeit (nicht Spielzeit).
+55. (A) Schmiede-Upgrades als vier Stufenwerte 0–3 (je +1): Fernkampf-Angriff für Fernkampf-
+    Infanterie, Nahkampf-Angriff für Nahkämpfer, beide Rüstungen für Infanterie und Kavallerie;
+    Belagerung erhält keines. Das entspricht den Schmiede-Upgrades des Spiels je Zeitalter
+    (Feudal/Burg/Imperial), ohne Zivilisations-Besonderheiten.
+
 ## Bewegung und Formation
 
 11. (A) Gemischte Gruppen laufen mit dem Tempo der langsamsten Einheit (Regel

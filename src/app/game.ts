@@ -15,7 +15,8 @@ import { HotkeyMap, type ActionId } from './hotkeys';
 import { computeMinimapLayout, render, type Marker, type MinimapLayout } from './renderer';
 import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitsInRect, unitsOfTypeInRect, type Rect } from './selection';
 import type { DisplaySettings } from './settings';
-import { SummaryTracker, type RoundSummary } from './summary';
+import { RoundStats, type InputAction, type RoundSummary } from '../sim/stats';
+import { Drill, type DrillSummary } from './drill';
 
 const DRAG_THRESHOLD_PX = 4;
 const FACING_DRAG_PX = 14;
@@ -51,10 +52,14 @@ export class Game {
   paused = false;
   private seedOffset = 0;
   private ai: AiController | null = null;
-  private tracker = new SummaryTracker();
+  private tracker = new RoundStats(MY_PLAYER);
   outcome: Outcome = 'running';
   summary: RoundSummary | null = null;
   targeting: TargetingMode = null;
+  drill: Drill | null = null;
+  /** Seed und Zufallsstart der laufenden Runde (für den Vergleichslauf). */
+  roundSeed = 1;
+  roundRandomStart = false;
 
   private accumulator = 0;
   private lastFrame = 0;
@@ -76,6 +81,8 @@ export class Game {
 
   onStateChanged: (() => void) | null = null;
   onRoundFinished: ((s: RoundSummary) => void) | null = null;
+  onDrillFinished: ((s: DrillSummary) => void) | null = null;
+  onDrillChanged: (() => void) | null = null;
   onOpenSettings: (() => void) | null = null;
 
   constructor(
@@ -111,8 +118,10 @@ export class Game {
     const seed = (sc.seed ?? 1) + (this.settings.randomStart ? this.seedOffset++ : 0);
     const merged: ScenarioDef = { ...sc, rules: { ...(sc.rules ?? {}), ...this.ruleOverrides } };
     this.world = buildWorldFromScenario(this.defs, merged, { seed, randomStart: this.settings.randomStart });
+    this.roundSeed = seed;
+    this.roundRandomStart = this.settings.randomStart;
     this.ai = sc.ai && sc.ai.level !== 'none' ? createAi(1, sc.ai) : null;
-    this.tracker = new SummaryTracker();
+    this.tracker = new RoundStats(MY_PLAYER);
     this.outcome = 'running';
     this.summary = null;
     this.selection.clear();
@@ -125,7 +134,29 @@ export class Game {
     this.camera.setMap(this.world.map.width, this.world.map.height);
     const mine = this.world.units.filter((u) => u.player === MY_PLAYER);
     if (mine.length) this.camera.lookAt(centroid(mine.map((u) => u.pos)));
+    this.drill = null;
+    if (sc.kind === 'drill') {
+      // Szenario-Gruppen werden den Kontrollgruppen 1..n zugewiesen.
+      const groupCount = sc.groups.length;
+      for (let g = 0; g < groupCount; g++) {
+        this.groups.set(g + 1, mine.filter((u) => u.spawnGroup === g).map((u) => u.id));
+      }
+      const c = centroid(mine.map((u) => u.pos));
+      this.drill = new Drill(this.world.rng, sc.drill?.tasks ?? 20, Array.from({ length: groupCount }, (_, i) => i + 1), { center: c, radius: 9 }, performance.now());
+    }
     this.onStateChanged?.();
+  }
+
+  private recordInput(a: InputAction): void {
+    this.tracker.recordInput(a, this.world.tick);
+    if (this.drill && this.drill.phase === 'prompt') {
+      this.drill.onInput(
+        a,
+        { selection: this.selection, groupIds: (n) => this.groups.get(n, this.world.units), allMilitary: () => this.world.units.filter((u) => u.alive && u.player === MY_PLAYER).map((u) => u.id) },
+        performance.now(),
+      );
+      this.onDrillChanged?.();
+    }
   }
 
   // ---------------------------------------------------------------- Schleife
@@ -163,6 +194,7 @@ export class Game {
         stepWorld(this.world, cmds);
         this.pending = [];
         this.tracker.consume(this.world, this.world.events);
+        this.tracker.sample(this.world);
         this.accumulator -= this.world.dt;
         ticks++;
         this.outcome = evaluateOutcome(this.world, this.scenario, MY_PLAYER);
@@ -172,6 +204,16 @@ export class Game {
         }
       }
       if (ticks >= MAX_TICKS_PER_FRAME) this.accumulator = 0; // Rechner zu langsam: Zeit verwerfen statt Spirale
+    }
+
+    if (this.drill && this.drill.phase !== 'done') {
+      const before: string = this.drill.phase;
+      this.drill.update(nowMs);
+      const after: string = this.drill.phase;
+      if (after !== before) {
+        if (after === 'done') this.onDrillFinished?.(this.drill.summary());
+        this.onDrillChanged?.();
+      }
     }
 
     const alpha = running ? Math.min(1, this.accumulator / this.world.dt) : 1;
@@ -199,6 +241,7 @@ export class Game {
       drawCursor: this.pointerLocked && !this.inputBlocked,
       facingDrag: d && d.button === 2 && d.moved && d.moveTarget ? { from: d.moveTarget, to: this.camera.screenToWorld(d.lastScreen) } : null,
       groupsOf: (id) => this.groups.groupsOf(id),
+      drillMarker: this.drill?.marker ?? null,
     });
   }
 
@@ -238,6 +281,12 @@ export class Game {
 
   private issue(cmd: Command): void {
     this.pending.push(cmd);
+    this.recordInput({ kind: 'command', command: cmd });
+  }
+
+  /** Aktuelle Auswertung (auch während der Runde, z. B. für die Anzeige). */
+  currentSummary(): RoundSummary {
+    return this.tracker.finish(this.world, this.outcome);
   }
 
   private selectedIds(): UnitId[] {
@@ -305,6 +354,7 @@ export class Game {
 
   private setSelection(ids: Iterable<UnitId>): void {
     this.selection = new Set(ids);
+    this.recordInput({ kind: 'select' });
     this.onStateChanged?.();
   }
 
@@ -320,17 +370,22 @@ export class Game {
 
   groupSet(n: number): void {
     this.groups.set(n, this.selectedIds());
+    this.recordInput({ kind: 'group', n });
     this.onStateChanged?.();
   }
 
   groupAdd(n: number): void {
     this.groups.add(n, this.selectedIds());
+    this.recordInput({ kind: 'group', n });
     this.onStateChanged?.();
   }
 
   groupSelect(n: number, nowMs: number): void {
     const ids = this.groups.get(n, this.world.units);
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      this.recordInput({ kind: 'group', n });
+      return;
+    }
     this.setSelection(ids);
     if (this.lastGroupTap.n === n && nowMs - this.lastGroupTap.atMs < DOUBLE_TAP_MS) {
       this.camera.lookAt(centroid(ids.map((id) => this.world.units[id - 1]!.pos)));

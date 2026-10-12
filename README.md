@@ -121,7 +121,9 @@ Die Darstellung interpoliert zwischen zwei Simulationsticks; Befehle werden im n
 | 6 | Ritter-Dive abwehren | 8 Bogen + 6 Speer gegen 5 Ritter (III) | schwer |
 | 7 | Springald-Snipe | 2 Springald + 4 Reiter gegen 2 Mangonel + 6 Speer (III) | mittel |
 | 8 | Zwei-Gruppen-Micro | 8 Bogen + 4 Reiter gegen 6 Speer + 4 Bogen (II) | mittel |
+| 9 | Hotkey-Drill (ohne Kampf) | 3 vorbelegte Kontrollgruppen, 20 Ansagen auf Zeit | keine |
 | – | Sandbox | 10 Bogen + 4 Reiter gegen 6 passive Speer | keine |
+| – | Editor | frei: Einheiten, Zeitalter, Anzahl, Upgrades, KI, Abstand | wählbar |
 
 Szenarien liegen als JSON in `src/data/scenarios/` (Gruppen mit Einheit, Zeitalter, Anzahl,
 Mittelpunkt, Blickrichtung; KI-Stufe und Reaktionszeit; `dependsOnUnverified` für den Hinweis
@@ -134,6 +136,34 @@ KI-Stufen (alle nur über normale Befehle, Reaktionszeit einstellbar pro Szenari
   zieht nie zurück.
 - schwer: zusätzlich kiten mit Schützen, angeschlagene Einheiten zurückziehen, Mangonel-
   Geschossen ausweichen, Kavallerie umgeht Speerkämpfer Richtung Schützen.
+
+## Auswertung nach jeder Runde
+
+- Ergebnis, Dauer, Verluste und Überlebende beider Seiten mit Ressourcenwert.
+- APM (alle Eingaben pro Minute: Befehle, Auswahl, Kontrollgruppen) und effektive APM (nur
+  Befehle, unmittelbare Wiederholungen ausgenommen); Befehle pro Typ.
+- Kite-Effizienz: abgegebene Fernkampfangriffe geteilt durch mögliche (Zeit, in der ein Gegner in
+  Reichweite war, geteilt durch die Angriffsperiode); erlittener Nahkampfschaden.
+- Focus-Qualität: Overkill-Schaden (Schaden über den Tod hinaus plus Projektile, deren Ziel vor dem
+  Einschlag starb) und durchschnittliche Zahl gleichzeitig beschossener Ziele.
+- Idle-Zeit eigener Einheiten ab dem ersten Treffer; abgebrochene Ausholzeiten; Nahkampf-Fehlschläge.
+- Vergleichslauf "nur Attack-Move": dieselbe Ausgangslage (gleicher Seed) wird mit der leichten KI
+  statt deiner Steuerung simuliert, damit du siehst, was dein Micro bringt.
+- Bestwert und Verlauf der letzten 20 Versuche pro Szenario als Diagramm (localStorage).
+  Der Verlauf ist im JSON-Export enthalten.
+
+## Hotkey-Drill und Editor
+
+Szenario 9 belegt Gruppen 1 bis 3 vor und gibt 20 Ansagen ("Gruppe 2 auswählen, Attack-Move auf
+den Marker", "Stopp", "Position halten", "Patrouille", "Alle Militäreinheiten"). Gemessen werden die
+Reaktionszeit von Ansage bis Erfüllung und Fehlgriffe (Befehle oder Gruppenaktionen, die den
+aktuellen Schritt nicht erfüllen; Ziel muss höchstens 3 Tiles vom Marker entfernt sein).
+
+Der Editor (Button oder "Editor öffnen …" im Szenario-Menü) legt beide Seiten mit Einheiten,
+Zeitalter, Anzahl und Schmiede-Upgrades (je Kategorie Stufe 0–3, +1 pro Stufe: Fernkampf-Angriff,
+Nahkampf-Angriff, Nahkampf-Rüstung, Fernkampf-Rüstung; Belagerung erhält keine) fest, dazu
+KI-Stufe, Reaktionszeit, Startabstand und Zufallsstart. Das Szenario wird gespeichert und erscheint
+als "Editor: …" in der Liste.
 
 ## Einheitendaten
 
@@ -160,4 +190,4 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 - [x] M3: Kontrollgruppen, Befehlsketten, Attack-Move/Stopp/Halten/Patrouille, Formation ausrichten,
       Hotkey-Menü mit AoE4-Preset, Pointer-Lock
 - [x] M4: Gegner-KI in 3 Stufen, Szenarien 2 bis 8
-- [ ] M5: Auswertung, Verlauf, Hotkey-Drill, Editor
+- [x] M5: Auswertung, Verlauf mit Diagramm, Vergleichslauf, Hotkey-Drill, Editor, Schmiede-Upgrades

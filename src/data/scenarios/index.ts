@@ -8,6 +8,7 @@ import s05 from './05-mangonel-ausweichen.json';
 import s06 from './06-ritter-dive.json';
 import s07 from './07-springald-snipe.json';
 import s08 from './08-zwei-gruppen.json';
+import s09 from './09-hotkey-drill.json';
 import sandbox from './sandbox.json';
 
-export const SCENARIOS: readonly ScenarioDef[] = [s01, s02, s03, s03b, s04, s05, s06, s07, s08, sandbox] as ScenarioDef[];
+export const SCENARIOS: readonly ScenarioDef[] = [s01, s02, s03, s03b, s04, s05, s06, s07, s08, s09, sandbox] as ScenarioDef[];

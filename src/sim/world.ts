@@ -1,6 +1,6 @@
 import { clone, degToRad, type Vec2 } from './math';
 import { createRng } from './rng';
-import { DEFAULT_RULES, type PlayerId, type SimRules, type UnitId, type UnitState, type World } from './types';
+import { DEFAULT_RULES, NO_UPGRADES, type PlayerId, type SimRules, type UnitId, type UnitState, type Upgrades, type World } from './types';
 import { stat, type UnitDefLibrary } from './unitDefs';
 
 export interface WorldOptions {
@@ -36,6 +36,18 @@ export interface SpawnOptions {
   age: number;
   pos: Vec2;
   heading?: number; // Radiant
+  upgrades?: Upgrades;
+  spawnGroup?: number;
+}
+
+/** Welche Upgrades auf eine Einheit wirken: Belagerung bekommt keine; Angriff nur passend zum Waffentyp. */
+export function upgradeMods(def: { kind: string }, weaponType: string, up: Upgrades): UnitState['mods'] {
+  if (def.kind === 'siege') return { damage: 0, meleeArmor: 0, rangedArmor: 0 };
+  return {
+    damage: weaponType === 'melee' ? up.meleeAttack : up.rangedAttack,
+    meleeArmor: up.meleeArmor,
+    rangedArmor: up.rangedArmor,
+  };
 }
 
 export function spawnUnit(world: World, o: SpawnOptions): UnitState {
@@ -68,6 +80,8 @@ export function spawnUnit(world: World, o: SpawnOptions): UnitState {
     charge: hasCharge ? { runUp: 0, charging: false, cooldownLeft: 0 } : null,
     braceUntilTick: -1,
     lastHitTick: -1000,
+    mods: upgradeMods(def, ages.weapon.type, o.upgrades ?? NO_UPGRADES),
+    spawnGroup: o.spawnGroup ?? 0,
   };
   world.units.push(unit);
   return unit;

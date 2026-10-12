@@ -1,6 +1,7 @@
 /** Anzeige-Einstellungen (localStorage) und Export/Import aller Einstellungen als JSON. */
 import { ACTIONS, HotkeyMap, type ActionId, type KeyBinding } from './hotkeys';
 import { emptyCalibration, saveCalibration, type CalibrationState } from './calibration';
+import { exportHistory, importHistory, type Attempt } from './history';
 
 export type HealthBarMode = 'always' | 'selectedOrDamaged' | 'selected';
 
@@ -54,12 +55,14 @@ export interface ExportBundle {
   settings: DisplaySettings;
   calibration: CalibrationState;
   hotkeys: Partial<Record<ActionId, KeyBinding[]>>;
+  /** Verlauf der Versuche pro Szenario. */
+  history?: Record<string, Attempt[]>;
 }
 
 export function exportBundle(settings: DisplaySettings, calibration: CalibrationState, hotkeys: HotkeyMap): ExportBundle {
   const hk: Partial<Record<ActionId, KeyBinding[]>> = {};
   for (const a of ACTIONS) hk[a.id] = hotkeys.get(a.id);
-  return { format: 'aoe4micro-settings', version: 1, exportedAt: new Date().toISOString(), settings, calibration, hotkeys: hk };
+  return { format: 'aoe4micro-settings', version: 1, exportedAt: new Date().toISOString(), settings, calibration, hotkeys: hk, history: exportHistory() };
 }
 
 export interface ImportResult {
@@ -82,5 +85,6 @@ export function importBundle(json: string): ImportResult {
   saveSettings(settings);
   saveCalibration(calibration);
   hotkeys.save();
+  if (b.history && typeof b.history === 'object') importHistory(b.history);
   return { settings, calibration, hotkeys };
 }

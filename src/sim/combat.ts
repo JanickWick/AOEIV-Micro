@@ -155,8 +155,14 @@ function performHit(world: World, u: UnitState, target: UnitState, w: WeaponDef,
     const d = edgeDistance(u, target);
     if (d <= w.range.max + world.rules.meleeHitTolerance) {
       const tDef = world.defs.get(target.defId);
-      const dmg = computeDamage({ weaponType: 'melee', damage: w.damage, bonus: w.bonus, extra, attackerIsSiege: def.tags.includes('siege') }, tDef, world.defs.ageStats(target.defId, target.age), world.rules);
-      applyDamage(world, target, dmg, u.id, charged);
+      const dmg = computeDamage(
+        { weaponType: 'melee', damage: w.damage + u.mods.damage, bonus: w.bonus, extra, attackerIsSiege: def.tags.includes('siege') },
+        tDef,
+        world.defs.ageStats(target.defId, target.age),
+        world.rules,
+        target.mods,
+      );
+      applyDamage(world, target, dmg, u.id, charged, 'melee');
     } else {
       world.events.push({ kind: 'miss', attackerId: u.id, targetId: target.id, tick: world.tick });
     }

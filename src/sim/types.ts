@@ -77,7 +77,21 @@ export interface UnitState {
   braceUntilTick: number;
   /** Zuletzt erlittener Schaden (Tick), für die Darstellung. */
   lastHitTick: number;
+  /** Schmiede-Upgrades: Zusatzschaden der Waffe und Zusatzrüstung. */
+  mods: { damage: number; meleeArmor: number; rangedArmor: number };
+  /** Index der Szenario-Gruppe, aus der die Einheit stammt (für Drill-Kontrollgruppen). */
+  spawnGroup: number;
 }
+
+/** Schmiede-Upgrades pro Seite (Stufen 0–3, je +1). */
+export interface Upgrades {
+  rangedAttack: number;
+  meleeAttack: number;
+  meleeArmor: number;
+  rangedArmor: number;
+}
+
+export const NO_UPGRADES: Upgrades = { rangedAttack: 0, meleeAttack: 0, meleeArmor: 0, rangedArmor: 0 };
 
 export interface Projectile {
   id: number;
@@ -155,7 +169,9 @@ export type SimEvent =
   | { kind: 'orderAccepted'; unitId: UnitId; tick: number; order: Order['kind'] }
   | { kind: 'attackStarted'; unitId: UnitId; targetId: UnitId; tick: number }
   | { kind: 'windupCancelled'; unitId: UnitId; tick: number; reason: 'move' | 'retarget' | 'stop' | 'targetDied' }
-  | { kind: 'hit'; attackerId: UnitId; targetId: UnitId; damage: number; overkill: number; tick: number; charge: boolean }
+  | { kind: 'hit'; attackerId: UnitId; targetId: UnitId; damage: number; overkill: number; tick: number; charge: boolean; weaponType: WeaponType }
+  /** Zielsuchendes Projektil, dessen Ziel vor dem Einschlag starb (verschwendeter Schuss). */
+  | { kind: 'projectileWasted'; attackerId: UnitId; damage: number; tick: number }
   | { kind: 'miss'; attackerId: UnitId; targetId: UnitId; tick: number }
   | { kind: 'projectileLaunched'; projectileId: number; attackerId: UnitId; tick: number }
   | { kind: 'died'; unitId: UnitId; killerId: UnitId | null; tick: number }

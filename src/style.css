@@ -85,3 +85,14 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .note { color: #9ca3af; font-size: 11px; }
 #result-title.victory { color: #86efac; }
 #result-title.defeat { color: #fca5a5; }
+
+#drill-prompt { top: 52px; left: 50%; transform: translateX(-50%); font-size: 20px; font-weight: 700; color: #fde68a; padding: 10px 18px; }
+.dialog .num.good { color: #86efac; }
+.dialog .num.bad { color: #fca5a5; }
+.chart-wrap { position: relative; margin-top: 12px; }
+.chart-wrap h3 { margin: 0 0 6px; }
+#result-chart { width: 100%; max-width: 560px; height: 190px; display: block; background: #111827; }
+.tooltip { position: absolute; background: #1f2937; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 4px 8px; font-size: 11px; pointer-events: none; white-space: nowrap; }
+.editor-sides { display: flex; gap: 20px; flex-wrap: wrap; }
+.editor-side { flex: 1 1 360px; min-width: 0; }
+.editor-side input[type='number'] { width: 56px; }

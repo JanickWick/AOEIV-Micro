@@ -2,7 +2,7 @@
 import type { AiConfig } from './ai';
 import { computeFormation } from './formation';
 import { degToRad, fromAngle, type Vec2 } from './math';
-import type { PlayerId, SimRules, World } from './types';
+import type { PlayerId, SimRules, Upgrades, World } from './types';
 import type { UnitDefLibrary } from './unitDefs';
 import { aliveUnits, createWorld, spawnUnit } from './world';
 
@@ -33,7 +33,18 @@ export interface ScenarioDef {
   ai?: AiConfig;
   /** Pfade unbestätigter Werte, von denen das Szenario abhängt (Hinweis im HUD). */
   dependsOnUnverified?: string[];
+  /** Schmiede-Upgrades pro Seite ("0" = Spieler, "1" = Gegner). */
+  upgrades?: Partial<Record<'0' | '1', Partial<Upgrades>>>;
+  /** 'battle' (Standard) oder 'drill' (Hotkey-Drill ohne Kampf). */
+  kind?: 'battle' | 'drill';
+  /** Hotkey-Drill: Anzahl Aufgaben; Szenario-Gruppen werden den Kontrollgruppen 1..n zugewiesen. */
+  drill?: { tasks: number };
   groups: ScenarioGroup[];
+}
+
+export function upgradesFor(sc: ScenarioDef, player: PlayerId): Upgrades {
+  const u = sc.upgrades?.[String(player) as '0' | '1'] ?? {};
+  return { rangedAttack: u.rangedAttack ?? 0, meleeAttack: u.meleeAttack ?? 0, meleeArmor: u.meleeArmor ?? 0, rangedArmor: u.rangedArmor ?? 0 };
 }
 
 export interface BuildOptions {
@@ -45,7 +56,7 @@ export function buildWorldFromScenario(defs: UnitDefLibrary, sc: ScenarioDef, op
   const world = createWorld({ map: sc.map, seed: opts.seed ?? sc.seed ?? 1, rules: sc.rules, defs });
   const random = opts.randomStart ?? sc.randomStart ?? false;
   const maxOff = sc.randomOffset ?? 6;
-  for (const g of sc.groups) {
+  sc.groups.forEach((g, groupIndex) => {
     let center = { x: g.center.x, y: g.center.y };
     if (random) {
       center = { x: center.x + world.rng.range(-maxOff, maxOff), y: center.y + world.rng.range(-maxOff, maxOff) };
@@ -53,8 +64,9 @@ export function buildWorldFromScenario(defs: UnitDefLibrary, sc: ScenarioDef, op
     const heading = degToRad(g.facing ?? 0);
     // Erst spawnen, dann über die Formationslogik auf Plätze um das Zentrum setzen.
     const units = [];
+    const upgrades = upgradesFor(sc, g.player);
     for (let i = 0; i < g.count; i++) {
-      units.push(spawnUnit(world, { player: g.player, defId: g.unit, age: g.age, pos: center, heading }));
+      units.push(spawnUnit(world, { player: g.player, defId: g.unit, age: g.age, pos: center, heading, upgrades, spawnGroup: groupIndex }));
     }
     for (const slot of computeFormation(world, units, center, fromAngle(heading))) {
       const u = units.find((x) => x.id === slot.unitId)!;
@@ -62,7 +74,7 @@ export function buildWorldFromScenario(defs: UnitDefLibrary, sc: ScenarioDef, op
       u.prevPos = { x: slot.target.x, y: slot.target.y };
       u.attack.leashOrigin = { x: slot.target.x, y: slot.target.y };
     }
-  }
+  });
   return world;
 }
 
