@@ -1,0 +1,722 @@
+{
+  "id": "mein-layout",
+  "label": "Mein Layout (Dorfzenter)",
+  "sourceFile": "reference/hotkeys/Dorfzenter.rkp",
+  "importedAt": "2026-10-12",
+  "keyNaming": "us-physical",
+  "bindings": {
+    "camera.up": [
+      {
+        "code": "ArrowUp"
+      },
+      {
+        "code": "KeyW",
+        "alt": true
+      }
+    ],
+    "camera.down": [
+      {
+        "code": "ArrowDown"
+      },
+      {
+        "code": "KeyS",
+        "alt": true
+      }
+    ],
+    "camera.left": [
+      {
+        "code": "ArrowLeft"
+      },
+      {
+        "code": "KeyA",
+        "alt": true
+      }
+    ],
+    "camera.right": [
+      {
+        "code": "ArrowRight"
+      },
+      {
+        "code": "KeyD",
+        "alt": true
+      }
+    ],
+    "camera.reset": [
+      {
+        "code": "Backspace"
+      }
+    ],
+    "camera.focusSelection": [
+      {
+        "code": "F5"
+      }
+    ],
+    "game.settings": [
+      {
+        "code": "F10"
+      }
+    ],
+    "unit.attackMove": [
+      {
+        "code": "KeyA"
+      }
+    ],
+    "unit.stop": [
+      {
+        "code": "KeyS"
+      }
+    ],
+    "unit.patrol": [
+      {
+        "code": "KeyD"
+      }
+    ],
+    "unit.hold": [
+      {
+        "code": "KeyV"
+      }
+    ],
+    "unit.delete": [
+      {
+        "code": "Delete"
+      }
+    ],
+    "formation.line": [
+      {
+        "code": "KeyZ"
+      }
+    ],
+    "formation.wedge": [
+      {
+        "code": "KeyX"
+      }
+    ],
+    "formation.spread": [
+      {
+        "code": "KeyC"
+      }
+    ],
+    "select.allMilitary": [
+      {
+        "code": "KeyC",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "KeyA",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "select.allOfType": [],
+    "select.idleMilitary": [
+      {
+        "code": "Comma",
+        "ctrl": true
+      }
+    ],
+    "select.nextIdleMilitary": [
+      {
+        "code": "Comma"
+      }
+    ],
+    "subselect.next": [
+      {
+        "code": "Tab"
+      }
+    ],
+    "subselect.prev": [
+      {
+        "code": "Tab",
+        "ctrl": true
+      }
+    ],
+    "group.removeAll": [
+      {
+        "code": "Backspace",
+        "ctrl": true
+      }
+    ],
+    "group.select.0": [
+      {
+        "code": "Digit0"
+      },
+      {
+        "code": "Numpad0"
+      }
+    ],
+    "group.set.0": [
+      {
+        "code": "Digit0",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad0",
+        "ctrl": true
+      }
+    ],
+    "group.add.0": [
+      {
+        "code": "Digit0",
+        "shift": true
+      },
+      {
+        "code": "Numpad0",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.0": [],
+    "group.remove.0": [
+      {
+        "code": "Digit0",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad0",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.1": [
+      {
+        "code": "Digit1"
+      },
+      {
+        "code": "Numpad1"
+      }
+    ],
+    "group.set.1": [
+      {
+        "code": "Digit1",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad1",
+        "ctrl": true
+      }
+    ],
+    "group.add.1": [
+      {
+        "code": "Digit1",
+        "shift": true
+      },
+      {
+        "code": "Numpad1",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.1": [
+      {
+        "code": "Digit1",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad1",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.1": [
+      {
+        "code": "Digit1",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad1",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.2": [
+      {
+        "code": "Digit2"
+      },
+      {
+        "code": "Numpad2"
+      }
+    ],
+    "group.set.2": [
+      {
+        "code": "Digit2",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad2",
+        "ctrl": true
+      }
+    ],
+    "group.add.2": [
+      {
+        "code": "Digit2",
+        "shift": true
+      },
+      {
+        "code": "Numpad2",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.2": [
+      {
+        "code": "Digit2",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad2",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.2": [
+      {
+        "code": "Digit2",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad2",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.3": [
+      {
+        "code": "Digit3"
+      },
+      {
+        "code": "Numpad3"
+      }
+    ],
+    "group.set.3": [
+      {
+        "code": "Digit3",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad3",
+        "ctrl": true
+      }
+    ],
+    "group.add.3": [
+      {
+        "code": "Digit3",
+        "shift": true
+      },
+      {
+        "code": "Numpad3",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.3": [
+      {
+        "code": "Digit3",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad3",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.3": [
+      {
+        "code": "Digit3",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad3",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.4": [
+      {
+        "code": "Digit4"
+      },
+      {
+        "code": "Numpad4"
+      }
+    ],
+    "group.set.4": [
+      {
+        "code": "Digit4",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad4",
+        "ctrl": true
+      }
+    ],
+    "group.add.4": [
+      {
+        "code": "Digit4",
+        "shift": true
+      },
+      {
+        "code": "Numpad4",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.4": [
+      {
+        "code": "Digit4",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad4",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.4": [
+      {
+        "code": "Digit4",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad4",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.5": [
+      {
+        "code": "Digit5"
+      },
+      {
+        "code": "Numpad5"
+      }
+    ],
+    "group.set.5": [
+      {
+        "code": "Digit5",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad5",
+        "ctrl": true
+      }
+    ],
+    "group.add.5": [
+      {
+        "code": "Digit5",
+        "shift": true
+      },
+      {
+        "code": "Numpad5",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.5": [
+      {
+        "code": "Digit5",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad5",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.5": [
+      {
+        "code": "Digit5",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad5",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.6": [
+      {
+        "code": "Digit6"
+      },
+      {
+        "code": "Numpad6"
+      }
+    ],
+    "group.set.6": [
+      {
+        "code": "Digit6",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad6",
+        "ctrl": true
+      }
+    ],
+    "group.add.6": [
+      {
+        "code": "Digit6",
+        "shift": true
+      },
+      {
+        "code": "Numpad6",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.6": [
+      {
+        "code": "Digit6",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad6",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.6": [
+      {
+        "code": "Digit6",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad6",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.7": [
+      {
+        "code": "Digit7"
+      },
+      {
+        "code": "Numpad7"
+      }
+    ],
+    "group.set.7": [
+      {
+        "code": "Digit7",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad7",
+        "ctrl": true
+      }
+    ],
+    "group.add.7": [
+      {
+        "code": "Digit7",
+        "shift": true
+      },
+      {
+        "code": "Numpad7",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.7": [
+      {
+        "code": "Digit7",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad7",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.7": [
+      {
+        "code": "Digit7",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad7",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.8": [
+      {
+        "code": "Digit8"
+      },
+      {
+        "code": "Numpad8"
+      }
+    ],
+    "group.set.8": [
+      {
+        "code": "Digit8",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad8",
+        "ctrl": true
+      }
+    ],
+    "group.add.8": [
+      {
+        "code": "Digit8",
+        "shift": true
+      },
+      {
+        "code": "Numpad8",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.8": [
+      {
+        "code": "Digit8",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad8",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.8": [
+      {
+        "code": "Digit8",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad8",
+        "ctrl": true,
+        "alt": true
+      }
+    ],
+    "group.select.9": [
+      {
+        "code": "Digit9"
+      },
+      {
+        "code": "Numpad9"
+      }
+    ],
+    "group.set.9": [
+      {
+        "code": "Digit9",
+        "ctrl": true
+      },
+      {
+        "code": "Numpad9",
+        "ctrl": true
+      }
+    ],
+    "group.add.9": [
+      {
+        "code": "Digit9",
+        "shift": true
+      },
+      {
+        "code": "Numpad9",
+        "shift": true
+      }
+    ],
+    "group.addExclusive.9": [
+      {
+        "code": "Digit9",
+        "ctrl": true,
+        "shift": true
+      },
+      {
+        "code": "Numpad9",
+        "ctrl": true,
+        "shift": true
+      }
+    ],
+    "group.remove.9": [
+      {
+        "code": "Digit9",
+        "ctrl": true,
+        "alt": true
+      },
+      {
+        "code": "Numpad9",
+        "ctrl": true,
+        "alt": true
+      }
+    ]
+  },
+  "source": {
+    "camera.up": "camera.pan_up = Up | Alt+W",
+    "camera.down": "camera.pan_down = Down | Alt+S",
+    "camera.left": "camera.pan_left = Left | Alt+A",
+    "camera.right": "camera.pan_right = Right | Alt+D",
+    "camera.reset": "camera.default = Backspace",
+    "camera.focusSelection": "hud_selection_orders.focus_selected = F5",
+    "game.settings": "hud_game.pause_menu = F10",
+    "unit.attackMove": "abilities.squad_order_attack_move = A",
+    "unit.stop": "abilities.squad_order_stop = S",
+    "unit.patrol": "abilities.squad_order_patrol = D",
+    "unit.hold": "abilities.general_toggle_stand_ground = V",
+    "unit.delete": "abilities.general_delete = Delete",
+    "formation.line": "abilities.toggle_formation_line = Z",
+    "formation.wedge": "abilities.toggle_formation_wedge = X",
+    "formation.spread": "abilities.toggle_formation_spread = C",
+    "select.allMilitary": "hud_selection_orders.select_all = Control+Shift+A",
+    "select.idleMilitary": "hud_selection_orders.pick_all_idle_military = Control+Comma",
+    "select.nextIdleMilitary": "hud_selection_orders.pick_next_idle_military = Comma",
+    "subselect.next": "hud_selection_orders.subselect_next = Tab",
+    "subselect.prev": "hud_selection_orders.subselect_previous = Control+Tab",
+    "group.removeAll": "hud_control_groups.hkgroup_remove_all = Control+Backspace",
+    "group.select.0": "hud_control_groups.hkgroup_select0 = 0 | Numpad0",
+    "group.set.0": "hud_control_groups.hkgroup_set0 = Control+0 | Control+Numpad0",
+    "group.add.0": "hud_control_groups.hkgroup_add0 = Shift+0 | Shift+Numpad0",
+    "group.remove.0": "hud_control_groups.hkgroup_remove0 = Control+Alt+0 | Control+Alt+Numpad0",
+    "group.select.1": "hud_control_groups.hkgroup_select1 = 1 | Numpad1",
+    "group.set.1": "hud_control_groups.hkgroup_set1 = Control+1 | Control+Numpad1",
+    "group.add.1": "hud_control_groups.hkgroup_add1 = Shift+1 | Shift+Numpad1",
+    "group.addExclusive.1": "hud_control_groups.hkgroup_add_exclusively1 = Control+Shift+1 | Control+Shift+Numpad1",
+    "group.remove.1": "hud_control_groups.hkgroup_remove1 = Control+Alt+1 | Control+Alt+Numpad1",
+    "group.select.2": "hud_control_groups.hkgroup_select2 = 2 | Numpad2",
+    "group.set.2": "hud_control_groups.hkgroup_set2 = Control+2 | Control+Numpad2",
+    "group.add.2": "hud_control_groups.hkgroup_add2 = Shift+2 | Shift+Numpad2",
+    "group.addExclusive.2": "hud_control_groups.hkgroup_add_exclusively2 = Control+Shift+2 | Control+Shift+Numpad2",
+    "group.remove.2": "hud_control_groups.hkgroup_remove2 = Control+Alt+2 | Control+Alt+Numpad2",
+    "group.select.3": "hud_control_groups.hkgroup_select3 = 3 | Numpad3",
+    "group.set.3": "hud_control_groups.hkgroup_set3 = Control+3 | Control+Numpad3",
+    "group.add.3": "hud_control_groups.hkgroup_add3 = Shift+3 | Shift+Numpad3",
+    "group.addExclusive.3": "hud_control_groups.hkgroup_add_exclusively3 = Control+Shift+3 | Control+Shift+Numpad3",
+    "group.remove.3": "hud_control_groups.hkgroup_remove3 = Control+Alt+3 | Control+Alt+Numpad3",
+    "group.select.4": "hud_control_groups.hkgroup_select4 = 4 | Numpad4",
+    "group.set.4": "hud_control_groups.hkgroup_set4 = Control+4 | Control+Numpad4",
+    "group.add.4": "hud_control_groups.hkgroup_add4 = Shift+4 | Shift+Numpad4",
+    "group.addExclusive.4": "hud_control_groups.hkgroup_add_exclusively4 = Control+Shift+4 | Control+Shift+Numpad4",
+    "group.remove.4": "hud_control_groups.hkgroup_remove4 = Control+Alt+4 | Control+Alt+Numpad4",
+    "group.select.5": "hud_control_groups.hkgroup_select5 = 5 | Numpad5",
+    "group.set.5": "hud_control_groups.hkgroup_set5 = Control+5 | Control+Numpad5",
+    "group.add.5": "hud_control_groups.hkgroup_add5 = Shift+5 | Shift+Numpad5",
+    "group.addExclusive.5": "hud_control_groups.hkgroup_add_exclusively5 = Control+Shift+5 | Control+Shift+Numpad5",
+    "group.remove.5": "hud_control_groups.hkgroup_remove5 = Control+Alt+5 | Control+Alt+Numpad5",
+    "group.select.6": "hud_control_groups.hkgroup_select6 = 6 | Numpad6",
+    "group.set.6": "hud_control_groups.hkgroup_set6 = Control+6 | Control+Numpad6",
+    "group.add.6": "hud_control_groups.hkgroup_add6 = Shift+6 | Shift+Numpad6",
+    "group.addExclusive.6": "hud_control_groups.hkgroup_add_exclusively6 = Control+Shift+6 | Control+Shift+Numpad6",
+    "group.remove.6": "hud_control_groups.hkgroup_remove6 = Control+Alt+6 | Control+Alt+Numpad6",
+    "group.select.7": "hud_control_groups.hkgroup_select7 = 7 | Numpad7",
+    "group.set.7": "hud_control_groups.hkgroup_set7 = Control+7 | Control+Numpad7",
+    "group.add.7": "hud_control_groups.hkgroup_add7 = Shift+7 | Shift+Numpad7",
+    "group.addExclusive.7": "hud_control_groups.hkgroup_add_exclusively7 = Control+Shift+7 | Control+Shift+Numpad7",
+    "group.remove.7": "hud_control_groups.hkgroup_remove7 = Control+Alt+7 | Control+Alt+Numpad7",
+    "group.select.8": "hud_control_groups.hkgroup_select8 = 8 | Numpad8",
+    "group.set.8": "hud_control_groups.hkgroup_set8 = Control+8 | Control+Numpad8",
+    "group.add.8": "hud_control_groups.hkgroup_add8 = Shift+8 | Shift+Numpad8",
+    "group.addExclusive.8": "hud_control_groups.hkgroup_add_exclusively8 = Control+Shift+8 | Control+Shift+Numpad8",
+    "group.remove.8": "hud_control_groups.hkgroup_remove8 = Control+Alt+8 | Control+Alt+Numpad8",
+    "group.select.9": "hud_control_groups.hkgroup_select9 = 9 | Numpad9",
+    "group.set.9": "hud_control_groups.hkgroup_set9 = Control+9 | Control+Numpad9",
+    "group.add.9": "hud_control_groups.hkgroup_add9 = Shift+9 | Shift+Numpad9",
+    "group.addExclusive.9": "hud_control_groups.hkgroup_add_exclusively9 = Control+Shift+9 | Control+Shift+Numpad9",
+    "group.remove.9": "hud_control_groups.hkgroup_remove9 = Control+Alt+9 | Control+Alt+Numpad9"
+  }
+}

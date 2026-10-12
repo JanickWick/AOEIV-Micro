@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ControlGroups } from '../src/app/groups';
-import { AOE4_DEFAULT_PRESET, ACTIONS, bindingFromEvent, HotkeyMap, sameBinding } from '../src/app/hotkeys';
+import { AOE4_DEFAULT_PRESET, ACTIONS, bindingFromEvent, HotkeyMap, MEIN_LAYOUT_PRESET, PRESETS, sameBinding } from '../src/app/hotkeys';
 import { dist } from '../src/sim/math';
 import { runTicks, stepWorld } from '../src/sim/step';
 import type { SimEvent } from '../src/sim/types';
@@ -70,18 +70,36 @@ describe('Position halten einreihen', () => {
 });
 
 describe('Hotkeys', () => {
-  it('Preset deckt alle Aktionen ab und Modifier werden exakt verglichen', () => {
-    for (const a of ACTIONS) expect(Array.isArray(AOE4_DEFAULT_PRESET[a.id]), a.id).toBe(true);
-    const m = new HotkeyMap();
+  it('Presets decken alle Aktionen ab und Modifier werden exakt verglichen', () => {
+    for (const p of PRESETS) for (const a of ACTIONS) expect(Array.isArray(p.bindings[a.id]), `${p.id} ${a.id}`).toBe(true);
+    const m = new HotkeyMap('aoe4-default');
     expect(m.match({ code: 'Digit1', ctrlKey: false, shiftKey: false, altKey: false })).toBe('group.select.1');
     expect(m.match({ code: 'Digit1', ctrlKey: true, shiftKey: false, altKey: false })).toBe('group.set.1');
     expect(m.match({ code: 'Digit1', ctrlKey: false, shiftKey: true, altKey: false })).toBe('group.add.1');
     expect(m.match({ code: 'KeyA', ctrlKey: false, shiftKey: false, altKey: false })).toBe('unit.attackMove');
     expect(m.match({ code: 'KeyA', ctrlKey: true, shiftKey: false, altKey: false })).toBeNull();
+    void AOE4_DEFAULT_PRESET;
+  });
+
+  it('"Mein Layout" ist Standard und entspricht der Spieldatei', () => {
+    const m = new HotkeyMap();
+    expect(m.presetId).toBe('mein-layout');
+    expect(m.match({ code: 'KeyA', ctrlKey: false, shiftKey: false, altKey: false })).toBe('unit.attackMove');
+    expect(m.match({ code: 'KeyS', ctrlKey: false, shiftKey: false, altKey: false })).toBe('unit.stop');
+    expect(m.match({ code: 'KeyD', ctrlKey: false, shiftKey: false, altKey: false })).toBe('unit.patrol');
+    expect(m.match({ code: 'KeyV', ctrlKey: false, shiftKey: false, altKey: false })).toBe('unit.hold');
+    expect(m.match({ code: 'KeyC', ctrlKey: true, shiftKey: true, altKey: false })).toBe('select.allMilitary');
+    expect(m.match({ code: 'Tab', ctrlKey: false, shiftKey: false, altKey: false })).toBe('subselect.next');
+    expect(m.match({ code: 'Tab', ctrlKey: true, shiftKey: false, altKey: false })).toBe('subselect.prev');
+    expect(m.match({ code: 'Numpad3', ctrlKey: true, shiftKey: true, altKey: false })).toBe('group.addExclusive.3');
+    expect(m.match({ code: 'Digit0', ctrlKey: true, shiftKey: false, altKey: false })).toBe('group.set.0');
+    expect(m.match({ code: 'Backspace', ctrlKey: true, shiftKey: false, altKey: false })).toBe('group.removeAll');
+    expect(m.match({ code: 'F5', ctrlKey: false, shiftKey: false, altKey: false })).toBe('camera.focusSelection');
+    expect(MEIN_LAYOUT_PRESET['select.allOfType']).toEqual([]);
   });
 
   it('Umbelegen, Konflikte und Reset', () => {
-    const m = new HotkeyMap();
+    const m = new HotkeyMap('aoe4-default');
     const b = bindingFromEvent({ code: 'KeyQ', ctrlKey: false, shiftKey: false, altKey: false })!;
     expect(m.conflicts(b)).toEqual([]);
     m.set('unit.attackMove', [b]);
@@ -110,6 +128,14 @@ describe('Kontrollgruppen', () => {
     b.alive = false;
     expect(g.get(1, w.units).sort()).toEqual([a.id, c.id]);
     g.set(2, []);
+    expect(g.get(2, w.units)).toEqual([]);
+    g.set(2, [a.id, c.id]);
+    g.addExclusive(3, [a.id]);
+    expect(g.get(1, w.units)).toEqual([c.id]);
+    expect(g.get(2, w.units)).toEqual([c.id]);
+    expect(g.get(3, w.units)).toEqual([a.id]);
+    g.removeFromAll([c.id]);
+    expect(g.get(1, w.units)).toEqual([]);
     expect(g.get(2, w.units)).toEqual([]);
   });
 });

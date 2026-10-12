@@ -14,6 +14,23 @@ export class ControlGroups {
     this.set(n, [...cur, ...ids]);
   }
 
+  /** Fügt die Einheiten zu n hinzu und entfernt sie aus allen anderen Gruppen. */
+  addExclusive(n: number, ids: readonly UnitId[]): void {
+    for (const k of [...this.groups.keys()]) if (k !== n) this.remove(k, ids);
+    this.add(n, ids);
+  }
+
+  remove(n: number, ids: readonly UnitId[]): void {
+    const cur = this.groups.get(n);
+    if (!cur) return;
+    const drop = new Set(ids);
+    this.set(n, cur.filter((id) => !drop.has(id)));
+  }
+
+  removeFromAll(ids: readonly UnitId[]): void {
+    for (const k of [...this.groups.keys()]) this.remove(k, ids);
+  }
+
   get(n: number, units: readonly UnitState[]): UnitId[] {
     const alive = new Set(units.filter((u) => u.alive).map((u) => u.id));
     const ids = (this.groups.get(n) ?? []).filter((id) => alive.has(id));

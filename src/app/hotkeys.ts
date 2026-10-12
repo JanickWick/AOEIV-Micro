@@ -3,12 +3,15 @@
  * localStorage gespeichert. Tasten werden als KeyboardEvent.code (physische Taste) gespeichert,
  * damit deutsche Layouts (Y/Z) keine Probleme machen.
  */
+import meinLayout from '../data/hotkeys/mein-layout.json';
+
 export type ActionId =
   | 'camera.up'
   | 'camera.down'
   | 'camera.left'
   | 'camera.right'
   | 'camera.focusSelection'
+  | 'camera.reset'
   | 'game.restart'
   | 'game.pause'
   | 'game.settings'
@@ -16,14 +19,25 @@ export type ActionId =
   | 'unit.attackMove'
   | 'unit.hold'
   | 'unit.patrol'
+  | 'unit.delete'
+  | 'formation.line'
+  | 'formation.wedge'
+  | 'formation.spread'
   | 'select.allMilitary'
   | 'select.allOfType'
+  | 'select.idleMilitary'
+  | 'select.nextIdleMilitary'
+  | 'subselect.next'
+  | 'subselect.prev'
+  | 'group.removeAll'
   | `group.set.${GroupDigit}`
   | `group.select.${GroupDigit}`
-  | `group.add.${GroupDigit}`;
+  | `group.add.${GroupDigit}`
+  | `group.addExclusive.${GroupDigit}`
+  | `group.remove.${GroupDigit}`;
 
-export type GroupDigit = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-export const GROUP_DIGITS: readonly GroupDigit[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+export type GroupDigit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export const GROUP_DIGITS: readonly GroupDigit[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
 export interface KeyBinding {
   code: string;
@@ -35,9 +49,11 @@ export interface KeyBinding {
 export interface ActionInfo {
   id: ActionId;
   label: string;
-  category: 'Kamera' | 'Spiel' | 'Einheitenbefehle' | 'Auswahl' | 'Kontrollgruppen';
+  category: 'Kamera' | 'Spiel' | 'Einheitenbefehle' | 'Formation' | 'Auswahl' | 'Kontrollgruppen';
   /** Wird bei gehaltener Taste jeden Frame ausgelöst (Kamera) statt einmal pro Druck. */
   continuous?: boolean;
+  /** Noch nicht umgesetzt (kommt in der genannten Etappe). */
+  pending?: string;
 }
 
 export const ACTIONS: readonly ActionInfo[] = [
@@ -46,55 +62,106 @@ export const ACTIONS: readonly ActionInfo[] = [
   { id: 'camera.left', label: 'Kamera nach links', category: 'Kamera', continuous: true },
   { id: 'camera.right', label: 'Kamera nach rechts', category: 'Kamera', continuous: true },
   { id: 'camera.focusSelection', label: 'Kamera auf Auswahl zentrieren', category: 'Kamera' },
+  { id: 'camera.reset', label: 'Kamera zurücksetzen (Standardzoom, auf eigene Truppe)', category: 'Kamera' },
   { id: 'game.restart', label: 'Szenario neu starten', category: 'Spiel' },
   { id: 'game.pause', label: 'Pause', category: 'Spiel' },
   { id: 'game.settings', label: 'Einstellungen öffnen', category: 'Spiel' },
   { id: 'unit.attackMove', label: 'Angriffsbewegung (dann Ziel klicken)', category: 'Einheitenbefehle' },
   { id: 'unit.stop', label: 'Stopp', category: 'Einheitenbefehle' },
-  { id: 'unit.hold', label: 'Position halten', category: 'Einheitenbefehle' },
   { id: 'unit.patrol', label: 'Patrouille (dann Ziel klicken)', category: 'Einheitenbefehle' },
+  { id: 'unit.hold', label: 'Position halten', category: 'Einheitenbefehle' },
+  { id: 'unit.delete', label: 'Einheit löschen', category: 'Einheitenbefehle', pending: 'G3' },
+  { id: 'formation.line', label: 'Formation: Linie', category: 'Formation', pending: 'G4' },
+  { id: 'formation.wedge', label: 'Formation: versetzt (Keil)', category: 'Formation', pending: 'G4' },
+  { id: 'formation.spread', label: 'Formation: aufgelockert', category: 'Formation', pending: 'G4' },
   { id: 'select.allMilitary', label: 'Alle Militäreinheiten auswählen', category: 'Auswahl' },
   { id: 'select.allOfType', label: 'Alle Einheiten dieses Typs auswählen', category: 'Auswahl' },
+  { id: 'select.idleMilitary', label: 'Alle untätigen Militäreinheiten auswählen', category: 'Auswahl' },
+  { id: 'select.nextIdleMilitary', label: 'Nächste untätige Militäreinheit', category: 'Auswahl' },
+  { id: 'subselect.next', label: 'Untergruppe: nächster Typ', category: 'Auswahl', pending: 'G4' },
+  { id: 'subselect.prev', label: 'Untergruppe: voriger Typ', category: 'Auswahl', pending: 'G4' },
   ...GROUP_DIGITS.map((d): ActionInfo => ({ id: `group.select.${d}`, label: `Kontrollgruppe ${d} auswählen (Doppeltipp zentriert)`, category: 'Kontrollgruppen' })),
   ...GROUP_DIGITS.map((d): ActionInfo => ({ id: `group.set.${d}`, label: `Kontrollgruppe ${d} setzen`, category: 'Kontrollgruppen' })),
   ...GROUP_DIGITS.map((d): ActionInfo => ({ id: `group.add.${d}`, label: `Zu Kontrollgruppe ${d} hinzufügen`, category: 'Kontrollgruppen' })),
+  ...GROUP_DIGITS.map((d): ActionInfo => ({ id: `group.addExclusive.${d}`, label: `Exklusiv zu Kontrollgruppe ${d} (aus allen anderen entfernen)`, category: 'Kontrollgruppen' })),
+  ...GROUP_DIGITS.map((d): ActionInfo => ({ id: `group.remove.${d}`, label: `Aus Kontrollgruppe ${d} entfernen`, category: 'Kontrollgruppen' })),
+  { id: 'group.removeAll', label: 'Auswahl aus allen Kontrollgruppen entfernen', category: 'Kontrollgruppen' },
 ];
 
-/** Voreinstellung nach AoE4-Standard (Grid-Layout), soweit bekannt; unsichere Tasten in PRESET_UNSURE. */
-export const AOE4_DEFAULT_PRESET: Record<ActionId, KeyBinding[]> = {
+export type Bindings = Record<ActionId, KeyBinding[]>;
+
+function withAll(partial: Partial<Record<ActionId, KeyBinding[]>>): Bindings {
+  const out = {} as Bindings;
+  for (const a of ACTIONS) out[a.id] = structuredClone(partial[a.id] ?? []);
+  return out;
+}
+
+/** Vorschlag nach AoE4-Grid-Layout, soweit bekannt; unsichere Tasten in PRESET_UNSURE. */
+export const AOE4_DEFAULT_PRESET: Bindings = withAll({
   'camera.up': [{ code: 'ArrowUp' }],
   'camera.down': [{ code: 'ArrowDown' }],
   'camera.left': [{ code: 'ArrowLeft' }],
   'camera.right': [{ code: 'ArrowRight' }],
-  'camera.focusSelection': [],
+  'camera.reset': [{ code: 'Backspace' }],
   'game.restart': [{ code: 'F4' }],
   'game.pause': [{ code: 'F3' }],
   'game.settings': [{ code: 'F10' }],
   'unit.attackMove': [{ code: 'KeyA' }],
   'unit.stop': [{ code: 'KeyS' }],
-  'unit.hold': [{ code: 'KeyH' }],
-  'unit.patrol': [{ code: 'KeyP' }],
-  'select.allMilitary': [{ code: 'KeyM', ctrl: true, shift: true }],
-  'select.allOfType': [{ code: 'KeyT', ctrl: true, shift: true }],
+  'unit.patrol': [{ code: 'KeyD' }],
+  'unit.hold': [{ code: 'KeyV' }],
+  'unit.delete': [{ code: 'Delete' }],
+  'formation.line': [{ code: 'KeyZ' }],
+  'formation.wedge': [{ code: 'KeyX' }],
+  'formation.spread': [{ code: 'KeyC' }],
+  'select.allMilitary': [{ code: 'KeyC', ctrl: true, shift: true }],
+  'subselect.next': [{ code: 'Tab' }],
+  'subselect.prev': [{ code: 'Tab', ctrl: true }],
   ...(Object.fromEntries(GROUP_DIGITS.map((d) => [`group.select.${d}`, [{ code: `Digit${d}` }]])) as Record<`group.select.${GroupDigit}`, KeyBinding[]>),
   ...(Object.fromEntries(GROUP_DIGITS.map((d) => [`group.set.${d}`, [{ code: `Digit${d}`, ctrl: true }]])) as Record<`group.set.${GroupDigit}`, KeyBinding[]>),
   ...(Object.fromEntries(GROUP_DIGITS.map((d) => [`group.add.${d}`, [{ code: `Digit${d}`, shift: true }]])) as Record<`group.add.${GroupDigit}`, KeyBinding[]>),
-};
+});
 
-/** Aktionen, deren Standardtaste im echten Spiel nicht sicher bekannt ist (bitte mit eigener Belegung prüfen). */
-export const PRESET_UNSURE: ReadonlySet<ActionId> = new Set<ActionId>([
-  'unit.attackMove',
-  'unit.stop',
-  'unit.hold',
-  'unit.patrol',
-  'select.allMilitary',
-  'select.allOfType',
-  'game.restart',
-  'game.pause',
-  'game.settings',
-]);
+/** Aus der Spieldatei importiertes Layout (scripts/import-hotkeys.mjs). Eigene Zusätze: Neustart F4, Pause F3. */
+export const MEIN_LAYOUT_PRESET: Bindings = withAll({
+  ...(meinLayout.bindings as Partial<Record<ActionId, KeyBinding[]>>),
+  'game.restart': [{ code: 'F4' }],
+  'game.pause': [{ code: 'F3' }],
+});
 
-const STORAGE_KEY = 'aoe4micro.hotkeys.v2';
+export interface PresetInfo {
+  id: string;
+  label: string;
+  bindings: Bindings;
+  /** Aktionen, deren Taste nicht aus einer Spieldatei stammt. */
+  unsure: ReadonlySet<ActionId>;
+}
+
+export const PRESETS: readonly PresetInfo[] = [
+  {
+    id: 'mein-layout',
+    label: meinLayout.label,
+    bindings: MEIN_LAYOUT_PRESET,
+    unsure: new Set<ActionId>(['game.restart', 'game.pause', ...ACTIONS.map((a) => a.id).filter((id) => !(id in meinLayout.bindings) || (meinLayout.bindings as Record<string, unknown[]>)[id]!.length === 0)]),
+  },
+  {
+    id: 'aoe4-default',
+    label: 'AoE4-Grid (Vorschlag)',
+    bindings: AOE4_DEFAULT_PRESET,
+    unsure: new Set<ActionId>(['unit.attackMove', 'unit.stop', 'unit.hold', 'unit.patrol', 'select.allMilitary', 'select.allOfType', 'game.restart', 'game.pause', 'game.settings']),
+  },
+];
+
+export const DEFAULT_PRESET_ID = 'mein-layout';
+
+export function presetById(id: string): PresetInfo {
+  return PRESETS.find((p) => p.id === id) ?? PRESETS[0]!;
+}
+
+/** @deprecated Nur noch für Tests/Abwärtskompatibilität. */
+export const PRESET_UNSURE: ReadonlySet<ActionId> = presetById(DEFAULT_PRESET_ID).unsure;
+
+const STORAGE_KEY = 'aoe4micro.hotkeys.v3';
 
 export function sameBinding(a: KeyBinding, b: KeyBinding): boolean {
   return a.code === b.code && !!a.ctrl === !!b.ctrl && !!a.shift === !!b.shift && !!a.alt === !!b.alt;
@@ -110,10 +177,12 @@ export function bindingFromEvent(e: { code: string; ctrlKey: boolean; shiftKey: 
 }
 
 export class HotkeyMap {
-  private bindings: Record<ActionId, KeyBinding[]>;
+  private bindings: Bindings;
+  presetId: string;
 
-  constructor(preset: Record<ActionId, KeyBinding[]> = AOE4_DEFAULT_PRESET) {
-    this.bindings = structuredClone(preset);
+  constructor(presetId: string = DEFAULT_PRESET_ID) {
+    this.presetId = presetById(presetId).id;
+    this.bindings = structuredClone(presetById(this.presetId).bindings);
   }
 
   static load(): HotkeyMap {
@@ -121,8 +190,9 @@ export class HotkeyMap {
     try {
       const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
       if (raw) {
-        const saved = JSON.parse(raw) as Partial<Record<ActionId, KeyBinding[]>>;
-        for (const a of ACTIONS) if (Array.isArray(saved[a.id])) map.bindings[a.id] = saved[a.id]!;
+        const saved = JSON.parse(raw) as { presetId?: string; bindings?: Partial<Record<ActionId, KeyBinding[]>> };
+        if (saved.presetId) map.applyPreset(saved.presetId);
+        for (const a of ACTIONS) if (Array.isArray(saved.bindings?.[a.id])) map.bindings[a.id] = saved.bindings![a.id]!;
       }
     } catch {
       /* ungültige Daten ignorieren */
@@ -132,10 +202,20 @@ export class HotkeyMap {
 
   save(): void {
     try {
-      globalThis.localStorage?.setItem(STORAGE_KEY, JSON.stringify(this.bindings));
+      globalThis.localStorage?.setItem(STORAGE_KEY, JSON.stringify({ presetId: this.presetId, bindings: this.bindings }));
     } catch {
       /* z. B. privater Modus */
     }
+  }
+
+  applyPreset(id: string): void {
+    const p = presetById(id);
+    this.presetId = p.id;
+    this.bindings = structuredClone(p.bindings);
+  }
+
+  get preset(): PresetInfo {
+    return presetById(this.presetId);
   }
 
   get(action: ActionId): KeyBinding[] {
@@ -149,12 +229,12 @@ export class HotkeyMap {
   /** true, wenn die Belegung vom Preset abweicht (vom Nutzer gesetzt). */
   isCustom(action: ActionId): boolean {
     const a = this.bindings[action];
-    const b = AOE4_DEFAULT_PRESET[action];
+    const b = this.preset.bindings[action];
     return a.length !== b.length || a.some((x, i) => !sameBinding(x, b[i]!));
   }
 
   resetToPreset(): void {
-    this.bindings = structuredClone(AOE4_DEFAULT_PRESET);
+    this.bindings = structuredClone(this.preset.bindings);
   }
 
   /** Alle Aktionen, die dieselbe Taste benutzen (Konflikt), außer `except`. */
@@ -176,7 +256,7 @@ export class HotkeyMap {
     return ACTIONS.some((a) => this.bindings[a.id].some((b) => b.code === code));
   }
 
-  toJSON(): Record<ActionId, KeyBinding[]> {
+  toJSON(): Bindings {
     return structuredClone(this.bindings);
   }
 }

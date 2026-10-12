@@ -55,6 +55,7 @@ export interface ExportBundle {
   settings: DisplaySettings;
   calibration: CalibrationState;
   hotkeys: Partial<Record<ActionId, KeyBinding[]>>;
+  hotkeyPreset?: string;
   /** Verlauf der Versuche pro Szenario. */
   history?: Record<string, Attempt[]>;
 }
@@ -62,7 +63,7 @@ export interface ExportBundle {
 export function exportBundle(settings: DisplaySettings, calibration: CalibrationState, hotkeys: HotkeyMap): ExportBundle {
   const hk: Partial<Record<ActionId, KeyBinding[]>> = {};
   for (const a of ACTIONS) hk[a.id] = hotkeys.get(a.id);
-  return { format: 'aoe4micro-settings', version: 1, exportedAt: new Date().toISOString(), settings, calibration, hotkeys: hk, history: exportHistory() };
+  return { format: 'aoe4micro-settings', version: 1, exportedAt: new Date().toISOString(), settings, calibration, hotkeys: hk, hotkeyPreset: hotkeys.presetId, history: exportHistory() };
 }
 
 export interface ImportResult {
@@ -77,7 +78,7 @@ export function importBundle(json: string): ImportResult {
   if (b.format !== 'aoe4micro-settings') throw new Error('Keine Einstellungsdatei dieses Tools.');
   const settings = { ...DEFAULT_SETTINGS, ...(b.settings ?? {}) };
   const calibration: CalibrationState = { ...emptyCalibration(), ...(b.calibration ?? {}) };
-  const hotkeys = new HotkeyMap();
+  const hotkeys = new HotkeyMap(b.hotkeyPreset);
   for (const a of ACTIONS) {
     const bind = b.hotkeys?.[a.id];
     if (Array.isArray(bind)) hotkeys.set(a.id, bind);

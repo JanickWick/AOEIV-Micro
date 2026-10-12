@@ -95,6 +95,14 @@ direkt in `src/data/units/*.json` ein und setzt `"verified": true`.
     Spezifikation; Szenario 5 und 7 geben Mangonels Speerkämpfer als Schutz, damit "splitten"
     und "an den Speeren vorbei" trainiert werden.
 
+## Hotkey-Import
+
+56. (A) Tastennamen in der .rkp-Datei sind US-Namen physischer Tasten; "Z" wird auf `KeyZ`
+    abgebildet (auf QWERTZ die mit Y beschriftete Taste links neben X). Bestätigung offen.
+57. (Spieldatei) Position halten = V, Patrouille = D, Verschanzen = F (hier ohne Funktion),
+    Untergruppe vor = Tab, zurück = Strg+Tab, alle Militäreinheiten = Strg+Shift+C und Strg+Shift+A.
+58. (A) Neustart F4 und Pause F3 haben keine Entsprechung im Spiel und bleiben eigene Wahl.
+
 ## Auswertung, Drill, Upgrades
 
 48. (A) APM zählt jede Eingabe (Befehl, Auswahländerung, Kontrollgruppe) pro Minute Spielzeit;

@@ -374,6 +374,47 @@ export class Game {
     this.onStateChanged?.();
   }
 
+  groupAddExclusive(n: number): void {
+    this.groups.addExclusive(n, this.selectedIds());
+    this.recordInput({ kind: 'group', n });
+    this.onStateChanged?.();
+  }
+
+  groupRemove(n: number): void {
+    this.groups.remove(n, this.selectedIds());
+    this.recordInput({ kind: 'group', n });
+    this.onStateChanged?.();
+  }
+
+  groupRemoveAll(): void {
+    this.groups.removeFromAll(this.selectedIds());
+    this.recordInput({ kind: 'group', n: -1 });
+    this.onStateChanged?.();
+  }
+
+  selectIdleMilitary(): void {
+    this.setSelection(this.world.units.filter((u) => u.alive && u.player === MY_PLAYER && u.orders.length === 0 && u.attack.targetId === null).map((u) => u.id));
+  }
+
+  /** Wählt die nächste untätige Einheit (zyklisch nach der aktuellen Auswahl) und zentriert die Kamera. */
+  selectNextIdleMilitary(): void {
+    const idle = this.world.units.filter((u) => u.alive && u.player === MY_PLAYER && u.orders.length === 0 && u.attack.targetId === null);
+    if (idle.length === 0) return;
+    const current = this.selection.size === 1 ? [...this.selection][0]! : -1;
+    const i = idle.findIndex((u) => u.id === current);
+    const next = idle[(i + 1) % idle.length]!;
+    this.setSelection([next.id]);
+    this.camera.lookAt(next.pos);
+  }
+
+  cameraReset(): void {
+    this.camera.zoom = 48;
+    this.settings.zoom = 48;
+    const mine = this.world.units.filter((u) => u.alive && u.player === MY_PLAYER);
+    if (mine.length) this.camera.lookAt(centroid(mine.map((u) => u.pos)));
+    this.onStateChanged?.();
+  }
+
   groupAdd(n: number): void {
     this.groups.add(n, this.selectedIds());
     this.recordInput({ kind: 'group', n });
@@ -616,14 +657,28 @@ export class Game {
       case 'camera.focusSelection':
         this.focusSelection();
         return;
+      case 'camera.reset':
+        this.cameraReset();
+        return;
+      case 'select.idleMilitary':
+        this.selectIdleMilitary();
+        return;
+      case 'select.nextIdleMilitary':
+        this.selectNextIdleMilitary();
+        return;
+      case 'group.removeAll':
+        this.groupRemoveAll();
+        return;
       default:
-        break;
+        break; // formation.*, subselect.*, unit.delete folgen in G3/G4
     }
-    const m = /^group\.(set|select|add)\.(\d)$/.exec(action);
+    const m = /^group\.(set|select|add|addExclusive|remove)\.(\d)$/.exec(action);
     if (m) {
       const n = Number(m[2]);
       if (m[1] === 'set') this.groupSet(n);
       else if (m[1] === 'add') this.groupAdd(n);
+      else if (m[1] === 'addExclusive') this.groupAddExclusive(n);
+      else if (m[1] === 'remove') this.groupRemove(n);
       else this.groupSelect(n, now);
     }
   }

@@ -1,6 +1,6 @@
 /** Einstellungs- und Kalibrierungsmenü (HTML). Änderungen werden sofort gespeichert und übernommen. */
 import { listCalibrationEntries, RULE_ENTRIES, ruleDefault, saveCalibration, type CalibrationState } from './calibration';
-import { ACTIONS, bindingFromEvent, describeBinding, PRESET_UNSURE, type ActionId, type HotkeyMap, type KeyBinding } from './hotkeys';
+import { ACTIONS, bindingFromEvent, describeBinding, PRESETS, type ActionId, type HotkeyMap, type KeyBinding } from './hotkeys';
 import { exportBundle, saveSettings, type DisplaySettings, type HealthBarMode } from './settings';
 void (0 as unknown as KeyBinding);
 
@@ -165,9 +165,19 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
   root.append(ct);
 
   // -------- Hotkeys
+  const presetSel = el('select', { id: 'set-preset' });
+  for (const p of PRESETS) presetSel.append(el('option', { value: p.id, text: p.label }));
+  presetSel.value = d.hotkeys.presetId;
+  presetSel.addEventListener('change', () => {
+    d.hotkeys.applyPreset(presetSel.value);
+    d.hotkeys.save();
+    d.onHotkeysChanged();
+    buildSettingsPanel(d);
+  });
   root.append(
     el('h3', { text: 'Hotkeys' }),
-    el('div', { class: 'note', text: 'Klick auf "Belegen", dann Tastenkombination drücken (Esc bricht ab). "Entfernen" löscht die Belegung. Orange = Standardtaste des Spiels nicht sicher bekannt, bitte mit deinem Layout abgleichen. Tasten werden als physische Taste gespeichert (deutsches Layout wird berücksichtigt).' }),
+    el('div', { class: 'row' }, [el('label', {}, ['Preset ', presetSel])]),
+    el('div', { class: 'note', text: '"Mein Layout" stammt aus deiner Spieldatei (reference/hotkeys/Dorfzenter.rkp). Klick auf "Belegen", dann Tastenkombination drücken (Esc bricht ab). "Entfernen" löscht die Belegung. Orange = Taste stammt nicht aus der Spieldatei. Grau = Aktion wird erst in einer späteren Etappe wirksam. Tasten werden als physische Taste gespeichert; "Z" der Spieldatei ist die Taste links neben X.' }),
   );
   const ht = el('table');
   ht.append(el('tr', {}, [el('th', { text: 'Aktion' }), el('th', { text: 'Taste(n)' }), el('th', { text: '' })]));
@@ -179,9 +189,11 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
       ht.append(el('tr', {}, [el('th', { text: a.category, colspan: '3' })]));
     }
     const keysCell = el('td', { text: describeAll(a.id) });
-    const unsure = PRESET_UNSURE.has(a.id) && !d.hotkeys.isCustom(a.id);
-    const badge = el('span', { class: `badge ${unsure ? 'unverified' : 'set'}`, text: unsure ? 'unsicher' : '' });
+    const unsure = d.hotkeys.preset.unsure.has(a.id) && !d.hotkeys.isCustom(a.id);
+    const badge = el('span', { class: `badge ${unsure ? 'unverified' : 'set'}`, text: unsure ? 'nicht aus Spieldatei' : '' });
     if (!unsure) badge.hidden = true;
+    const pendingBadge = el('span', { class: 'badge pending', text: a.pending ? `ab ${a.pending}` : '' });
+    if (!a.pending) pendingBadge.hidden = true;
     const bindBtn = el('button', { text: 'Belegen' });
     const conflictNote = el('span', { class: 'note' });
     bindBtn.addEventListener('click', () => {
@@ -218,10 +230,10 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
       d.onHotkeysChanged();
       buildSettingsPanel(d);
     });
-    ht.append(el('tr', {}, [el('td', {}, [a.label, ' ', badge]), keysCell, el('td', {}, [bindBtn, ' ', clearBtn, ' ', conflictNote])]));
+    ht.append(el('tr', {}, [el('td', {}, [a.label, ' ', badge, ' ', pendingBadge]), keysCell, el('td', {}, [bindBtn, ' ', clearBtn, ' ', conflictNote])]));
   }
   root.append(ht);
-  const resetHk = el('button', { text: 'Hotkeys auf AoE4-Preset zurücksetzen' });
+  const resetHk = el('button', { text: 'Hotkeys auf Preset zurücksetzen' });
   resetHk.addEventListener('click', () => {
     d.hotkeys.resetToPreset();
     d.hotkeys.save();

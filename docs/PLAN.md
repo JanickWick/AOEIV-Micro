@@ -107,3 +107,62 @@
 - Deine Hotkey-Belegung als Preset einarbeiten (Screenshots).
 - Nachgemessene Werte eintragen (Kalibrierungsmenü), danach Szenarien 5 bis 7 neu bewerten.
 - Setup/Teardown der Belagerung, Wegfindung um stehende Blöcke, weitere Formationen.
+
+
+## Nächste Stufe (3D, Figuren, AoE4-Interface)
+
+### G0 – erledigt
+- Inventur: nur die Hotkey-Datei (zweimal) und zwei Screenshots im Chat; keine Einheitendaten, keine
+  Videos. Siehe `docs/G0-INVENTUR.md`.
+- Hotkey-Import (`scripts/import-hotkeys.mjs`) → Preset "Mein Layout", Standard. Neue Aktionen:
+  exklusiv zu Gruppe, aus Gruppe entfernen, aus allen entfernen, Gruppe 0, untätige Einheiten,
+  Kamera zurücksetzen; Formationen, Untergruppen und Löschen sind registriert und folgen in G3/G4.
+
+### Rückfragen vor G1
+1. Position halten = V (Spieldatei), nicht F. Einverstanden?
+2. Formationstaste "Z" der Spieldatei = Taste links neben X (bei dir mit Y beschriftet)?
+   Welche Taste drückst du im Spiel für die Linienformation?
+3. Screenshots bitte unter `reference/screenshots/` hochladen (Originalauflösung 2560×1440), damit
+   G1 und G5 sie als Maß nehmen können. Nützlich wäre zusätzlich ein Screenshot mit gewählten
+   Bogenschützen und sichtbarem Reichweitenring, oder einem Gebäude bekannter Größe.
+4. Aufnahmen: Kannst du ein Video (60 fps, Standardzoom) aufnehmen: 10 Bogenschützen im Stand
+   gegen Speerkämpfer, dann dasselbe mit Kiten; danach Ritter gegen Speerkämpfer? Damit messe ich
+   Formationsabstand, Schussabstand mit/ohne Laufen, Ansturm.
+5. Ton: Welche Lautstärke/Quellen sind erlaubt? Ich plane synthetische Klänge (Web Audio), keine
+   Samples, damit keine Lizenzfrage entsteht.
+6. 3D-Figuren: Ich versuche zuerst CC0-Modelle (Quaternius/Kenney, glTF mit Animationen). Falls
+   die Silhouetten nicht ausreichen, prozedural. Einverstanden mit beidem?
+
+### G1 – Three.js-Renderer
+- Three.js-Szene parallel zum 2D-Canvas, umschaltbar (Einstellung "Ansicht: 3D / 2D-Debug").
+- Perspektivische Kamera, Neigung ca. 50–55°, Sichtfeld und Zoom nach Screenshot-Maß (Gruppe
+  von 19 Einheiten ≈ 320×210 px bei 2560×1440). Mausrad-Zoom stufenlos, Bewegung wie bisher.
+- Raycast auf die Bodenebene für Klicks; Auswahlrahmen im Bildschirmraum über projizierte
+  Positionen; Klick auf Figur über Hit-Radius am projizierten Punkt.
+- Gelände mit Textur und Farbvariation, Bäume/Büsche/Felsen als instanzierte Deko, Gebäude-
+  Kulisse am Rand, Schatten, warmes Licht. Kollision mit Bäumen/Felsen in der Simulation als
+  statische Hindernisse (neuer, optionaler Teil der Welt; Logik-Tests bleiben unverändert).
+- Einheiten als Platzhalter (Kapseln mit Teamfarbe), Auswahlring am Boden, Lebensbalken.
+
+### G2 – Figuren, Animation, Effekte, Ton
+- Low-Poly-Menschen und Pferde pro Typ (Waffe, Silhouette), Instancing, Teamfarbe.
+- Animationen aus dem Simulationszustand: Stehen, Laufen (Schrittfrequenz ∝ Tempo), Angriff mit
+  Ausholphase = Windup-Dauer, Treffer, Sterben (Körper bleibt 1 s liegen), sichtbarer Abbruch.
+- Projektile mit Bogenbahn, Mangonel-Einschlag mit Staub und Bodenmarkierung, Ansturm-Staub,
+  Trefferfunken, Klickmarker grün/rot. Synthetischer Ton, abschaltbar.
+
+### G3 – HUD nach AoE4-Vorbild
+- HTML/CSS-Paneele (dunkelblau, goldene Akzente), UI-Größe in Prozent.
+- Unten links Einheiten/Gegner/Verluste, oben Mitte Spielzeit, oben links Szenario und Menü,
+  links Kontrollgruppen-Marken, unten rechts Minimap-Raute mit Kamera-Trapez, Befehlsraster mit
+  Tastenbeschriftung aus der aktuellen Hotkey-Einstellung, Löschen-Befehl.
+
+### G4 – Auswahl-Leiste, Formationen, Untergruppen-Drill
+- "ALLE (n)" + Typ-Karten in fester Reihenfolge, Einzelansicht mit Werten, Tab/Strg+Tab (laut
+  Spieldatei), aktive Untergruppe für Rasterbefehle, Klick/Shift/Strg auf Karten einstellbar.
+- Formationen Linie / versetzt / aufgelockert mit echter Wirkung (Abstände kalibrierbar).
+- Untergruppen-Drill; Tests für Tab-Reihenfolge, Entfernen, Sterben der aktiven Untergruppe,
+  Kontrollgruppen-Zusammensetzung.
+
+### G5 – Feinschliff
+- 200 Einheiten bei 60 FPS (Instancing, FPS-Anzeige), Vergleich mit Screenshots, Abweichungsliste.

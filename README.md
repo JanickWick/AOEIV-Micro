@@ -37,13 +37,16 @@ npm run data:unverified# Alle Werte mit "verified": false auflisten
 | Shift + Rechtsklick | Befehl einreihen (Wegpunkte); bei gehaltenem Shift werden die Wegpunkte angezeigt |
 | A, dann Linksklick | Angriffsbewegung (Shift beim Klick = einreihen; Rechtsklick/Esc bricht ab) |
 | S | Stopp |
-| H | Position halten (Shift = einreihen) |
-| P, dann Linksklick | Patrouille zwischen Standort und Ziel |
-| Strg + 1–9 | Kontrollgruppe auf die aktuelle Auswahl setzen (alle anderen fallen raus) |
-| Shift + 1–9 | Auswahl zur Kontrollgruppe hinzufügen |
-| 1–9 | Kontrollgruppe auswählen; Doppeltipp zentriert die Kamera |
-| Strg + Shift + M | Alle Militäreinheiten auswählen |
-| Strg + Shift + T | Alle eigenen Einheiten des ausgewählten Typs auswählen |
+| D, dann Linksklick | Patrouille zwischen Standort und Ziel |
+| V | Position halten (Shift = einreihen) |
+| Strg + 0–9 | Kontrollgruppe auf die aktuelle Auswahl setzen (alle anderen fallen raus) |
+| Shift + 0–9 | Auswahl zur Kontrollgruppe hinzufügen |
+| Strg + Shift + 0–9 | Auswahl exklusiv in die Gruppe (aus allen anderen entfernen) |
+| Strg + Alt + 0–9 | Auswahl aus der Gruppe entfernen; Strg + Backspace: aus allen |
+| 0–9 | Kontrollgruppe auswählen; Doppeltipp zentriert die Kamera |
+| Strg + Shift + C (oder A) | Alle Militäreinheiten auswählen |
+| Strg + Komma / Komma | Alle untätigen / nächste untätige Militäreinheit |
+| F5 / Backspace | Kamera auf Auswahl / Kamera zurücksetzen |
 | F10 | Einstellungen (auch Hotkey-Menü) |
 | Pfeiltasten, Bildschirmrand, mittlere Maustaste ziehen | Kamera |
 | Mausrad | Zoom |
@@ -52,8 +55,10 @@ npm run data:unverified# Alle Werte mit "verified": false auflisten
 | F4 | Szenario sofort neu starten |
 | F3 | Pause |
 
-Alle Tasten sind im Einstellungsmenü frei belegbar (Belegen, Entfernen, Konflikte werden
-aufgelöst, Reset auf das AoE4-Preset). Tasten werden als physische Taste gespeichert, deutsche
+Standard-Preset ist "Mein Layout", erzeugt aus der Spieldatei `reference/hotkeys/Dorfzenter.rkp`
+mit `node scripts/import-hotkeys.mjs reference/hotkeys/Dorfzenter.rkp` (Zuordnung in
+`docs/G0-INVENTUR.md`). Alle Tasten sind im Einstellungsmenü frei belegbar (Belegen, Entfernen,
+Konflikte werden aufgelöst, Reset auf das Preset, Preset wechselbar). Tasten werden als physische Taste gespeichert, deutsche
 Layouts funktionieren. Preset-Tasten, deren Standard im Spiel nicht sicher bekannt ist, sind im
 Menü orange markiert. Browser-Standardaktionen (Kontextmenü, Strg+Zahl, Leertaste, F-Tasten außer
 F11/F12, Tab, Alt) werden im Spiel unterdrückt. Vollbild über den Button (mit Keyboard-Lock in

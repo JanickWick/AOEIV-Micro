@@ -82,6 +82,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .badge { display: inline-block; padding: 0 6px; border-radius: 10px; font-size: 11px; }
 .badge.unverified { background: #78350f; color: #fde68a; }
 .badge.set { background: #14532d; color: #bbf7d0; }
+.badge.pending { background: #374151; color: #d1d5db; }
 .note { color: #9ca3af; font-size: 11px; }
 #result-title.victory { color: #86efac; }
 #result-title.defeat { color: #fca5a5; }
