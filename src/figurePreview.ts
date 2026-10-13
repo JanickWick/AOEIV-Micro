@@ -28,10 +28,10 @@ ground.receiveShadow = true;
 scene.add(ground);
 scene.add(new THREE.GridHelper(3, 12, 0x555555, 0x3a3f48));
 
-const model = createArcherModel('textures/units/', 8);
+const model = createArcherModel('textures/units/', { capacity: 8, generated: new URLSearchParams(location.search).get('gen') !== '0' });
 const mesh = model.mesh;
-mesh.count = 1;
-scene.add(mesh);
+model.setCount(1);
+scene.add(model.group);
 const stats = document.getElementById('stats')!;
 stats.textContent = `${model.vertices} Vertices, ${model.triangles} Dreiecke, ${model.anim.clips.length} Clips, Knochentextur ${model.anim.width}×${model.anim.height}`;
 
@@ -108,7 +108,7 @@ function frame(now: number): void {
     mesh.setColorAt(i, color.setHex(PLAYER_COLORS_HEX[(team + i) % 2]!));
     model.iAnim.setXYZW(i, rowA, rowB, Number(blendIn.value), Number(twistIn.value));
   }
-  mesh.count = n;
+  model.setCount(n);
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   model.iAnim.needsUpdate = true;

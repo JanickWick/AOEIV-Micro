@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/trellis/multi",
+  "input": {
+    "mesh_simplify": 0.9,
+    "texture_size": 1024
+  },
+  "refs": {
+    "image_urls": [
+      "assets/processed/units/archer-body-front.png",
+      "assets/processed/units/archer-body-side.png",
+      "assets/processed/units/archer-body-back.png"
+    ]
+  },
+  "out": "assets/raw/models/archer-body-trellis-multi.glb",
+  "result": {
+    "request_id": "01a13515-9808-75d3-a05d-6d57b0ce79e5",
+    "at": "2026-10-13T11:47:02.739Z",
+    "seconds": 54,
+    "files": [
+      "assets/raw/models/archer-body-trellis-multi.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae35d2/KNSLAZZ9SpT_ELE1h9x0e_model.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae35d2/KNSLAZZ9SpT_ELE1h9x0e_model.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "model.glb",
+        "file_size": 1610480
+      },
+      "timings": {
+        "prepare": 0.1257211760021164,
+        "generation": 5.093553155005793,
+        "export": 18.13756922900211
+      }
+    }
+  }
+}

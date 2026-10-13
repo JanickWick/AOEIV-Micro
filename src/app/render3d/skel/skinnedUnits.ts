@@ -11,7 +11,8 @@ import type { UnitId, UnitState, World } from '../../../sim/types';
 import { PLAYER_COLORS_HEX, unitHeight } from '../../unitVisual';
 import type { ClipName } from './rig';
 import { bakeHumanClips, clipRow, type BakedAnimation, type BakedClip } from './animBake';
-import { buildArcher } from './humanModels';
+import { buildArcherBody, buildArcherProps } from './humanModels';
+import { GENERATED_MODELS, loadGeneratedModel } from './generatedModels';
 import atlasJson from '../../../data/atlas/archer.json';
 import type { AtlasLayout } from './meshBuilder';
 
@@ -51,43 +52,38 @@ export interface SkinnedRenderStats {
   triangles: number;
 }
 
-/** Geskinntes Modell mit Material, Knochen-Textur und Animations-Attribut (für Spiel und Vorschau). */
+/** Geskinntes Modell: Körper und Requisiten als getrennte InstancedMeshes mit gemeinsamen Instanzdaten. */
 export interface SkinnedModel {
+  /** Alles zusammen in die Szene hängen. */
+  group: THREE.Group;
+  /** Körper (Rückfall: prozedural; nach dem Laden das erzeugte Modell). */
   mesh: THREE.InstancedMesh;
+  /** Requisiten (Bogen, Sehne, Pfeil) aus dem handgebauten Atlas. */
+  props: THREE.InstancedMesh;
   anim: BakedAnimation;
   iAnim: THREE.InstancedBufferAttribute;
   material: THREE.MeshStandardMaterial;
   boneTex: THREE.DataTexture;
   vertices: number;
   triangles: number;
+  /** Erfüllt, sobald das erzeugte Modell eingesetzt ist (oder der Rückfall bleibt). */
+  ready: Promise<void>;
+  setCount(n: number): void;
+  setShadows(on: boolean): void;
+  dispose(): void;
 }
 
-/** Baut das Bogenschützen-Modell: Geometrie, Skinning-Material, Tiefenmaterial für Schatten. */
-export function createArcherModel(textureBase = 'textures/units/', capacity = MAX): SkinnedModel {
-  const anim = bakeHumanClips();
-  const boneTex = new THREE.DataTexture(anim.data, anim.width, anim.height, THREE.RGBAFormat, THREE.FloatType);
-  boneTex.minFilter = THREE.NearestFilter;
-  boneTex.magFilter = THREE.NearestFilter;
-  boneTex.generateMipmaps = false;
-  boneTex.needsUpdate = true;
+export interface SkinnedModelOptions {
+  /** Erzeugtes Modell (Bild → 3D) laden; sonst bleibt der prozedurale Körper. */
+  generated?: boolean;
+  capacity?: number;
+}
 
-  const model = buildArcher(atlasJson as unknown as AtlasLayout);
-  const geo = model.geometry;
-  const iAnim = new THREE.InstancedBufferAttribute(new Float32Array(capacity * 4), 4);
-  iAnim.setUsage(THREE.DynamicDrawUsage);
-  geo.setAttribute('iAnim', iAnim);
-
-  const loader = new THREE.TextureLoader();
-  const albedo = loader.load(`${textureBase}archer.png`);
-  albedo.colorSpace = THREE.SRGBColorSpace;
-  albedo.anisotropy = 4;
-  const mask = loader.load(`${textureBase}archer-mask.png`);
-  mask.colorSpace = THREE.NoColorSpace;
-
+function makeSkinMaterial(albedo: THREE.Texture, mask: THREE.Texture, uniforms: Record<string, THREE.IUniform>, key: string): THREE.MeshStandardMaterial {
   const material = new THREE.MeshStandardMaterial({ map: albedo, roughness: 0.85, metalness: 0.0 });
-  const uniforms = { uBones: { value: boneTex }, uBonesSize: { value: new THREE.Vector2(anim.width, anim.height) }, uMask: { value: mask } };
+  const u = { ...uniforms, uMask: { value: mask } };
   material.onBeforeCompile = (shader) => {
-    Object.assign(shader.uniforms, uniforms);
+    Object.assign(shader.uniforms, u);
     patchVertex(shader);
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', '#include <common>\nuniform sampler2D uMask;')
@@ -101,23 +97,101 @@ export function createArcherModel(textureBase = 'textures/units/', capacity = MA
       )
       .replace('#include <color_fragment>', '');
   };
-  material.customProgramCacheKey = () => 'skinned-units-v1';
+  material.customProgramCacheKey = () => key;
+  return material;
+}
 
-  const mesh = new THREE.InstancedMesh(geo, material, capacity);
+/** Baut das Bogenschützen-Modell: Geometrie, Skinning-Material, Tiefenmaterial für Schatten. */
+export function createArcherModel(textureBase = 'textures/units/', opts: SkinnedModelOptions = {}): SkinnedModel {
+  const capacity = opts.capacity ?? MAX;
+  const anim = bakeHumanClips();
+  const boneTex = new THREE.DataTexture(anim.data, anim.width, anim.height, THREE.RGBAFormat, THREE.FloatType);
+  boneTex.minFilter = THREE.NearestFilter;
+  boneTex.magFilter = THREE.NearestFilter;
+  boneTex.generateMipmaps = false;
+  boneTex.needsUpdate = true;
+
+  const atlas = atlasJson as unknown as AtlasLayout;
+  const body = buildArcherBody(atlas);
+  const props = buildArcherProps(atlas);
+  const iAnim = new THREE.InstancedBufferAttribute(new Float32Array(capacity * 4), 4);
+  iAnim.setUsage(THREE.DynamicDrawUsage);
+  body.geometry.setAttribute('iAnim', iAnim);
+  props.geometry.setAttribute('iAnim', iAnim);
+
+  const loader = new THREE.TextureLoader();
+  const albedo = loader.load(`${textureBase}archer.png`);
+  albedo.colorSpace = THREE.SRGBColorSpace;
+  albedo.anisotropy = 4;
+  const mask = loader.load(`${textureBase}archer-mask.png`);
+  mask.colorSpace = THREE.NoColorSpace;
+
+  const uniforms = { uBones: { value: boneTex }, uBonesSize: { value: new THREE.Vector2(anim.width, anim.height) } };
+  const atlasMaterial = makeSkinMaterial(albedo, mask, uniforms, 'skinned-units-v2');
+  const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking });
+  depth.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, uniforms);
+    patchVertex(shader);
+  };
+  depth.customProgramCacheKey = () => 'skinned-units-depth-v2';
+
+  const mesh = new THREE.InstancedMesh(body.geometry, atlasMaterial, capacity);
   mesh.count = 0;
   mesh.frustumCulled = false;
   mesh.castShadow = true;
   mesh.receiveShadow = false;
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   mesh.setColorAt(0, new THREE.Color(0xffffff)); // legt instanceColor an
-  const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking });
-  depth.onBeforeCompile = (shader) => {
-    Object.assign(shader.uniforms, uniforms);
-    patchVertex(shader);
-  };
-  depth.customProgramCacheKey = () => 'skinned-units-depth-v1';
   mesh.customDepthMaterial = depth;
-  return { mesh, anim, iAnim, material, boneTex, vertices: model.vertices, triangles: model.triangles };
+  const propMesh = new THREE.InstancedMesh(props.geometry, atlasMaterial, capacity);
+  propMesh.count = 0;
+  propMesh.frustumCulled = false;
+  propMesh.castShadow = true;
+  propMesh.receiveShadow = false;
+  propMesh.instanceMatrix = mesh.instanceMatrix;
+  propMesh.instanceColor = mesh.instanceColor;
+  propMesh.customDepthMaterial = depth;
+  const group = new THREE.Group();
+  group.add(mesh, propMesh);
+
+  const model: SkinnedModel = {
+    group, mesh, props: propMesh, anim, iAnim, material: atlasMaterial, boneTex,
+    vertices: body.vertices + props.vertices, triangles: body.triangles + props.triangles,
+    ready: Promise.resolve(),
+    setCount(n) {
+      mesh.count = n;
+      propMesh.count = n;
+    },
+    setShadows(on) {
+      mesh.castShadow = on;
+      propMesh.castShadow = on;
+    },
+    dispose() {
+      mesh.geometry.dispose();
+      propMesh.geometry.dispose();
+      atlasMaterial.dispose();
+      mesh.material !== atlasMaterial && (mesh.material as THREE.Material).dispose();
+      boneTex.dispose();
+    },
+  };
+  if (opts.generated !== false) {
+    const base = textureBase.replace(/textures\/units\/$/, '');
+    model.ready = loadGeneratedModel(GENERATED_MODELS.archer!, base)
+      .then((gen) => {
+        gen.geometry.setAttribute('iAnim', iAnim);
+        const old = mesh.geometry;
+        mesh.geometry = gen.geometry;
+        mesh.material = makeSkinMaterial(gen.albedo, gen.mask, uniforms, 'skinned-units-gen-v2');
+        old.deleteAttribute('iAnim'); // geteilter Puffer mit den Requisiten darf nicht mit entsorgt werden
+        old.dispose();
+        model.vertices = gen.vertices + props.vertices;
+        model.triangles = gen.triangles + props.triangles;
+      })
+      .catch((e: unknown) => {
+        console.warn('Erzeugtes Modell nicht geladen, prozeduraler Körper bleibt:', e);
+      });
+  }
+  return model;
 }
 
 export class SkinnedUnitRenderer {
@@ -138,8 +212,17 @@ export class SkinnedUnitRenderer {
     this.mesh = this.model.mesh;
     this.anim = this.model.anim;
     this.iAnim = this.model.iAnim;
-    this.group.add(this.mesh);
+    this.group.add(this.model.group);
     this.stats = { units: 0, vertices: this.model.vertices, triangles: this.model.triangles };
+    void this.model.ready.then(() => {
+      this.stats.vertices = this.model.vertices;
+      this.stats.triangles = this.model.triangles;
+    });
+  }
+
+  /** Erfüllt, sobald das erzeugte Modell eingesetzt ist. */
+  get ready(): Promise<void> {
+    return this.model.ready;
   }
 
   get renderStats(): SkinnedRenderStats {
@@ -147,7 +230,7 @@ export class SkinnedUnitRenderer {
   }
 
   setShadows(on: boolean): void {
-    this.mesh.castShadow = on;
+    this.model.setShadows(on);
   }
 
   /** Einheit im Darstellungsraum: Position, Blickrichtung, Höhe (Tiles) und Animationszustand. */
@@ -244,7 +327,7 @@ export class SkinnedUnitRenderer {
       n++;
     }
     for (const id of [...this.visuals.keys()]) if (!seen.has(id)) this.visuals.delete(id);
-    this.mesh.count = n;
+    this.model.setCount(n);
     this.mesh.instanceMatrix.needsUpdate = true;
     if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;
     this.iAnim.needsUpdate = true;
@@ -252,9 +335,7 @@ export class SkinnedUnitRenderer {
   }
 
   dispose(): void {
-    this.mesh.geometry.dispose();
-    this.model.material.dispose();
-    this.model.boneTex.dispose();
+    this.model.dispose();
   }
 }
 

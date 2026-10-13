@@ -27,6 +27,22 @@ export function buildArcher(atlas: AtlasLayout): HumanModel {
   return { geometry: g.build(), vertices: g.vertexCount, triangles: g.triangleCount };
 }
 
+/** Nur der Körper (mit Köcher): Rückfall, solange das erzeugte Modell nicht geladen ist. */
+export function buildArcherBody(atlas: AtlasLayout): HumanModel {
+  const g = new GeometryBuilder(atlas, HUMAN_RIG);
+  buildBody(g, { cap: true });
+  buildQuiver(g);
+  return { geometry: g.build(), vertices: g.vertexCount, triangles: g.triangleCount };
+}
+
+/** Requisiten des Bogenschützen (Bogen, Sehne, Pfeil), getrennt vom Körper gerendert. */
+export function buildArcherProps(atlas: AtlasLayout): HumanModel {
+  const g = new GeometryBuilder(atlas, HUMAN_RIG);
+  buildBow(g);
+  buildArrow(g);
+  return { geometry: g.build(), vertices: g.vertexCount, triangles: g.triangleCount };
+}
+
 /** Grundkörper: Beine, Rumpf mit Wappenrock, Arme, Hals, Kopf, optional Lederkappe. */
 function buildBody(g: GeometryBuilder, opts: { cap: boolean }): void {
   // Beine (Hüfte → Knie → Knöchel), Hose oben, Stiefel ab dem Schienbein

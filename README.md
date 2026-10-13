@@ -45,6 +45,24 @@ den Ticks. Textur-Atlas: `python3 scripts/img/atlas.py src/data/atlas/archer.jso
 (Farbe plus Teamfarben-Maske; die Teamfarbe wird im Shader eingefärbt). Die übrigen Einheiten nutzen bis
 H3 weiterhin die Gelenkfiguren aus Grundkörpern.
 
+### Erzeugte Figurmodelle (Bild → 3D)
+
+Der Körper des Bogenschützen kommt aus einem KI-erzeugten 3D-Modell, der Bogen bleibt handgebaut:
+
+1. Ansichtsblatt (Vorder-, Seiten-, Rückansicht in A-Pose, ohne Waffe) mit `scripts/gen-image.mjs`
+   erzeugen und mit `scripts/img/tools.py key` freistellen (`assets/processed/units/archer-body-*.png`).
+2. 3D-Modell rechnen: `NODE_USE_ENV_PROXY=1 node scripts/gen-model.mjs assets/prompts/models/archer-body-hunyuan-mv.json`
+   (Hunyuan3D Multi-View über FAL; Ergebnis `assets/raw/models/*.glb`, Vorschau unter
+   http://localhost:5173/model-preview.html).
+3. Nachbearbeiten: `python3 -I scripts/mesh/process.py assets/raw/models/archer-body-hunyuan-mv.glb public/models/archer --faces 7000`
+   verschweißt Texturnähte, reduziert auf ~7 000 Dreiecke, legt neue Texturkoordinaten an (xatlas) und
+   backt die Originaltextur darauf neu; dazu Teamfarben-Maske per Farbton-Key (Blau).
+   Benötigt `pip install trimesh fast-simplification xatlas scipy rtree pillow`.
+4. Beim Laden wird das Modell automatisch auf das gemeinsame Skelett geskinnt (`autoSkin.ts`: Gewichte
+   nach Abstand zu den Knochensegmenten in der A-Pose, dann Umrechnung in die Ruhepose) und mit denselben
+   gebackenen Clips animiert; Einträge in `generatedModels.ts`. Bis das Modell geladen ist (oder falls es
+   fehlt), zeigt das Spiel den prozeduralen Körper. `figure-preview.html?gen=0` zeigt den Rückfall.
+
 Qualitätsstufen (Einstellungen → Qualität): Niedrig ohne Schatten und mit Pixelverhältnis 1, Mittel mit
 2048er-Schattenkarte, Hoch mit 4096er-Karte, weichen Schatten und voller Auflösung.
 
