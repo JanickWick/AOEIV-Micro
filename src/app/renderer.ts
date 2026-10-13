@@ -40,6 +40,8 @@ export interface RenderState {
   facingDrag: { from: Vec2; to: Vec2 } | null;
   groupsOf: (id: UnitId) => number[];
   drillMarker: Vec2 | null;
+  /** Welt des Geisterlaufs (nur eigene, lebende Einheiten werden halbtransparent gezeichnet). */
+  ghost?: World | null;
 }
 
 export { PLAYER_COLORS };
@@ -80,6 +82,7 @@ export function render(ctx: CanvasRenderingContext2D, s: RenderState): void {
   drawWaypoints(ctx, s);
   if (s.mode === '2d') {
     drawMarkers(ctx, s);
+    drawGhosts(ctx, s);
     drawUnitBodies(ctx, s);
   }
   drawUnitOverlays(ctx, s);
@@ -215,6 +218,29 @@ function groundCircle(ctx: CanvasRenderingContext2D, camera: ViewCamera, c: Vec2
 function visible(s: RenderState, p: Vec2): boolean {
   const sp = s.camera.worldToScreen(p);
   return sp.x >= -60 && sp.x <= s.camera.viewportW + 60 && sp.y >= -80 && sp.y <= s.camera.viewportH + 60;
+}
+
+/** Geisterlauf in der 2D-Ansicht: eigene Einheiten des Bestlaufs als blasse Umrisse. */
+function drawGhosts(ctx: CanvasRenderingContext2D, s: RenderState): void {
+  const g = s.ghost;
+  if (!g) return;
+  const { camera, alpha } = s;
+  ctx.save();
+  ctx.globalAlpha = 0.35;
+  for (const u of g.units) {
+    if (!u.alive || u.player !== 0) continue;
+    const p = interpolatedPos(u, alpha);
+    if (!visible(s, p)) continue;
+    const sp = camera.worldToScreen(p);
+    const r = Math.max(5, u.radius * camera.scaleAt(p));
+    drawShape(ctx, g.defs.get(u.defId).shape, sp.x, sp.y, r);
+    ctx.fillStyle = '#9fb8ff';
+    ctx.fill();
+    ctx.strokeStyle = '#e0e7ff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawUnitBodies(ctx: CanvasRenderingContext2D, s: RenderState): void {

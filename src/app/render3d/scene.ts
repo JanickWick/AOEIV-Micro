@@ -39,6 +39,8 @@ export class Scene3D {
   private scenery = new SceneryRenderer();
   private terrainTex: TerrainTextures | null = null;
   readonly skinned = new SkinnedUnitRenderer();
+  /** Geisterlauf (eigene Einheiten des Bestlaufs), erst beim ersten Bedarf angelegt. */
+  private ghostUnits: SkinnedUnitRenderer | null = null;
   readonly effects = new EffectsRenderer();
   private quality: QualityLevel;
   private rings: THREE.InstancedMesh;
@@ -126,6 +128,21 @@ export class Scene3D {
     return this.quality;
   }
 
+  /** Welt des Geisterlaufs zeichnen (null = ausblenden). */
+  renderGhost(ghost: World | null, alpha: number, nowMs: number): void {
+    if (!ghost) {
+      if (this.ghostUnits) this.ghostUnits.group.visible = false;
+      return;
+    }
+    if (!this.ghostUnits) {
+      this.ghostUnits = new SkinnedUnitRenderer('textures/units/', { ghost: true, onlyPlayer: 0 });
+      this.ghostUnits.group.renderOrder = 5;
+      this.scene.add(this.ghostUnits.group);
+    }
+    this.ghostUnits.group.visible = true;
+    this.ghostUnits.update(ghost, alpha, nowMs);
+  }
+
   setShadows(on: boolean): void {
     this.renderer.shadowMap.enabled = on;
     this.sun.castShadow = on;
@@ -207,8 +224,9 @@ export class Scene3D {
     this.effects.addMarker(pos, kind, nowMs);
   }
 
-  render(world: World, cam: Camera3D, alpha: number, selection: ReadonlySet<UnitId>, hoverId: UnitId | null, nowMs: number): void {
+  render(world: World, cam: Camera3D, alpha: number, selection: ReadonlySet<UnitId>, hoverId: UnitId | null, nowMs: number, ghost: World | null = null): void {
     if (this.worldRef !== world) this.setWorld(world);
+    this.renderGhost(ghost, alpha, nowMs);
     // Sonne folgt der Kamera, damit die Schattenkarte den sichtbaren Bereich abdeckt
     const c = cam.center;
     this.sun.position.set(c.x - 30, 60, c.y - 20);
@@ -264,6 +282,7 @@ export class Scene3D {
 
   dispose(): void {
     this.disposeComposer();
+    this.ghostUnits?.dispose();
     this.renderer.dispose();
   }
 }

@@ -8,7 +8,7 @@
  */
 import * as THREE from 'three';
 import { lerp, lerpAngle } from '../../../sim/math';
-import type { UnitId, UnitState, World } from '../../../sim/types';
+import type { PlayerId, UnitId, UnitState, World } from '../../../sim/types';
 import { PLAYER_COLORS_HEX, unitHeight } from '../../unitVisual';
 import type { ClipDef, ClipName, Rig } from './rig';
 import { bakeClips, clipRow, type BakedAnimation } from './animBake';
@@ -124,6 +124,17 @@ export interface SkinnedModelOptions {
   /** Erzeugtes Modell (Bild → 3D) laden; sonst bleibt der prozedurale Körper. */
   generated?: boolean;
   capacity?: number;
+  /** Geisterlauf: halbtransparent, ohne Schatten, kein Tiefenschreiben. */
+  ghost?: boolean;
+}
+
+/** Material für den Geisterlauf: halbtransparent, bläulich, ohne Tiefenschreiben. */
+function ghostify(m: THREE.MeshStandardMaterial): void {
+  m.transparent = true;
+  m.opacity = 0.38;
+  m.depthWrite = false;
+  m.emissive = new THREE.Color(0x9fb8ff);
+  m.emissiveIntensity = 0.35;
 }
 
 function makeSkinMaterial(albedo: THREE.Texture, mask: THREE.Texture, uniforms: Record<string, THREE.IUniform>, key: string): THREE.MeshStandardMaterial {
@@ -187,7 +198,8 @@ export function createSkinnedModel(part: PartSpec, textureBase = 'textures/units
   mask.colorSpace = THREE.NoColorSpace;
 
   const uniforms = { uBones: { value: boneTex }, uBonesSize: { value: new THREE.Vector2(anim.width, anim.height) } };
-  const atlasMaterial = makeSkinMaterial(albedo, mask, uniforms, 'skinned-units-v2');
+  const atlasMaterial = makeSkinMaterial(albedo, mask, uniforms, opts.ghost ? 'skinned-units-ghost-v2' : 'skinned-units-v2');
+  if (opts.ghost) ghostify(atlasMaterial);
   const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking });
   depth.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
@@ -198,7 +210,7 @@ export function createSkinnedModel(part: PartSpec, textureBase = 'textures/units
   const mesh = new THREE.InstancedMesh(body.geometry, atlasMaterial, capacity);
   mesh.count = 0;
   mesh.frustumCulled = false;
-  mesh.castShadow = true;
+  mesh.castShadow = !opts.ghost;
   mesh.receiveShadow = false;
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   mesh.setColorAt(0, new THREE.Color(0xffffff)); // legt instanceColor an
@@ -206,7 +218,7 @@ export function createSkinnedModel(part: PartSpec, textureBase = 'textures/units
   const propMesh = new THREE.InstancedMesh(props.geometry, atlasMaterial, capacity);
   propMesh.count = 0;
   propMesh.frustumCulled = false;
-  propMesh.castShadow = true;
+  propMesh.castShadow = !opts.ghost;
   propMesh.receiveShadow = false;
   propMesh.instanceMatrix = mesh.instanceMatrix;
   propMesh.instanceColor = mesh.instanceColor;
@@ -224,8 +236,8 @@ export function createSkinnedModel(part: PartSpec, textureBase = 'textures/units
       propMesh.count = n;
     },
     setShadows(on) {
-      mesh.castShadow = on;
-      propMesh.castShadow = on;
+      mesh.castShadow = on && !opts.ghost;
+      propMesh.castShadow = on && !opts.ghost;
     },
     dispose() {
       mesh.geometry.dispose();
@@ -242,7 +254,9 @@ export function createSkinnedModel(part: PartSpec, textureBase = 'textures/units
         gen.geometry.setAttribute('iAnim', iAnim);
         const old = mesh.geometry;
         mesh.geometry = gen.geometry;
-        mesh.material = makeSkinMaterial(gen.albedo, gen.mask, uniforms, 'skinned-units-gen-v2');
+        const genMat = makeSkinMaterial(gen.albedo, gen.mask, uniforms, opts.ghost ? 'skinned-units-gen-ghost-v2' : 'skinned-units-gen-v2');
+        if (opts.ghost) ghostify(genMat);
+        mesh.material = genMat;
         old.deleteAttribute('iAnim'); // geteilter Puffer mit den Requisiten darf nicht mit entsorgt werden
         old.dispose();
         model.vertices = gen.vertices + props.vertices;
@@ -278,12 +292,16 @@ export class SkinnedUnitRenderer {
   /** Welche Einheitentypen dieser Renderer übernimmt. */
   readonly handles: ReadonlySet<string> = new Set(Object.keys(UNIT_SPECS));
 
-  constructor(textureBase = 'textures/units/') {
+  /** Geisterlauf: nur diese Seite zeichnen, tote Einheiten sofort ausblenden. */
+  private readonly onlyPlayer: PlayerId | null;
+
+  constructor(textureBase = 'textures/units/', opts: { ghost?: boolean; onlyPlayer?: PlayerId } = {}) {
+    this.onlyPlayer = opts.onlyPlayer ?? null;
     const pending: Promise<void>[] = [];
     for (const spec of Object.values(UNIT_SPECS)) {
       for (const part of spec.parts) {
         if (this.models.has(part.key)) continue;
-        const model = createSkinnedModel(part, textureBase);
+        const model = createSkinnedModel(part, textureBase, { ghost: opts.ghost });
         this.models.set(part.key, { model, n: 0 });
         this.group.add(model.group);
         pending.push(model.ready);
@@ -324,6 +342,7 @@ export class SkinnedUnitRenderer {
       const spec = UNIT_SPECS[u.defId];
       if (!spec) continue;
       const dead = !u.alive;
+      if (this.onlyPlayer !== null && (u.player !== this.onlyPlayer || dead)) continue;
       const deadT = dead ? (now - u.diedTick) / world.rules.tickRate : 0;
       if (dead && deadT > 3.2) continue;
       seen.add(u.id);
