@@ -42,6 +42,27 @@ if (wantedCam) {
   if (Number.isFinite(cx) && Number.isFinite(cy)) game.camera.lookAt({ x: cx!, y: cy! });
 }
 
+// Ladebildschirm: bleibt, bis die erzeugten Modelle da sind (mindestens kurz sichtbar), dann ausblenden
+{
+  const loading = $('loading');
+  const bar = loading.querySelector('.bar > i') as HTMLElement | null;
+  const started = performance.now();
+  let pct = 10;
+  const tick = setInterval(() => {
+    pct = Math.min(90, pct + 8);
+    if (bar) bar.style.width = `${pct}%`;
+  }, 150);
+  void game.whenReady().catch(() => undefined).then(() => {
+    clearInterval(tick);
+    if (bar) bar.style.width = '100%';
+    const wait = Math.max(0, 400 - (performance.now() - started));
+    setTimeout(() => {
+      loading.classList.add('fade');
+      setTimeout(() => (loading.hidden = true), 550);
+    }, wait);
+  });
+}
+
 const result = $('result');
 const settingsOverlay = $('settings');
 const editorOverlay = $('editor');
@@ -125,6 +146,7 @@ void loadKeyboardLayout().then((m) => {
 });
 hud.setScale(settings.uiScale);
 game.minimapBox = () => hud.minimapBox();
+game.relayoutMinimap(); // die erste Lage entstand vor der HUD-Zuweisung
 game.onActionTriggered = (a) => hud.flash(a);
 
 function fillScenarioSelect(): void {

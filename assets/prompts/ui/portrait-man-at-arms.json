@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Portrait bust of a medieval man-at-arms, broad-faced veteran in a steel bascinet helmet and mail coif, rim of a kite shield at the edge, padded gambeson with a cobalt-blue tabard (team colour, saturated blue #1F5FBF). Three-quarter view, looking slightly past the viewer, calm determined expression. Background: plain very dark warm brown vignette, simple, no scenery. Framed for a square unit card: head and shoulders fill the frame. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/ui/portrait-man-at-arms.png",
+  "result": {
+    "request_id": "01a13581-4a27-7e63-b01c-6c2347320dc8",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T13:44:05.713Z",
+    "files": [
+      "assets/raw/ui/portrait-man-at-arms.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae388e/c5mLu-OFYHd-4fhTqw13T_GQyFV89q.png"
+    ],
+    "description": ""
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Command icon for a strategy-game button: five small heater shields side by side in one straight horizontal row, antique gold and pale steel, slight bevel and inner glow, drawn as a clean readable symbol with strong silhouette, centered, filling 80% of a square. Background: flat uniform very dark navy #141A24 (no gradient). Icon style: semi-realistic painted, consistent with a set of 15 icons. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/ui/icon-line.png",
+  "result": {
+    "request_id": "01a13581-4a86-76c0-b129-a7fec3a6f51e",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T13:44:04.945Z",
+    "files": [
+      "assets/raw/ui/icon-line.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae388e/I0gCtxSlOYwe95irATN8O_udn9PtFP.png"
+    ],
+    "description": ""
+  }
+}

@@ -536,6 +536,11 @@ function drawDragRect(ctx: CanvasRenderingContext2D, s: RenderState): void {
   ctx.strokeRect(r.x0 + 0.5, r.y0 + 0.5, r.x1 - r.x0, r.y1 - r.y0);
 }
 
+/** Zierring der Minimap; Außendurchmesser relativ zur Scheibe (Ringdicke des Bildes ≈ 6 %). */
+const MINIMAP_RING_SCALE = 1.48;
+const minimapRing = typeof Image !== 'undefined' ? new Image() : ({ complete: false, naturalWidth: 0 } as HTMLImageElement);
+if (typeof Image !== 'undefined') minimapRing.src = 'ui/frame-minimap.png';
+
 function drawMinimap(ctx: CanvasRenderingContext2D, s: RenderState): void {
   const { minimap: m, world, camera } = s;
   const corners: Vec2[] = [
@@ -557,14 +562,20 @@ function drawMinimap(ctx: CanvasRenderingContext2D, s: RenderState): void {
     ctx.arc(m.cx, m.cy, r, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(12, 18, 28, 0.85)';
     ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(201, 162, 77, 0.8)';
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(201, 162, 77, 0.9)';
-    ctx.font = 'bold 11px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('N', m.cx, m.cy - r + 12);
+    if (minimapRing.complete && minimapRing.naturalWidth > 0) {
+      // Erzeugter Zierring (public/ui/frame-minimap.png): Innenkante auf den Scheibenrand legen
+      const d = r * 2 * MINIMAP_RING_SCALE;
+      ctx.drawImage(minimapRing, m.cx - d / 2, m.cy - d / 2, d, d);
+    } else {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(201, 162, 77, 0.8)';
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(201, 162, 77, 0.9)';
+      ctx.font = 'bold 11px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('N', m.cx, m.cy - r + 12);
+    }
   } else {
     const grad = ctx.createLinearGradient(0, m.y0, 0, m.y1);
     grad.addColorStop(0, '#142a44');

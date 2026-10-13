@@ -129,6 +129,18 @@ Der Knopf "Ansicht" (oder Einstellungen → Ansicht) schaltet auf die bisherige 
 Debug-Ansicht um; Auswahl, Befehle und Kamera funktionieren in beiden. Klicks treffen die Figur
 (projizierte Fuß- bis Kopfposition), der Auswahlrahmen arbeitet im Bildschirmraum.
 
+### HUD-Grafiken (Stufe 3, H5)
+
+Alle Oberflächengrafiken sind erzeugt (Prompts unter `assets/prompts/ui/`, Dateien unter
+`public/ui/`): ein Paneelrahmen als 9-teiliges Randbild (`frame-panel.png`, CSS `border-image`),
+ein Zierring um die Minimap (`frame-minimap.png`, im Overlay-Canvas über die Scheibe gezeichnet),
+gemalte Befehlssymbole für das Raster (`icon-*.png`; Zellen ohne Bild behalten das Strichsymbol),
+Porträts je Einheitentyp (`portrait-*.jpg`) auf den Auswahlkarten und im Detailfeld sowie ein
+Ladebildschirm (`loading.jpg`, Schlüsselbild des Stils), der bleibt, bis die erzeugten 3D-Modelle
+geladen sind. Die Minimap-Scheibe ist jetzt 62 % des Feldes, damit der Ring hineinpasst; die
+untere Leiste selbst lässt Klicks durch (vorher schluckte der leere Streifen über den Paneelen
+Klicks auf die Karte).
+
 ### HUD (G3)
 
 Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spiel-Icons):

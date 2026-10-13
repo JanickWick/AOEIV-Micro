@@ -251,6 +251,11 @@ export class Game {
     this.layoutMinimap();
   }
 
+  /** Minimap-Lage neu berechnen (nach Zuweisung von minimapBox oder Änderung der HUD-Größe). */
+  relayoutMinimap(): void {
+    this.layoutMinimap();
+  }
+
   private layoutMinimap(): void {
     const { box, margin } = this.minimapBox();
     this.minimap = computeMinimapLayout(this.camera.viewportW, this.camera.viewportH, this.world.map.width, this.world.map.height, this.view === '3d', box, margin);
@@ -480,6 +485,11 @@ export class Game {
     if (mode && this.commandIds().length === 0) mode = null;
     this.targeting = mode;
     this.onStateChanged?.();
+  }
+
+  /** Erfüllt, sobald die 3D-Modelle geladen sind (2D-Ansicht: sofort). */
+  whenReady(): Promise<void> {
+    return this.scene3d ? this.scene3d.skinned.ready : Promise.resolve();
   }
 
   togglePause(): void {

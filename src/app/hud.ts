@@ -92,6 +92,24 @@ const ICONS: Record<string, string> = {
   speed: '<path d="M4 12 H14"/><path d="M6 8 H16"/><path d="M6 16 H16"/><path d="M15 6 L20 12 L15 18"/>',
 };
 
+/** Gemalte Befehlssymbole (public/ui/icon-*.png) für Rasterzellen; ohne Eintrag bleibt das Strichsymbol. */
+export const PAINTED_ICONS: Readonly<Record<string, string>> = {
+  attackMove: 'ui/icon-attack-move.png',
+  stop: 'ui/icon-stop.png',
+  patrol: 'ui/icon-patrol.png',
+  garrison: 'ui/icon-garrison.png',
+  line: 'ui/icon-line.png',
+  wedge: 'ui/icon-wedge.png',
+  spread: 'ui/icon-spread.png',
+  hold: 'ui/icon-hold.png',
+  delete: 'ui/icon-delete.png',
+};
+
+/** Porträt je Einheitentyp (public/ui/portrait-*.jpg). */
+export function portraitUrl(defId: string): string {
+  return `ui/portrait-${defId}.jpg`;
+}
+
 function svg(name: string, size = 24): string {
   return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] ?? ''}</svg>`;
 }
@@ -253,7 +271,10 @@ export class Hud {
           b.classList.add('empty');
           b.disabled = true;
         } else {
-          b.innerHTML = `<span class="gi">${svg(cell.icon)}</span><span class="key"></span>`;
+          const painted = PAINTED_ICONS[cell.icon];
+          b.innerHTML = painted
+            ? `<span class="gi img" style="background-image:url('${painted}')"></span><span class="key"></span>`
+            : `<span class="gi">${svg(cell.icon)}</span><span class="key"></span>`;
           if (cell.disabled) {
             b.classList.add('disabled');
             b.title = `${cell.label} – ${cell.note ?? ''}`;
@@ -372,7 +393,8 @@ export class Hud {
         all.addEventListener('click', () => this.cb.onAllClick());
         this.selectionCards.append(all);
         for (const c of cards) {
-          const card = el('button', `sel-card${active === c.defId ? ' active' : ''}`);
+          const card = el('button', `sel-card img${active === c.defId ? ' active' : ''}`);
+          card.style.backgroundImage = `url('${portraitUrl(c.defId)}')`;
           card.innerHTML = `<span class="cnt">${c.count}</span><span class="code">${c.code}</span>`;
           card.title = `${c.count}× ${c.name} – Klick: Untergruppe, Shift+Klick: Typ entfernen, Strg+Klick: nur diesen Typ`;
           card.addEventListener('click', (e) => this.cb.onCardClick(c.defId, { shift: e.shiftKey, ctrl: e.ctrlKey || e.metaKey }));
@@ -387,7 +409,7 @@ export class Hud {
     if (sig2 !== this.detailSig) {
       this.detailSig = sig2;
       this.selectionDetail.innerHTML = `
-        <div class="portrait"><span class="code">${d.code}</span></div>
+        <div class="portrait img" style="background-image:url('${portraitUrl(d.defId)}')"><span class="code">${d.code}</span></div>
         <div class="dname"><span class="n"></span><span class="age">Zeitalter ${['', 'I', 'II', 'III', 'IV'][d.age] ?? d.age}</span></div>
         <div class="dstats">
           <span class="st hp" title="Lebenspunkte (Summe der Auswahl / Maximum)">${svg('hp', 14)}<b class="hp"></b></span>
@@ -440,7 +462,9 @@ export class Hud {
   minimapBox(): { box: number; margin: number } {
     const r = this.minimapFrame.getBoundingClientRect();
     const rootR = this.root.getBoundingClientRect();
-    const size = Math.min(r.width, r.height) - 16;
-    return { box: Math.max(60, size), margin: Math.max(0, rootR.right - r.right) + 8 };
+    // Scheibe kleiner als das Feld, damit der erzeugte Zierring (1,48× Scheibe) hineinpasst; Scheibe im Feld zentriert
+    const frame = Math.min(r.width, r.height) - 16;
+    const box = Math.max(60, frame * 0.62);
+    return { box, margin: Math.max(0, rootR.right - r.right) + 8 + (frame - box) / 2 };
   }
 }

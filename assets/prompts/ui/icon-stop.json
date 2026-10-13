@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Command icon for a strategy-game button: a raised open steel gauntlet, palm forward, as a halt sign, as a flat emblem, antique gold and pale steel, slight bevel and inner glow, drawn as a clean readable symbol with strong silhouette, centered, filling 80% of a square. IMPORTANT: the symbol floats directly on a flat uniform very dark navy #141A24 background that fills the whole image edge to edge; no frame, no border, no card, no plaque, no panel, no gradient, no scenery. Icon style: semi-realistic painted, consistent with a set of 15 icons. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/ui/icon-stop.png",
+  "result": {
+    "request_id": "01a13582-5d3c-7c03-9ade-14f37893bf6b",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T13:45:17.537Z",
+    "files": [
+      "assets/raw/ui/icon-stop.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3895/kYNgHhLxap8VbylQETPLO_th9fiHVV.png"
+    ],
+    "description": ""
+  }
+}
