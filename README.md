@@ -279,13 +279,15 @@ Der Button **Einstellungen** (pausiert das Spiel) öffnet:
 - Simulationsregeln: Abklingzeit beim Laufen, Auto-Angriffsreichweite, Verfolgungsgrenze,
   Nahkampf-Treffertoleranz, Belagerungsschaden vs. Rüstung, Blickwinkel-Toleranz, Gruppen-Tempo.
 - Werteprofil: eigenes Profil (Standard) oder Kalibrierprofil mit den importierten Referenzwerten.
+- Geisterlauf an/aus (siehe unten) und "Replay abspielen" zum Laden einer Replay-Datei.
 - Kalibrierung (nur im Kalibrierprofil): jeder Wert mit `"verified": false` ist editierbar
   (Kollisionsradius, Beschleunigung, Drehrate, Projektiltempo, Mangonel-Radius, Ansturm,
   Abwehrstellung). Ein gesetzter Wert gilt als nachgemessen; leeres Feld stellt den Platzhalter
   wieder her. Werte pro Zeitalter werden gemeinsam gesetzt.
-- Export/Import aller Einstellungen (Anzeige, Kalibrierung, Hotkeys) als JSON-Datei.
+- Export/Import aller Einstellungen (Anzeige, Kalibrierung, Hotkeys, Verlauf, Daily-Versuche,
+  Bestläufe) als JSON-Datei.
 
-Alle Werte liegen in localStorage des Browsers.
+Alle Werte liegen in localStorage des Browsers (Schlüssel `kompanie.*`).
 
 ## Projektstruktur
 
@@ -306,8 +308,12 @@ src/sim/            Simulation, reine Logik ohne Browser (fester Takt 60 Ticks/s
   step.ts           Ein Tick
   scenario.ts       Szenario-Datei -> Welt
   hash.ts           Zustands-Hash für Determinismus-Tests
-src/app/            Browser-Seite: Kamera, Eingabe, Darstellung (Canvas 2D), Hotkeys,
+  replay.ts         Replay-Format: Befehlsliste mit Tick-Nummern, Aufzeichnung, Wiedergabe, Prüfung
+  stars.ts          Sterne (Bronze/Silber/Gold) aus den Kennzahlen einer Runde
+src/app/            Browser-Seite: Kamera, Eingabe, Darstellung (3D und Canvas 2D), Hotkeys,
                     Einstellungen/Kalibrierung, Rundenauswertung
+  daily.ts          Daily Challenge: Tages-Seed, Szenariowahl, lokale Rangliste
+  ghosts.ts         Bestläufe pro Szenario für den Geisterlauf
 src/data/units/     Eigenes Werteprofil (JSON, scripts/write-own-units.mjs); reference/ = Kalibrierprofil
 src/data/scenarios/ Szenarien (JSON)
 scripts/            Datenimport und Prüfskripte
@@ -363,6 +369,33 @@ KI-Stufen (alle nur über normale Befehle, Reaktionszeit einstellbar pro Szenari
   statt deiner Steuerung simuliert, damit du siehst, was dein Micro bringt.
 - Bestwert und Verlauf der letzten 20 Versuche pro Szenario als Diagramm (localStorage).
   Der Verlauf ist im JSON-Export enthalten.
+- Sterne: jedes Szenario hat Schwellen für Bronze, Silber und Gold (in der Szenario-JSON unter
+  `stars`, z. B. höchstens so viele Verluste, mindestens so viel Kite-Effizienz, höchstens so viel
+  Overkill oder Zeit; Drills nutzen Fehler und Reaktionszeit). Die Auswertung zeigt die erreichten
+  Sterne und was zum nächsten Stern fehlt; die Szenario-Auswahl zeigt die besten Sterne.
+- "Replay speichern" lädt den gerade gespielten Lauf als Datei herunter.
+
+## Daily Challenge
+
+Der Menüpunkt **Daily** wählt aus dem Datum einen Seed und damit ein Szenario des Tages (nur
+Kampfszenarien mit Sternen). Drei Versuche pro Tag, der beste zählt. Die Punkte: 10000 minus
+5 je verlorenem Ressourcenpunkt minus 2 je Sekunde, nur bei Sieg. Die Rangliste der eigenen
+Versuche liegt im Browser (localStorage) und ist im Einstellungs-Export enthalten.
+
+## Geisterlauf
+
+Jeder Lauf wird als Befehlsliste mit Tick-Nummern aufgezeichnet. Der beste Lauf pro Szenario
+(und pro Daily-Tag) wird gespeichert. Beim nächsten Versuch läuft er als halbtransparente
+Geister-Einheiten in der 3D-Ansicht (und als Umrisse in 2D) mit, damit du dich mit dir selbst
+vergleichen kannst. Abschaltbar in den Einstellungen.
+
+## Replay
+
+Ein Replay ist eine JSON-Datei (`kompanie-replay`) mit Version, Szenario, Seed, Werteprofil,
+Regeln, Befehlsliste und dem Zustands-Hash am Ende. Export über die Auswertung, Import über
+Einstellungen → "Replay abspielen": der Lauf wird abgespielt und am Ende wird geprüft, ob der
+Hash mit dem aufgezeichneten übereinstimmt (Determinismus). Ein Test in `tests/replay.test.ts`
+sichert ab, dass derselbe Lauf immer denselben Hash ergibt und ein anderer Seed einen anderen.
 
 ## Hotkey-Drill und Editor
 
