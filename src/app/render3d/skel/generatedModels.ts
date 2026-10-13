@@ -53,7 +53,18 @@ export interface LoadedGeneratedModel {
 
 /** Lädt ein erzeugtes Modell, skinnt es automatisch und liefert Geometrie samt Texturen. */
 export async function loadGeneratedModel(def: GeneratedModelDef, base = ''): Promise<LoadedGeneratedModel> {
-  const gltf = await new GLTFLoader().loadAsync(base + def.file);
+  const loader = new GLTFLoader();
+  let gltf: Awaited<ReturnType<GLTFLoader['loadAsync']>>;
+  try {
+    gltf = await loader.loadAsync(base + def.file);
+  } catch (e) {
+    // Rückfall für Hoster ohne .glb: dieselben Bytes Base64-kodiert in <datei>.b64.json ({"glb": "..."})
+    const res = await fetch(base + def.file + '.b64.json');
+    if (!res.ok) throw e;
+    const { glb } = (await res.json()) as { glb: string };
+    const bin = Uint8Array.from(atob(glb), (c) => c.charCodeAt(0));
+    gltf = await loader.parseAsync(bin.buffer, base);
+  }
   let mesh: THREE.Mesh | null = null;
   gltf.scene.updateMatrixWorld(true);
   gltf.scene.traverse((o) => {
