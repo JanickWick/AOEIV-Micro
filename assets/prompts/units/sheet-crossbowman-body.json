@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Character reference sheet of a medieval crossbowman (light ranged infantry) for a 3D model: the same figure shown three times side by side, full body, standing straight, arms hanging slightly away from the body (A-pose, about 25 degrees), legs slightly apart, hands open and EMPTY. Views: front view, left side view, back view. Same painterly style as the attached portrait. Padded brigandine in cobalt blue (team colour #1F5FBF) over a dark grey gambeson, steel kettle helmet, leather belt with a bolt quiver at the right hip, brown trousers, leather boots. NO weapon, no shield, nothing in the hands. Painterly-realistic style with crisp detail, warm neutral even lighting, no cast shadows, clean readable silhouette. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00 with absolutely no scenery, no ground, no sky, no gradient. No text.",
+  "aspect_ratio": "16:9",
+  "resolution": "2K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/sheet-crossbowman-body.png",
+  "result": {
+    "request_id": "01a13537-5ff9-7252-9704-a1262e48bbf1",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:23:30.743Z",
+    "files": [
+      "assets/raw/units/sheet-crossbowman-body.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36aa/njxVRD-YF4X006DCRcwxs_FkiaQ5kG.png"
+    ],
+    "description": ""
+  }
+}

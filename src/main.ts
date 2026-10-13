@@ -31,7 +31,9 @@ function allScenarios(): ScenarioDef[] {
   return [...SCENARIOS, scenarioFromEditor(editorState, defs)];
 }
 
-const initialScenario = allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
+// ?scenario=<id> wählt ein Szenario direkt (Vorschau, Screenshots)
+const wantedScenario = new URLSearchParams(location.search).get('scenario');
+const initialScenario = allScenarios().find((s) => s.id === wantedScenario) ?? allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
 const game = new Game(canvas, glCanvas, defs, hotkeys, settings, effectiveRules(calibration), initialScenario);
 
 const result = $('result');

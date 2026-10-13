@@ -225,3 +225,89 @@ function buildArrow(g: GeometryBuilder): void {
   const e: Vec3 = [x, h[1] - 0.42, z];
   g.chain([{ p: s, bone: 'arrow', r: 0.009 }, { p: mixv(s, m, 0.2), bone: 'arrow', r: 0.005 }, { p: m, bone: 'arrow', r: 0.005 }, { p: e, bone: 'arrow', r: 0.007 }], 4, ['feather', 'wood', 'steel'], { closeStart: true, closeEnd: true, taperEnd: 0.2, hint: [1, 0, 0] });
 }
+
+// ---------- Requisiten der übrigen Einheiten (alle entlang +y gebaut, Spitze oben) ----------
+
+/** Gerader Schaft entlang y mit Radius r zwischen y0 und y1 (relativ zur Hand). */
+function shaft(g: GeometryBuilder, hand: Vec3, bone: string, x: number, z: number, y0: number, y1: number, r: number, region: string, sides = 5): void {
+  const { u, v } = basis([0, 1, 0], [1, 0, 0]);
+  const w = W([bone, 1]);
+  g.tube([
+    { c: [hand[0] + x, hand[1] + y0, hand[2] + z], u, v, ru: r, rv: r, w, t: 0 },
+    { c: [hand[0] + x, hand[1] + y1, hand[2] + z], u, v, ru: r, rv: r, w, t: 1 },
+  ], sides, region, { closeStart: true, closeEnd: true });
+}
+
+/** Speer in der rechten Hand (propR): langer Schaft, Blattspitze, Lederwicklung am Griff. */
+export function buildSpearProps(atlas: AtlasLayout): HumanModel {
+  const g = new GeometryBuilder(atlas, HUMAN_RIG);
+  const h = pos('propR');
+  shaft(g, h, 'propR', 0.01, 0.02, -0.5, 0.78, 0.009, 'wood');
+  shaft(g, h, 'propR', 0.01, 0.02, -0.06, 0.08, 0.013, 'leather');
+  const x = h[0] + 0.01, z = h[2] + 0.02;
+  g.chain([
+    { p: [x, h[1] + 0.76, z], bone: 'propR', r: 0.012, rv: 0.004 },
+    { p: [x, h[1] + 0.82, z], bone: 'propR', r: 0.024, rv: 0.004 },
+    { p: [x, h[1] + 0.95, z], bone: 'propR', r: 0.002, rv: 0.002 },
+  ], 4, ['steel', 'steel'], { closeStart: true, closeEnd: true, hint: [0, 0, 1] });
+  return { geometry: g.build(), vertices: g.vertexCount, triangles: g.triangleCount };
+}
+
+/** Schwert in der rechten Hand (propR) und Schild am linken Unterarm (Knochen forearmL). */
+export function buildSwordProps(atlas: AtlasLayout): HumanModel {
+  const g = new GeometryBuilder(atlas, HUMAN_RIG);
+  const h = pos('propR');
+  const x = h[0] + 0.01, z = h[2] + 0.02;
+  // Griff, Knauf, Parierstange
+  shaft(g, h, 'propR', 0.01, 0.02, -0.11, 0.035, 0.011, 'leather');
+  g.sphere([x, h[1] - 0.12, z], [0.016, 0.014, 0.016], 4, 6, 'steel', W(['propR', 1]));
+  g.box([x, h[1] + 0.045, z], [0.012, 0.009, 0.07], 'steel', W(['propR', 1]));
+  // Klinge: flach, nach oben spitz zulaufend
+  g.chain([
+    { p: [x, h[1] + 0.055, z], bone: 'propR', r: 0.004, rv: 0.024 },
+    { p: [x, h[1] + 0.42, z], bone: 'propR', r: 0.003, rv: 0.02 },
+    { p: [x, h[1] + 0.5, z], bone: 'propR', r: 0.001, rv: 0.003 },
+  ], 4, ['steel', 'steel'], { closeStart: true, closeEnd: true, hint: [0, 0, 1] });
+  // Schild: flacher Kasten in Teamfarbe an der linken Hand (propL), Fläche zeigt nach −x
+  const hl = pos('propL');
+  const c: Vec3 = [hl[0] - 0.035, hl[1] + 0.09, hl[2]];
+  g.box(c, [0.01, 0.14, 0.095], 'tabard', W(['propL', 1]));
+  g.box([c[0] - 0.011, c[1] - 0.03, c[2]], [0.004, 0.045, 0.028], 'steel', W(['propL', 1])); // Schildbuckel
+  return { geometry: g.build(), vertices: g.vertexCount, triangles: g.triangleCount };
+}
+
+/** Armbrust in der linken Hand (propL) mit Bolzen (Knochen arrow). */
+export function buildCrossbowProps(atlas: AtlasLayout): HumanModel {
+  const g = new GeometryBuilder(atlas, HUMAN_RIG);
+  const h = pos('propL');
+  const x = h[0] + 0.012, z = h[2] + 0.015;
+  // Säule (Schaft) entlang +y
+  g.box([x, h[1] + 0.1, z], [0.014, 0.25, 0.02], 'wood', W(['propL', 1]));
+  // Bogen quer (entlang x) am vorderen Ende, leicht zum Schützen gebogen
+  const { u, v } = basis([1, 0, 0], [0, 1, 0]);
+  const w = W(['propL', 1]);
+  const yb = h[1] + 0.3;
+  const rings: Ring[] = [];
+  const n = 8;
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const xx = -0.2 + 0.4 * t;
+    const bend = 0.04 * (1 - Math.pow(xx / 0.2, 2));
+    const thick = 0.005 + 0.006 * (1 - Math.pow(2 * t - 1, 2));
+    rings.push({ c: [x + xx, yb - bend, z], u, v, ru: thick, rv: thick * 1.8, w, t });
+  }
+  g.tube(rings, 4, 'steel', { closeStart: true, closeEnd: true });
+  // Sehne von den Bogenenden zur Nuss
+  const strRing = (c: Vec3, t: number): Ring => ({ c, u: basis([0, 1, 0], [1, 0, 0]).u, v: basis([0, 1, 0], [1, 0, 0]).v, ru: 0.003, rv: 0.003, w, t });
+  const nut: Vec3 = [x, h[1] + 0.06, z + 0.012];
+  g.tube([strRing([x - 0.2, yb, z], 0), strRing(nut, 1)], 3, 'string');
+  g.tube([strRing(nut, 0), strRing([x + 0.2, yb, z], 1)], 3, 'string');
+  // Bolzen (nur beim Zielen sichtbar)
+  const a = pos('arrow');
+  g.chain([
+    { p: [a[0] + 0.012, a[1] + 0.05, a[2] + 0.03], bone: 'arrow', r: 0.007 },
+    { p: [a[0] + 0.012, a[1] + 0.28, a[2] + 0.03], bone: 'arrow', r: 0.005 },
+    { p: [a[0] + 0.012, a[1] + 0.34, a[2] + 0.03], bone: 'arrow', r: 0.002 },
+  ], 4, ['feather', 'steel'], { closeStart: true, closeEnd: true, hint: [1, 0, 0] });
+  return { geometry: g.build(), vertices: g.vertexCount, triangles: g.triangleCount };
+}

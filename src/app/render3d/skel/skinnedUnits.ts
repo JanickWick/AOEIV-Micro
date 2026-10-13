@@ -1,7 +1,8 @@
 /**
- * Geskinnte Einheiten (Stufe 3): ein InstancedMesh je Modell, Skinning im Vertex-Shader aus einer
+ * Geskinnte Einheiten (Stufe 3): je Modell ein InstancedMesh, Skinning im Vertex-Shader aus einer
  * gebackenen Knochen-Textur, Überblenden zwischen zwei Clips, Oberkörperdrehung zum Ziel und
- * Teamfarbe über eine Maskentextur. Alle Animationszustände kommen aus der Simulation:
+ * Teamfarbe über eine Maskentextur. Eine Einheit besteht aus einem oder mehreren Teilen (Reiter auf
+ * Pferd), die denselben Animationszustand teilen. Alle Animationszustände kommen aus der Simulation:
  * Laufphase aus der Strecke, Spannen/Lösen/Nachlauf aus den Angriffs-Ticks, Treffer aus
  * lastHitTick, Tod aus diedTick. Nichts hier verändert die Simulation.
  */
@@ -9,19 +10,21 @@ import * as THREE from 'three';
 import { lerp, lerpAngle } from '../../../sim/math';
 import type { UnitId, UnitState, World } from '../../../sim/types';
 import { PLAYER_COLORS_HEX, unitHeight } from '../../unitVisual';
-import type { ClipName } from './rig';
-import { bakeHumanClips, clipRow, type BakedAnimation, type BakedClip } from './animBake';
-import { buildArcherBody, buildArcherProps } from './humanModels';
-import { GENERATED_MODELS, loadGeneratedModel } from './generatedModels';
+import type { ClipDef, ClipName, Rig } from './rig';
+import { bakeClips, clipRow, type BakedAnimation } from './animBake';
+import { buildArcherBody, buildArcherProps, buildCrossbowProps, buildSpearProps, buildSwordProps, type HumanModel } from './humanModels';
+import { GENERATED_MODELS, loadGeneratedModel, type GeneratedModelDef } from './generatedModels';
+import { makeHumanClips } from './humanClipSets';
+import { HUMAN_RIG } from './humanRig';
+import { HORSE_RIG, SADDLE } from './horseRig';
+import { HORSE_CLIPS } from './horseClips';
+import { MANGONEL_CLIPS, SIEGE_RIG, SPRINGALD_CLIPS } from './siegeRig';
 import atlasJson from '../../../data/atlas/archer.json';
 import type { AtlasLayout } from './meshBuilder';
 
 const MAX = 512;
 /** Übergangszeit zwischen Clips (s). */
 const BLEND_S = 0.14;
-/** Schritte pro Zyklus bezogen auf die Figurhöhe: ein Gehzyklus ≈ 0,7 Körperhöhen. */
-const WALK_CYCLE_PER_HEIGHT = 0.7;
-const RUN_CYCLE_PER_HEIGHT = 1.1;
 const RUN_SPEED = 1.6; // Tiles/s, darüber Rennen
 
 interface Visual {
@@ -45,6 +48,50 @@ interface Visual {
   phase: number;
   dieVariant: ClipName;
 }
+
+/** Ein Teil einer Einheit: Modell (Rig + Clips + Geometriequelle) und optional Aufsitzpunkt. */
+export interface PartSpec {
+  /** Schlüssel des Modells; gleiche Schlüssel teilen sich ein InstancedMesh. */
+  key: string;
+  rig: Rig;
+  clips: readonly ClipDef[];
+  generated?: GeneratedModelDef;
+  /** Prozeduraler Körper, solange das erzeugte Modell lädt (oder fehlt). */
+  fallback?: (atlas: AtlasLayout) => HumanModel;
+  /** Handgebaute Requisiten aus dem Atlas (eigenes InstancedMesh, gleiche Instanzdaten). */
+  props?: (atlas: AtlasLayout) => HumanModel;
+  /** Aufsitzen auf Teil 0: Punkt im Modellraum des Trägers, Hüfthöhe und Größe des Reiters. */
+  mount?: { at: [number, number, number]; hip: number; scale: number };
+}
+
+export interface UnitSpec {
+  parts: PartSpec[];
+  /** Gehzyklus in Körperhöhen (Schritt, Rennen). */
+  cycle: [number, number];
+  /** Rennen mit Ziel wird als Sturmangriff gezeigt. */
+  canCharge?: boolean;
+}
+
+const horsePart: PartSpec = { key: 'horse', rig: HORSE_RIG, clips: HORSE_CLIPS, generated: GENERATED_MODELS.horse };
+const RIDER_MOUNT = { at: SADDLE, hip: 0.52, scale: 0.75 };
+
+/** Zuordnung Einheitentyp → Teile. */
+export const UNIT_SPECS: Readonly<Record<string, UnitSpec>> = {
+  archer: { parts: [{ key: 'archer', rig: HUMAN_RIG, clips: makeHumanClips('bow'), generated: GENERATED_MODELS.archer, fallback: buildArcherBody, props: buildArcherProps }], cycle: [0.7, 1.1] },
+  spearman: { parts: [{ key: 'spearman', rig: HUMAN_RIG, clips: makeHumanClips('spear'), generated: GENERATED_MODELS.spearman, fallback: buildArcherBody, props: buildSpearProps }], cycle: [0.7, 1.1] },
+  'man-at-arms': { parts: [{ key: 'man-at-arms', rig: HUMAN_RIG, clips: makeHumanClips('sword'), generated: GENERATED_MODELS['man-at-arms'], fallback: buildArcherBody, props: buildSwordProps }], cycle: [0.7, 1.1] },
+  crossbowman: { parts: [{ key: 'crossbowman', rig: HUMAN_RIG, clips: makeHumanClips('crossbow'), generated: GENERATED_MODELS.crossbowman, fallback: buildArcherBody, props: buildCrossbowProps }], cycle: [0.7, 1.1] },
+  horseman: {
+    parts: [horsePart, { key: 'horseman-rider', rig: HUMAN_RIG, clips: makeHumanClips('riderSpear'), generated: GENERATED_MODELS.spearman, fallback: buildArcherBody, props: buildSpearProps, mount: RIDER_MOUNT }],
+    cycle: [1.3, 2.2], canCharge: true,
+  },
+  knight: {
+    parts: [horsePart, { key: 'knight-rider', rig: HUMAN_RIG, clips: makeHumanClips('riderSword'), generated: GENERATED_MODELS['knight-rider'], fallback: buildArcherBody, props: buildSwordProps, mount: RIDER_MOUNT }],
+    cycle: [1.3, 2.2], canCharge: true,
+  },
+  mangonel: { parts: [{ key: 'mangonel', rig: SIEGE_RIG, clips: MANGONEL_CLIPS, generated: GENERATED_MODELS.mangonel }], cycle: [0.6, 0.6] },
+  springald: { parts: [{ key: 'springald', rig: SIEGE_RIG, clips: SPRINGALD_CLIPS, generated: GENERATED_MODELS.springald }], cycle: [0.6, 0.6] },
+};
 
 export interface SkinnedRenderStats {
   units: number;
@@ -101,10 +148,23 @@ function makeSkinMaterial(albedo: THREE.Texture, mask: THREE.Texture, uniforms: 
   return material;
 }
 
-/** Baut das Bogenschützen-Modell: Geometrie, Skinning-Material, Tiefenmaterial für Schatten. */
-export function createArcherModel(textureBase = 'textures/units/', opts: SkinnedModelOptions = {}): SkinnedModel {
+/** Leere Platzhalter-Geometrie mit allen Attributen (bis ein erzeugtes Modell geladen ist). */
+function emptySkinnedGeometry(): THREE.BufferGeometry {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(9), 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0]), 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(6), 2));
+  g.setAttribute('aSkinIndex', new THREE.Float32BufferAttribute(new Float32Array(12), 4));
+  g.setAttribute('aSkinWeight', new THREE.Float32BufferAttribute(new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]), 4));
+  g.setAttribute('aUpper', new THREE.Float32BufferAttribute(new Float32Array(3), 1));
+  g.setIndex([0, 1, 2]);
+  return g;
+}
+
+/** Baut ein geskinntes Modell aus einer Teilbeschreibung: Geometrie, Skinning-Material, Tiefenmaterial. */
+export function createSkinnedModel(part: PartSpec, textureBase = 'textures/units/', opts: SkinnedModelOptions = {}): SkinnedModel {
   const capacity = opts.capacity ?? MAX;
-  const anim = bakeHumanClips();
+  const anim = bakeClips(part.rig, part.clips);
   const boneTex = new THREE.DataTexture(anim.data, anim.width, anim.height, THREE.RGBAFormat, THREE.FloatType);
   boneTex.minFilter = THREE.NearestFilter;
   boneTex.magFilter = THREE.NearestFilter;
@@ -112,8 +172,8 @@ export function createArcherModel(textureBase = 'textures/units/', opts: Skinned
   boneTex.needsUpdate = true;
 
   const atlas = atlasJson as unknown as AtlasLayout;
-  const body = buildArcherBody(atlas);
-  const props = buildArcherProps(atlas);
+  const body = part.fallback ? part.fallback(atlas) : { geometry: emptySkinnedGeometry(), vertices: 0, triangles: 0 };
+  const props = part.props ? part.props(atlas) : { geometry: emptySkinnedGeometry(), vertices: 0, triangles: 0 };
   const iAnim = new THREE.InstancedBufferAttribute(new Float32Array(capacity * 4), 4);
   iAnim.setUsage(THREE.DynamicDrawUsage);
   body.geometry.setAttribute('iAnim', iAnim);
@@ -151,6 +211,7 @@ export function createArcherModel(textureBase = 'textures/units/', opts: Skinned
   propMesh.instanceMatrix = mesh.instanceMatrix;
   propMesh.instanceColor = mesh.instanceColor;
   propMesh.customDepthMaterial = depth;
+  propMesh.visible = part.props !== undefined;
   const group = new THREE.Group();
   group.add(mesh, propMesh);
 
@@ -174,9 +235,9 @@ export function createArcherModel(textureBase = 'textures/units/', opts: Skinned
       boneTex.dispose();
     },
   };
-  if (opts.generated !== false) {
+  if (opts.generated !== false && part.generated) {
     const base = textureBase.replace(/textures\/units\/$/, '');
-    model.ready = loadGeneratedModel(GENERATED_MODELS.archer!, base)
+    model.ready = loadGeneratedModel(part.generated, base)
       .then((gen) => {
         gen.geometry.setAttribute('iAnim', iAnim);
         const old = mesh.geometry;
@@ -188,41 +249,60 @@ export function createArcherModel(textureBase = 'textures/units/', opts: Skinned
         model.triangles = gen.triangles + props.triangles;
       })
       .catch((e: unknown) => {
-        console.warn('Erzeugtes Modell nicht geladen, prozeduraler Körper bleibt:', e);
+        console.warn(`Erzeugtes Modell ${part.key} nicht geladen, Rückfall bleibt:`, e);
       });
   }
   return model;
 }
 
+/** Bogenschützen-Modell (Vorschau, Tests). */
+export function createArcherModel(textureBase = 'textures/units/', opts: SkinnedModelOptions = {}): SkinnedModel {
+  return createSkinnedModel(UNIT_SPECS.archer!.parts[0]!, textureBase, opts);
+}
+
+interface ModelSlot {
+  model: SkinnedModel;
+  n: number;
+}
+
 export class SkinnedUnitRenderer {
   readonly group = new THREE.Group();
-  private mesh: THREE.InstancedMesh;
-  private anim: BakedAnimation;
-  private iAnim: THREE.InstancedBufferAttribute;
+  private models = new Map<string, ModelSlot>();
   private visuals = new Map<UnitId, Visual>();
   private dummy = new THREE.Object3D();
+  private mount = new THREE.Matrix4();
+  private tmp = new THREE.Matrix4();
   private color = new THREE.Color();
-  private model: SkinnedModel;
-  private stats: SkinnedRenderStats;
+  private stats: SkinnedRenderStats = { units: 0, vertices: 0, triangles: 0 };
+  private readyAll: Promise<void>;
   /** Welche Einheitentypen dieser Renderer übernimmt. */
-  readonly handles: ReadonlySet<string> = new Set(['archer']);
+  readonly handles: ReadonlySet<string> = new Set(Object.keys(UNIT_SPECS));
 
   constructor(textureBase = 'textures/units/') {
-    this.model = createArcherModel(textureBase);
-    this.mesh = this.model.mesh;
-    this.anim = this.model.anim;
-    this.iAnim = this.model.iAnim;
-    this.group.add(this.model.group);
-    this.stats = { units: 0, vertices: this.model.vertices, triangles: this.model.triangles };
-    void this.model.ready.then(() => {
-      this.stats.vertices = this.model.vertices;
-      this.stats.triangles = this.model.triangles;
-    });
+    const pending: Promise<void>[] = [];
+    for (const spec of Object.values(UNIT_SPECS)) {
+      for (const part of spec.parts) {
+        if (this.models.has(part.key)) continue;
+        const model = createSkinnedModel(part, textureBase);
+        this.models.set(part.key, { model, n: 0 });
+        this.group.add(model.group);
+        pending.push(model.ready);
+      }
+    }
+    this.readyAll = Promise.all(pending).then(() => this.refreshStats());
+    this.refreshStats();
   }
 
-  /** Erfüllt, sobald das erzeugte Modell eingesetzt ist. */
+  private refreshStats(): void {
+    let v = 0, t = 0;
+    for (const { model } of this.models.values()) { v += model.vertices; t += model.triangles; }
+    this.stats.vertices = v;
+    this.stats.triangles = t;
+  }
+
+  /** Erfüllt, sobald alle erzeugten Modelle eingesetzt sind. */
   get ready(): Promise<void> {
-    return this.model.ready;
+    return this.readyAll;
   }
 
   get renderStats(): SkinnedRenderStats {
@@ -230,7 +310,7 @@ export class SkinnedUnitRenderer {
   }
 
   setShadows(on: boolean): void {
-    this.model.setShadows(on);
+    for (const { model } of this.models.values()) model.setShadows(on);
   }
 
   /** Einheit im Darstellungsraum: Position, Blickrichtung, Höhe (Tiles) und Animationszustand. */
@@ -238,13 +318,14 @@ export class SkinnedUnitRenderer {
     const dtS = 1 / 60;
     const now = world.tick + alpha;
     const seen = new Set<UnitId>();
-    let n = 0;
+    for (const slot of this.models.values()) slot.n = 0;
+    let units = 0;
     for (const u of world.units) {
-      if (!this.handles.has(u.defId)) continue;
+      const spec = UNIT_SPECS[u.defId];
+      if (!spec) continue;
       const dead = !u.alive;
       const deadT = dead ? (now - u.diedTick) / world.rules.tickRate : 0;
       if (dead && deadT > 3.2) continue;
-      if (n >= MAX) break;
       seen.add(u.id);
       const def = world.defs.get(u.defId);
       const p = dead ? u.pos : lerp(u.prevPos, u.pos, alpha);
@@ -265,15 +346,18 @@ export class SkinnedUnitRenderer {
       vis.lastX = p.x;
       vis.lastY = p.y;
       const running = u.speed > RUN_SPEED;
-      const cycle = H * (running ? RUN_CYCLE_PER_HEIGHT : WALK_CYCLE_PER_HEIGHT);
+      const cycle = H * (running ? spec.cycle[1] : spec.cycle[0]);
       if (!dead && u.speed > 0.01) vis.walkPhase += moved / cycle;
 
       // Zielclip und Zeit aus dem Simulationszustand
       const w = world.defs.ageStats(u.defId, u.age).weapon;
+      const anim0 = spec.parts[0]!;
+      const slot0 = this.models.get(anim0.key)!.model.anim;
       const { clip, t } = chooseClip(u, {
         now, tickRate: world.rules.tickRate, recoveryS: w.timing.recovery, deadT, running,
+        charge: !!spec.canCharge && running && u.attack.targetId !== null,
         walkPhase: vis.walkPhase + vis.phase * 0.05, nowS: nowMs / 1000 + vis.phase, dieVariant: vis.dieVariant,
-        idleDuration: this.anim.get('idle').duration, readyDuration: this.anim.get('ready').duration, dieDuration: this.anim.get(vis.dieVariant).duration,
+        idleDuration: slot0.get('idle').duration, readyDuration: slot0.get('ready').duration, dieDuration: slot0.get(vis.dieVariant).duration,
       });
       if (!dead) {
         if (u.attack.phase === 'windup') vis.cancelT = t;
@@ -312,30 +396,46 @@ export class SkinnedUnitRenderer {
       }
       vis.twist += (twistTarget - vis.twist) * (1 - Math.exp(-dtS * 10));
 
-      // Instanz: Matrix, Farbe, Animationsdaten
+      // Instanzen aller Teile: Matrix, Farbe, Animationsdaten
       const sink = dead ? Math.max(0, deadT - 2.5) * 0.6 : 0;
       this.dummy.position.set(p.x, -sink, p.y);
       this.dummy.rotation.set(0, Math.PI / 2 - vis.yaw, 0);
       this.dummy.scale.setScalar(H);
       this.dummy.updateMatrix();
-      this.mesh.setMatrixAt(n, this.dummy.matrix);
-      this.mesh.setColorAt(n, this.color.setHex(dead ? 0x6b7280 : PLAYER_COLORS_HEX[u.player]));
-      const rowA = clipRow(this.anim.get(vis.clip), vis.t);
-      const rowB = clipRow(this.anim.get(vis.prevClip), vis.prevT);
-      // Oberkörperdrehung (Modellraum, um y)
-      this.iAnim.setXYZW(n, rowA, rowB, blend, vis.twist);
-      n++;
+      const teamHex = dead ? 0x6b7280 : PLAYER_COLORS_HEX[u.player];
+      for (const part of spec.parts) {
+        const slot = this.models.get(part.key)!;
+        if (slot.n >= MAX) continue;
+        const n = slot.n++;
+        let m = this.dummy.matrix;
+        if (part.mount) {
+          const mt = part.mount;
+          this.mount.makeTranslation(mt.at[0], mt.at[1] - mt.hip * mt.scale, mt.at[2]);
+          this.tmp.makeScale(mt.scale, mt.scale, mt.scale);
+          this.mount.multiply(this.tmp);
+          m = this.tmp.multiplyMatrices(this.dummy.matrix, this.mount);
+        }
+        slot.model.mesh.setMatrixAt(n, m);
+        slot.model.mesh.setColorAt(n, this.color.setHex(teamHex));
+        const anim = slot.model.anim;
+        const rowA = clipRow(anim.get(vis.clip), vis.t);
+        const rowB = clipRow(anim.get(vis.prevClip), vis.prevT);
+        slot.model.iAnim.setXYZW(n, rowA, rowB, blend, vis.twist);
+      }
+      units++;
     }
     for (const id of [...this.visuals.keys()]) if (!seen.has(id)) this.visuals.delete(id);
-    this.model.setCount(n);
-    this.mesh.instanceMatrix.needsUpdate = true;
-    if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;
-    this.iAnim.needsUpdate = true;
-    this.stats.units = n;
+    for (const slot of this.models.values()) {
+      slot.model.setCount(slot.n);
+      slot.model.mesh.instanceMatrix.needsUpdate = true;
+      if (slot.model.mesh.instanceColor) slot.model.mesh.instanceColor.needsUpdate = true;
+      slot.model.iAnim.needsUpdate = true;
+    }
+    this.stats.units = units;
   }
 
   dispose(): void {
-    this.model.dispose();
+    for (const { model } of this.models.values()) model.dispose();
   }
 }
 
@@ -345,6 +445,8 @@ export interface ClipChoiceInput {
   recoveryS: number;
   deadT: number;
   running: boolean;
+  /** Rennen mit Ziel als Sturmangriff (nur Kavallerie). */
+  charge?: boolean;
   walkPhase: number;
   nowS: number;
   dieVariant: ClipName;
@@ -371,7 +473,7 @@ export function chooseClip(u: UnitState, c: ClipChoiceInput): { clip: ClipName; 
   }
   const hitAge = (c.now - u.lastHitTick) / c.tickRate;
   if (u.lastHitTick > 0 && hitAge >= 0 && hitAge < 0.3) return { clip: 'hit', t: hitAge / 0.3 };
-  if (u.speed > 0.01) return { clip: c.running ? 'run' : 'walk', t: c.walkPhase };
+  if (u.speed > 0.01) return { clip: c.charge ? 'charge' : c.running ? 'run' : 'walk', t: c.walkPhase };
   if (u.attack.targetId !== null) return { clip: 'ready', t: c.nowS / c.readyDuration };
   return { clip: 'idle', t: c.nowS / c.idleDuration };
 }
@@ -429,4 +531,4 @@ function patchVertex(shader: { vertexShader: string }): void {
     .replace('#include <skinning_vertex>', 'transformed = twistY((skinM * vec4(transformed, 1.0)).xyz, twistAng);');
 }
 
-export type { BakedClip };
+export type { BakedClip } from './animBake';

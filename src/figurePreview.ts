@@ -1,8 +1,7 @@
 /** Vorschau der geskinnten Figur: Clips, Zeit, Überblenden, Teamfarbe, Oberkörperdrehung. */
 import * as THREE from 'three';
-import { HUMAN_CLIPS } from './app/render3d/skel/animClips';
 import { clipRow } from './app/render3d/skel/animBake';
-import { createArcherModel } from './app/render3d/skel/skinnedUnits';
+import { createSkinnedModel, UNIT_SPECS } from './app/render3d/skel/skinnedUnits';
 import { PLAYER_COLORS_HEX } from './app/unitVisual';
 
 const canvas = document.getElementById('view') as HTMLCanvasElement;
@@ -28,12 +27,21 @@ ground.receiveShadow = true;
 scene.add(ground);
 scene.add(new THREE.GridHelper(3, 12, 0x555555, 0x3a3f48));
 
-const model = createArcherModel('textures/units/', { capacity: 8, generated: new URLSearchParams(location.search).get('gen') !== '0' });
-const mesh = model.mesh;
-model.setCount(1);
-scene.add(model.group);
+const query = new URLSearchParams(location.search);
+const unitSel = document.getElementById('unit') as HTMLSelectElement;
+for (const k of Object.keys(UNIT_SPECS)) unitSel.append(new Option(k, k));
+unitSel.value = query.get('unit') ?? 'archer';
+unitSel.addEventListener('change', () => { query.set('unit', unitSel.value); location.search = query.toString(); });
+const spec = UNIT_SPECS[unitSel.value] ?? UNIT_SPECS.archer!;
+const parts = spec.parts.map((part) => ({ part, model: createSkinnedModel(part, 'textures/units/', { capacity: 8, generated: query.get('gen') !== '0' }) }));
+const model = parts[0]!.model;
+for (const p of parts) scene.add(p.model.group);
 const stats = document.getElementById('stats')!;
-stats.textContent = `${model.vertices} Vertices, ${model.triangles} Dreiecke, ${model.anim.clips.length} Clips, Knochentextur ${model.anim.width}×${model.anim.height}`;
+function showStats(): void {
+  stats.textContent = parts.map((p) => `${p.part.key}: ${p.model.vertices} Vertices, ${p.model.triangles} Dreiecke, ${p.model.anim.clips.length} Clips`).join(' · ');
+}
+showStats();
+void Promise.all(parts.map((p) => p.model.ready)).then(showStats);
 
 const camera = new THREE.PerspectiveCamera(35, 1, 0.05, 50);
 let yaw = 0.6, pitch = 0.35, dist = 2.6;
@@ -55,7 +63,7 @@ canvas.addEventListener('wheel', (e) => { dist = Math.max(0.8, Math.min(6, dist 
 
 const clipSel = document.getElementById('clip') as HTMLSelectElement;
 const prevSel = document.getElementById('prev') as HTMLSelectElement;
-for (const c of HUMAN_CLIPS) {
+for (const c of spec.parts[0]!.clips) {
   clipSel.append(new Option(`${c.name} (${c.duration} s${c.loop ? ', Schleife' : ''})`, c.name));
   prevSel.append(new Option(c.name, c.name));
 }
@@ -83,6 +91,8 @@ if (params.get('yaw')) yaw = Number(params.get('yaw'));
 if (params.get('dist')) dist = Number(params.get('dist'));
 
 const dummy = new THREE.Object3D();
+const mountM = new THREE.Matrix4();
+const tmpM = new THREE.Matrix4();
 const color = new THREE.Color();
 let last = performance.now();
 function frame(now: number): void {
@@ -96,22 +106,30 @@ function frame(now: number): void {
   }
   timeIn.value = String(Math.min(1, t));
   timeLabel.textContent = Math.min(1, t).toFixed(2);
-  const rowA = clipRow(clip, t);
-  const rowB = clipRow(model.anim.get(prevSel.value as never), 0);
   const n = three ? 3 : 1;
-  for (let i = 0; i < n; i++) {
-    dummy.position.set((i - (n - 1) / 2) * 0.6, 0, 0);
-    dummy.rotation.set(0, 0, 0);
-    dummy.scale.setScalar(1);
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix);
-    mesh.setColorAt(i, color.setHex(PLAYER_COLORS_HEX[(team + i) % 2]!));
-    model.iAnim.setXYZW(i, rowA, rowB, Number(blendIn.value), Number(twistIn.value));
+  for (const { part, model: m } of parts) {
+    const rowA = clipRow(m.anim.get(clipSel.value as never), t);
+    const rowB = clipRow(m.anim.get(prevSel.value as never), 0);
+    for (let i = 0; i < n; i++) {
+      dummy.position.set((i - (n - 1) / 2) * 0.7, 0, 0);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.setScalar(1);
+      dummy.updateMatrix();
+      let mat = dummy.matrix;
+      if (part.mount) {
+        const mt = part.mount;
+        mountM.makeTranslation(mt.at[0], mt.at[1] - mt.hip * mt.scale, mt.at[2]).multiply(tmpM.makeScale(mt.scale, mt.scale, mt.scale));
+        mat = tmpM.multiplyMatrices(dummy.matrix, mountM);
+      }
+      m.mesh.setMatrixAt(i, mat);
+      m.mesh.setColorAt(i, color.setHex(PLAYER_COLORS_HEX[(team + i) % 2]!));
+      m.iAnim.setXYZW(i, rowA, rowB, Number(blendIn.value), Number(twistIn.value));
+    }
+    m.setCount(n);
+    m.mesh.instanceMatrix.needsUpdate = true;
+    if (m.mesh.instanceColor) m.mesh.instanceColor.needsUpdate = true;
+    m.iAnim.needsUpdate = true;
   }
-  model.setCount(n);
-  mesh.instanceMatrix.needsUpdate = true;
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  model.iAnim.needsUpdate = true;
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== w || canvas.height !== h) {
     renderer.setSize(w, h, false);

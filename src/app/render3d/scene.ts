@@ -8,7 +8,6 @@ import { lerp, type Vec2 } from '../../sim/math';
 import type { SimEvent, UnitId, World } from '../../sim/types';
 import type { Camera3D } from '../camera3d';
 import { EffectsRenderer } from './effects';
-import { FigureRenderer } from './figures';
 import { SkinnedUnitRenderer } from './skel/skinnedUnits';
 import type { QualityLevel } from '../settings';
 
@@ -32,7 +31,6 @@ export class Scene3D {
   private ground: THREE.Mesh | null = null;
   private outer: THREE.Mesh;
   private decorGroup = new THREE.Group();
-  readonly figures = new FigureRenderer();
   readonly skinned = new SkinnedUnitRenderer();
   readonly effects = new EffectsRenderer();
   private quality: QualityLevel;
@@ -76,7 +74,6 @@ export class Scene3D {
     this.scene.add(this.outer);
     this.scene.add(this.decorGroup);
 
-    this.scene.add(this.figures.group);
     this.scene.add(this.skinned.group);
     this.scene.add(this.effects.group);
 
@@ -113,7 +110,6 @@ export class Scene3D {
   setShadows(on: boolean): void {
     this.renderer.shadowMap.enabled = on;
     this.sun.castShadow = on;
-    this.figures.setShadows(on);
     this.skinned.setShadows(on);
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh;
@@ -231,7 +227,6 @@ export class Scene3D {
     sc.updateProjectionMatrix();
     this.outer.position.set(c.x, -0.05, c.y);
 
-    this.figures.update(world, alpha, { nowMs, skip: this.skinned.handles });
     this.skinned.update(world, alpha, nowMs);
     this.effects.update(world, alpha, nowMs);
     let ringCount = 0;

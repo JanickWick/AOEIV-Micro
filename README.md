@@ -42,15 +42,25 @@ läuft im Vertex-Shader eines InstancedMesh mit Überblenden zwischen zwei Clips
 zum Ziel (`skinnedUnits.ts`). Die Animationszeit kommt strikt aus der Simulation: Spannen = Windup-
 Fortschritt, Lösen/Nachlauf = Recovery-Ticks, Laufphase = zurückgelegte Strecke, Treffer und Tod aus
 den Ticks. Textur-Atlas: `python3 scripts/img/atlas.py src/data/atlas/archer.json public/textures/units/archer`
-(Farbe plus Teamfarben-Maske; die Teamfarbe wird im Shader eingefärbt). Die übrigen Einheiten nutzen bis
-H3 weiterhin die Gelenkfiguren aus Grundkörpern.
+(Farbe plus Teamfarben-Maske; die Teamfarbe wird im Shader eingefärbt).
+
+Alle acht Einheitentypen laufen über diesen Weg (`UNIT_SPECS` in `skinnedUnits.ts`): Fußtruppen mit je
+einem Animationssatz pro Waffe (`humanClipSets.ts`: Bogen, Speer, Schwert mit Schild, Armbrust),
+Kavallerie als Pferd (`horseRig.ts`, `horseClips.ts`: Schritt, Galopp, Sturmangriff, Treffer, drei
+Sterbe-Varianten) plus aufgesetztem Reiter mit Sitzhaltung und einhändiger Waffe, Belagerung mit einem
+kleinen Skelett aus Gestell und Wurfarm bzw. Schlitten (`siegeRig.ts`). Requisiten (Speer, Schwert,
+Schild, Armbrust, Bogen) sind handgebaut und werden über die exakte Weltrotation ihres Knochens
+ausgerichtet (`setWorldRotationFor`), damit Spitze und Klinge unabhängig von der Armhaltung stimmen.
+`figure-preview.html?unit=knight` zeigt jede Einheit mit allen Clips.
 
 ### Erzeugte Figurmodelle (Bild → 3D)
 
-Der Körper des Bogenschützen kommt aus einem KI-erzeugten 3D-Modell, der Bogen bleibt handgebaut:
+Die Körper aller Einheiten (und Pferd, Mangonel, Springald) kommen aus KI-erzeugten 3D-Modellen, die
+Waffen bleiben handgebaut. Ablauf am Beispiel des Bogenschützen:
 
 1. Ansichtsblatt (Vorder-, Seiten-, Rückansicht in A-Pose, ohne Waffe) mit `scripts/gen-image.mjs`
-   erzeugen und mit `scripts/img/tools.py key` freistellen (`assets/processed/units/archer-body-*.png`).
+   erzeugen und mit `scripts/img/views.py` in die drei Ansichten auf Weiß zerlegen
+   (`assets/processed/units/archer-body-*.png`).
 2. 3D-Modell rechnen: `NODE_USE_ENV_PROXY=1 node scripts/gen-model.mjs assets/prompts/models/archer-body-hunyuan-mv.json`
    (Hunyuan3D Multi-View über FAL; Ergebnis `assets/raw/models/*.glb`, Vorschau unter
    http://localhost:5173/model-preview.html).
@@ -58,6 +68,7 @@ Der Körper des Bogenschützen kommt aus einem KI-erzeugten 3D-Modell, der Bogen
    verschweißt Texturnähte, reduziert auf ~7 000 Dreiecke, legt neue Texturkoordinaten an (xatlas) und
    backt die Originaltextur darauf neu; dazu Teamfarben-Maske per Farbton-Key (Blau).
    Benötigt `pip install trimesh fast-simplification xatlas scipy rtree pillow`.
+   `scripts/mesh/measure.py` schätzt die Armhaltung eines Menschenmodells (A-Pose-Winkel).
 4. Beim Laden wird das Modell automatisch auf das gemeinsame Skelett geskinnt (`autoSkin.ts`: Gewichte
    nach Abstand zu den Knochensegmenten in der A-Pose, dann Umrechnung in die Ruhepose) und mit denselben
    gebackenen Clips animiert; Einträge in `generatedModels.ts`. Bis das Modell geladen ist (oder falls es

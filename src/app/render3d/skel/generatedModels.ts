@@ -7,6 +7,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { autoSkin, type SkinFitOptions } from './autoSkin';
 import { HUMAN_RIG } from './humanRig';
+import { HORSE_RADII, HORSE_RIG, HORSE_TIPS } from './horseRig';
+import { MANGONEL_RADII, MANGONEL_TIPS, SIEGE_RIG, SPRINGALD_RADII, SPRINGALD_TIPS } from './siegeRig';
 import type { Rig } from './rig';
 
 export interface GeneratedModelDef {
@@ -33,14 +35,24 @@ export const HUMAN_TIPS: Readonly<Record<string, [number, number, number]>> = {
   footR: [0, 0, 0.1],
 };
 
-/** A-Pose des erzeugten Bogenschützen: Arme etwa 27° vom Körper weg, Hände leicht nach vorn. */
+/** A-Pose der erzeugten Menschenmodelle: Arme etwa 27° vom Körper weg, Hände leicht nach vorn
+ * (gemessen mit scripts/mesh/measure.py, bei allen Blättern gleich). */
 const A_POSE: SkinFitOptions['fit'] = {
   upperArmL: { rz: -0.47, rx: -0.2 },
   upperArmR: { rz: 0.47, rx: -0.2 },
 };
+const HUMAN_SKIN: SkinFitOptions = { fit: A_POSE, radius: HUMAN_RADII, tip: HUMAN_TIPS, smooth: 2 };
+const human = (name: string): GeneratedModelDef => ({ file: `models/${name}.glb`, mask: `models/${name}-mask.png`, rig: HUMAN_RIG, skin: HUMAN_SKIN });
 
 export const GENERATED_MODELS: Readonly<Record<string, GeneratedModelDef>> = {
-  archer: { file: 'models/archer.glb', mask: 'models/archer-mask.png', rig: HUMAN_RIG, skin: { fit: A_POSE, radius: HUMAN_RADII, tip: HUMAN_TIPS, smooth: 2 } },
+  archer: human('archer'),
+  spearman: human('spearman'),
+  'man-at-arms': human('man-at-arms'),
+  crossbowman: human('crossbowman'),
+  'knight-rider': human('knight-rider'),
+  horse: { file: 'models/horse.glb', mask: 'models/horse-mask.png', rig: HORSE_RIG, skin: { fit: {}, radius: HORSE_RADII, tip: HORSE_TIPS, smooth: 2 } },
+  mangonel: { file: 'models/mangonel.glb', mask: 'models/mangonel-mask.png', rig: SIEGE_RIG, skin: { fit: {}, radius: MANGONEL_RADII, tip: MANGONEL_TIPS, smooth: 1 } },
+  springald: { file: 'models/springald.glb', mask: 'models/springald-mask.png', rig: SIEGE_RIG, skin: { fit: {}, radius: SPRINGALD_RADII, tip: SPRINGALD_TIPS, smooth: 1 } },
 };
 
 export interface LoadedGeneratedModel {
@@ -51,20 +63,17 @@ export interface LoadedGeneratedModel {
   triangles: number;
 }
 
+const gltfCache = new Map<string, Promise<Awaited<ReturnType<GLTFLoader['loadAsync']>>>>();
+
 /** Lädt ein erzeugtes Modell, skinnt es automatisch und liefert Geometrie samt Texturen. */
 export async function loadGeneratedModel(def: GeneratedModelDef, base = ''): Promise<LoadedGeneratedModel> {
-  const loader = new GLTFLoader();
-  let gltf: Awaited<ReturnType<GLTFLoader['loadAsync']>>;
-  try {
-    gltf = await loader.loadAsync(base + def.file);
-  } catch (e) {
-    // Rückfall für Hoster ohne .glb: dieselben Bytes Base64-kodiert in <datei>.b64.json ({"glb": "..."})
-    const res = await fetch(base + def.file + '.b64.json');
-    if (!res.ok) throw e;
-    const { glb } = (await res.json()) as { glb: string };
-    const bin = Uint8Array.from(atob(glb), (c) => c.charCodeAt(0));
-    gltf = await loader.parseAsync(bin.buffer, base);
+  const url = base + def.file;
+  let pending = gltfCache.get(url);
+  if (!pending) {
+    pending = loadGltf(def, base);
+    gltfCache.set(url, pending);
   }
+  const gltf = await pending;
   let mesh: THREE.Mesh | null = null;
   gltf.scene.updateMatrixWorld(true);
   gltf.scene.traverse((o) => {
@@ -88,4 +97,20 @@ export async function loadGeneratedModel(def: GeneratedModelDef, base = ''): Pro
     vertices: geometry.getAttribute('position').count,
     triangles: (geometry.getIndex()?.count ?? geometry.getAttribute('position').count) / 3,
   };
+}
+
+async function loadGltf(def: GeneratedModelDef, base: string): Promise<Awaited<ReturnType<GLTFLoader['loadAsync']>>> {
+  const loader = new GLTFLoader();
+  let gltf: Awaited<ReturnType<GLTFLoader['loadAsync']>>;
+  try {
+    gltf = await loader.loadAsync(base + def.file);
+  } catch (e) {
+    // Rückfall für Hoster ohne .glb: dieselben Bytes Base64-kodiert in <datei>.b64.json ({"glb": "..."})
+    const res = await fetch(base + def.file + '.b64.json');
+    if (!res.ok) throw e;
+    const { glb } = (await res.json()) as { glb: string };
+    const bin = Uint8Array.from(atob(glb), (c) => c.charCodeAt(0));
+    gltf = await loader.parseAsync(bin.buffer, base);
+  }
+  return gltf;
 }

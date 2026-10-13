@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Reference sheet of a medieval war horse for a 3D model: the same bay horse shown three times side by side, standing squarely on all four legs, neutral pose, head slightly up, NO rider. It wears a plain leather saddle with a cobalt-blue saddle cloth (team colour #1F5FBF) and a simple bridle. Views: left side view, front view, back view. Painterly-realistic style with crisp detail, warm neutral even lighting, no cast shadows, clean readable silhouette. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00 with absolutely no scenery, no ground, no sky, no gradient. No text.",
+  "aspect_ratio": "16:9",
+  "resolution": "2K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/sheet-horse.png",
+  "result": {
+    "request_id": "01a13537-6192-7da1-99e4-ed0e419292d1",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:23:32.062Z",
+    "files": [
+      "assets/raw/units/sheet-horse.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36aa/fW61DUA0LeKROStX4_UMb_04nYIyQi.png"
+    ],
+    "description": ""
+  }
+}

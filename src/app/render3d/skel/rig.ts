@@ -175,3 +175,64 @@ export interface ClipDef {
   loop: boolean;
   pose: (t: number, p: Pose) => void;
 }
+
+/** 3×3-Rotation (zeilenweise) aus XYZ-Euler wie composeTRS. */
+function rot3(rx: number, ry: number, rz: number, out: Float64Array): Float64Array {
+  const cx = Math.cos(rx), sx = Math.sin(rx), cy = Math.cos(ry), sy = Math.sin(ry), cz = Math.cos(rz), sz = Math.sin(rz);
+  out[0] = cy * cz; out[1] = -cy * sz; out[2] = sy;
+  out[3] = cx * sz + sx * sy * cz; out[4] = cx * cz - sx * sy * sz; out[5] = -sx * cy;
+  out[6] = sx * sz - cx * sy * cz; out[7] = sx * cz + cx * sy * sz; out[8] = cx * cy;
+  return out;
+}
+
+function mul3(a: Float64Array, b: Float64Array, out: Float64Array): Float64Array {
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) out[r * 3 + c] = a[r * 3]! * b[c]! + a[r * 3 + 1]! * b[3 + c]! + a[r * 3 + 2]! * b[6 + c]!;
+  return out;
+}
+
+/** Weltrotation eines Knochens in einer Pose (nur Rotationen entlang der Elternkette). */
+export function boneWorldRotationFor(rig: Rig, pose: Pose, bone: string, out: Float64Array): Float64Array {
+  const chain: number[] = [];
+  let i: number | null = boneIndexOf(rig, bone);
+  while (i !== null) {
+    chain.push(i);
+    const parent: string | null = rig.bones[i]!.parent;
+    i = parent === null ? null : rig.index[parent]!;
+  }
+  out.set([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+  const local = new Float64Array(9), tmp = new Float64Array(9);
+  for (let k = chain.length - 1; k >= 0; k--) {
+    const bp = pose.bones[chain[k]!]!;
+    rot3(bp.rx, bp.ry, bp.rz, local);
+    mul3(out, local, tmp);
+    out.set(tmp);
+  }
+  return out;
+}
+
+/**
+ * Setzt die lokale Drehung eines Knochens so, dass seine Weltrotation genau R_x(rx)·R_y(ry)·R_z(rz)
+ * ergibt (XYZ-Euler im Modellraum), unabhängig von der Haltung der Elternkette.
+ */
+export function setWorldRotationFor(rig: Rig, pose: Pose, bone: string, rx: number, ry = 0, rz = 0): void {
+  const i = boneIndexOf(rig, bone);
+  const parent = rig.bones[i]!.parent;
+  const Rp = new Float64Array(9);
+  if (parent === null) Rp.set([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+  else boneWorldRotationFor(rig, pose, parent, Rp);
+  const Rd = rot3(rx, ry, rz, new Float64Array(9));
+  // local = Rpᵀ · Rd
+  const L = new Float64Array(9);
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) L[r * 3 + c] = Rp[r]! * Rd[c]! + Rp[3 + r]! * Rd[3 + c]! + Rp[6 + r]! * Rd[6 + c]!;
+  // XYZ-Euler aus L = Rx·Ry·Rz
+  const bp = pose.bones[i]!;
+  const m13 = Math.max(-1, Math.min(1, L[2]!));
+  bp.ry = Math.asin(m13);
+  if (Math.abs(m13) < 0.9999999) {
+    bp.rx = Math.atan2(-L[5]!, L[8]!);
+    bp.rz = Math.atan2(-L[1]!, L[0]!);
+  } else {
+    bp.rx = Math.atan2(L[7]!, L[4]!);
+    bp.rz = 0;
+  }
+}

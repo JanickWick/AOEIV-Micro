@@ -191,6 +191,7 @@ def main():
     ap.add_argument('--sat', type=float, default=0.35)
     ap.add_argument('--no-mask', action='store_true')
     ap.add_argument('--own-normals', action='store_true', help='Normalen aus dem reduzierten Netz statt vom Original')
+    ap.add_argument('--kill-green', action='store_true', help='Chroma-Grün-Reste in der Textur neutralisieren')
     a = ap.parse_args()
 
     m = normalize(load_single(a.inp), a.yaw)
@@ -214,6 +215,14 @@ def main():
     print(f'Neue Texturkoordinaten: {len(verts)} Vertices')
 
     img = bake(m, verts, faces, uvs, a.tex)
+    if a.kill_green:
+        hsv = np.asarray(img.convert('HSV')).astype(np.float32)
+        hue = hsv[..., 0] * 360 / 255
+        g = (hue > 80) & (hue < 160) & (hsv[..., 1] > 90)
+        rgb = np.asarray(img).copy()
+        rgb[g] = (0.35 * rgb[g] + 0.65 * np.array([110, 85, 60])).astype(np.uint8)
+        img = Image.fromarray(rgb)
+        print(f'Grün neutralisiert: {g.mean():.1%} der Texel')
     # glTF: v nach unten; trimesh erwartet v nach oben beim Export → umrechnen
     uv_tm = np.stack([uvs[:, 0], 1.0 - uvs[:, 1]], axis=1)
     mat = trimesh.visual.material.PBRMaterial(baseColorTexture=img, roughnessFactor=0.9, metallicFactor=0.0)

@@ -146,10 +146,11 @@ export function autoSkin(geometry: THREE.BufferGeometry, rig: Rig, opts: SkinFit
     for (let b = 0; b < rig.count; b++) order[b] = b;
     const base = v * rig.count;
     order.sort((x, y) => wFull[base + y]! - wFull[base + x]!);
+    const kMax = Math.min(4, rig.count);
     let sum = 0;
-    for (let k = 0; k < 4; k++) sum += wFull[base + order[k]!]!;
+    for (let k = 0; k < kMax; k++) sum += wFull[base + order[k]!]!;
     let upper = 0;
-    for (let k = 0; k < 4; k++) {
+    for (let k = 0; k < kMax; k++) {
       const b = order[k]!;
       const w = sum > 0 ? wFull[base + b]! / sum : k === 0 ? 1 : 0;
       si[v * 4 + k] = b;

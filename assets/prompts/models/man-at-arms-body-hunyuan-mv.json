@@ -1,0 +1,35 @@
+{
+  "model": "fal-ai/hunyuan3d/v2/multi-view",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "front_image_url": "assets/processed/units/man-at-arms-body-front.png",
+    "back_image_url": "assets/processed/units/man-at-arms-body-back.png",
+    "left_image_url": "assets/processed/units/man-at-arms-body-side.png"
+  },
+  "out": "assets/raw/models/man-at-arms-body-hunyuan-mv.glb",
+  "result": {
+    "request_id": "01a13539-432d-73b1-b743-1fd0ab13e131",
+    "at": "2026-10-13T12:26:42.141Z",
+    "seconds": 95,
+    "files": [
+      "assets/raw/models/man-at-arms-body-hunyuan-mv.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36c0/oIj8piJiDN3Fsl0zWhFE0_multiview_mesh-1791894384-366902.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae36c0/oIj8piJiDN3Fsl0zWhFE0_multiview_mesh-1791894384-366902.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "multiview_mesh-1791894384-366902.glb",
+        "file_size": 4292048
+      },
+      "seed": 366902
+    }
+  }
+}

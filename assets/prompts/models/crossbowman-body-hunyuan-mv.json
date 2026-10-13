@@ -1,0 +1,35 @@
+{
+  "model": "fal-ai/hunyuan3d/v2/multi-view",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "front_image_url": "assets/processed/units/crossbowman-body-front.png",
+    "back_image_url": "assets/processed/units/crossbowman-body-back.png",
+    "left_image_url": "assets/processed/units/crossbowman-body-side.png"
+  },
+  "out": "assets/raw/models/crossbowman-body-hunyuan-mv.glb",
+  "result": {
+    "request_id": "01a13539-4509-7512-b812-2f4c917318cc",
+    "at": "2026-10-13T12:27:12.954Z",
+    "seconds": 126,
+    "files": [
+      "assets/raw/models/crossbowman-body-hunyuan-mv.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36c3/Xnt5mWYdob2Z7ZrGbzO6F_multiview_mesh-1791894414-885440.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae36c3/Xnt5mWYdob2Z7ZrGbzO6F_multiview_mesh-1791894414-885440.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "multiview_mesh-1791894414-885440.glb",
+        "file_size": 4159504
+      },
+      "seed": 885440
+    }
+  }
+}
