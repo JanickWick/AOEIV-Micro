@@ -1,0 +1,33 @@
+{
+  "model": "fal-ai/hunyuan3d/v2",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "input_image_url": "assets/processed/scenery/oak-view.png"
+  },
+  "out": "assets/raw/models/oak-hunyuan.glb",
+  "result": {
+    "request_id": "01a13559-6ed6-7742-b552-2f8a488e8f5b",
+    "at": "2026-10-13T13:02:36.057Z",
+    "seconds": 141,
+    "files": [
+      "assets/raw/models/oak-hunyuan.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3797/GuZCy35u298e3M9Jl1u01_mesh-1791896505-745543.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae3797/GuZCy35u298e3M9Jl1u01_mesh-1791896505-745543.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "mesh-1791896505-745543.glb",
+        "file_size": 5901552
+      },
+      "seed": 745543
+    }
+  }
+}

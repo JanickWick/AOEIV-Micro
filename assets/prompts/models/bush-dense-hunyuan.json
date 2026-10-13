@@ -1,0 +1,33 @@
+{
+  "model": "fal-ai/hunyuan3d/v2",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "input_image_url": "assets/processed/scenery/bush-dense-view.png"
+  },
+  "out": "assets/raw/models/bush-dense-hunyuan.glb",
+  "result": {
+    "request_id": "01a13561-7da2-70b3-aa09-73be90d10a00",
+    "at": "2026-10-13T13:13:27.154Z",
+    "seconds": 264,
+    "files": [
+      "assets/raw/models/bush-dense-hunyuan.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae37d8/yULxhbnTXecy0PW-04Epk_mesh-1791897111-228699.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae37d8/yULxhbnTXecy0PW-04Epk_mesh-1791897111-228699.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "mesh-1791897111-228699.glb",
+        "file_size": 5314948
+      },
+      "seed": 228699
+    }
+  }
+}

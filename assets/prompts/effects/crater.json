@@ -1,0 +1,21 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Top-down view of a fresh shallow impact crater of a catapult stone in grass: a round scorched dark-brown patch of churned earth with radial dirt splashes, viewed exactly from above, centred, soft edges fading out into a flat uniform pure chroma-key green #00FF00 background. No text.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [],
+  "out": "assets/raw/effects/crater.png",
+  "result": {
+    "request_id": "01a13553-23b1-7db2-8692-5b7ccde4d00a",
+    "endpoint": "fal-ai/nano-banana-pro",
+    "at": "2026-10-13T12:54:01.120Z",
+    "files": [
+      "assets/raw/effects/crater.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3760/Rf_22y0fXhA7iiK6T8Vch_dDZw0Cu5.png"
+    ],
+    "description": ""
+  }
+}

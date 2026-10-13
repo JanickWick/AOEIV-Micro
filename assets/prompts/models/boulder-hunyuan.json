@@ -1,0 +1,33 @@
+{
+  "model": "fal-ai/hunyuan3d/v2",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "input_image_url": "assets/processed/scenery/boulder-view.png"
+  },
+  "out": "assets/raw/models/boulder-hunyuan.glb",
+  "result": {
+    "request_id": "01a13559-70b3-7773-917b-ac0c8d6b65dd",
+    "at": "2026-10-13T13:03:04.563Z",
+    "seconds": 169,
+    "files": [
+      "assets/raw/models/boulder-hunyuan.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3799/EB_qRrwgHuhRsD-gxenZ0_mesh-1791896546-885440.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae3799/EB_qRrwgHuhRsD-gxenZ0_mesh-1791896546-885440.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "mesh-1791896546-885440.glb",
+        "file_size": 5237900
+      },
+      "seed": 885440
+    }
+  }
+}

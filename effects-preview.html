@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Effekt-Vorschau</title>
+    <style>
+      body { margin: 0; background: #1b1e24; color: #ddd; font: 13px system-ui, sans-serif; }
+      #bar { position: fixed; top: 0; left: 0; right: 0; padding: 6px 10px; background: #0f1115cc; display: flex; gap: 12px; align-items: center; }
+      canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <div id="bar"><strong>Effekt-Vorschau</strong><span>Pfeile, Mangonel-Einschlag mit Krater, Treffer-Funken, Ansturm-Staub, Klickmarker (synthetische Ereignisse, keine Simulation)</span><span id="stats"></span></div>
+    <canvas id="view"></canvas>
+    <script type="module" src="/src/effectsPreview.ts"></script>
+  </body>
+</html>

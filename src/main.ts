@@ -35,6 +35,12 @@ function allScenarios(): ScenarioDef[] {
 const wantedScenario = new URLSearchParams(location.search).get('scenario');
 const initialScenario = allScenarios().find((s) => s.id === wantedScenario) ?? allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
 const game = new Game(canvas, glCanvas, defs, hotkeys, settings, effectiveRules(calibration), initialScenario);
+// ?cam=x,y richtet die Kamera auf einen Kartenpunkt (Vorschau, Screenshots)
+const wantedCam = new URLSearchParams(location.search).get('cam');
+if (wantedCam) {
+  const [cx, cy] = wantedCam.split(',').map(Number);
+  if (Number.isFinite(cx) && Number.isFinite(cy)) game.camera.lookAt({ x: cx!, y: cy! });
+}
 
 const result = $('result');
 const settingsOverlay = $('settings');

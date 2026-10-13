@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "A large weathered grey granite boulder with moss patches and lichen, rounded with a few flat faces, for a medieval strategy game. One single object, centred, fully in frame with margin, three-quarter view slightly from above, painterly-realistic with crisp detail, warm neutral even lighting, no cast shadow on the ground. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00, no ground plane, no scenery, no text.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/key-battlefield.png"
+  ],
+  "out": "assets/raw/scenery/boulder.png",
+  "result": {
+    "request_id": "01a13553-2b4d-7cd1-a7e9-afbece6035ac",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:53:45.155Z",
+    "files": [
+      "assets/raw/scenery/boulder.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3760/IkaNCzTahqWIO6WpW3nPU_04GkeX9U.png"
+    ],
+    "description": ""
+  }
+}

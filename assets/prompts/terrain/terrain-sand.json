@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Top-down seamless texture of light sandy ground with fine gravel and a few dry grass tufts, viewed exactly from above. Seamless and tileable: the left edge continues the right edge and the top edge continues the bottom edge, no visible border, no vignette, no text, no watermark. Even diffuse daylight, no strong cast shadows, photoreal-painterly like the attached reference.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/processed/style/terrain-grass.png"
+  ],
+  "out": "assets/raw/terrain/terrain-sand.png",
+  "result": {
+    "request_id": "01a13553-29c7-7370-be19-0794f396a07f",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:53:44.352Z",
+    "files": [
+      "assets/raw/terrain/terrain-sand.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3760/shmgG_2JXls0OEExkWEHt_ylrnzspb.png"
+    ],
+    "description": ""
+  }
+}

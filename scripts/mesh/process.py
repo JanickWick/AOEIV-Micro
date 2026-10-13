@@ -120,7 +120,27 @@ def sample_texture(img_arr, uv):
     return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy
 
 
-def bake(orig, verts, faces, uvs, res):
+def project_color(img_path, verts, pos, nrm):
+    """Farbe durch flache Projektion des freigestellten Bildes von vorn (+z) auf das Netz; die
+    Rückseite bekommt das gespiegelte Bild. Für Laub, das der Generator nicht texturiert."""
+    im = Image.open(img_path).convert('RGBA')
+    im = im.crop(im.getbbox())
+    rgba = np.asarray(im).astype(np.float32)
+    alpha = rgba[..., 3] > 16
+    # Transparente Stellen mit der nächsten deckenden Farbe auffüllen
+    _, nn = ndimage.distance_transform_edt(~alpha, return_indices=True)
+    rgb = rgba[..., :3][nn[0], nn[1]]
+    lo, hi = verts.min(axis=0), verts.max(axis=0)
+    u = (pos[:, 0] - lo[0]) / max(1e-6, hi[0] - lo[0])
+    v = (pos[:, 1] - lo[1]) / max(1e-6, hi[1] - lo[1])
+    back = nrm[:, 2] < 0
+    u = np.where(back, 1.0 - u, u)
+    uv = np.stack([u, v], axis=1)
+    # Das Bild trägt schon Licht und Schatten; etwas aufhellen, damit die Beleuchtung im Spiel nicht doppelt abdunkelt
+    return np.clip(sample_texture(rgb, uv) * 1.3 + 12, 0, 255)
+
+
+def bake(orig, verts, faces, uvs, res, project=None):
     """Rastert die neuen Dreiecke im UV-Raum und holt je Texel die Farbe vom nächsten Punkt des Originals."""
     img0 = np.asarray(orig.visual.material.baseColorTexture.convert('RGB'), dtype=np.float32)
     uv0 = np.asarray(orig.visual.uv)
@@ -158,10 +178,13 @@ def bake(orig, verts, faces, uvs, res):
         nrm_list.append(np.repeat(fnormals[fi][None], len(pos), axis=0))
     pos = np.concatenate(pos_list); idx = np.concatenate(idx_list); nrm = np.concatenate(nrm_list)
     print(f'Backen: {len(pos)} Texel …', flush=True)
-    pts, tid = nearest_on(orig, pos, nrm)
-    bary = trimesh.triangles.points_to_barycentric(orig.triangles[tid], pts)
-    suv = (uv0[orig.faces[tid]] * bary[:, :, None]).sum(axis=1)
-    col = sample_texture(img0, suv)
+    if project is not None:
+        col = project_color(project, verts, pos, nrm)
+    else:
+        pts, tid = nearest_on(orig, pos, nrm)
+        bary = trimesh.triangles.points_to_barycentric(orig.triangles[tid], pts)
+        suv = (uv0[orig.faces[tid]] * bary[:, :, None]).sum(axis=1)
+        col = sample_texture(img0, suv)
     out[idx[:, 1], idx[:, 0]] = col
     used[idx[:, 1], idx[:, 0]] = True
     # Randpolster: ungenutzte Texel mit dem nächsten genutzten füllen
@@ -192,6 +215,7 @@ def main():
     ap.add_argument('--no-mask', action='store_true')
     ap.add_argument('--own-normals', action='store_true', help='Normalen aus dem reduzierten Netz statt vom Original')
     ap.add_argument('--kill-green', action='store_true', help='Chroma-Grün-Reste in der Textur neutralisieren')
+    ap.add_argument('--project', default=None, help='Freigestelltes Bild (RGBA) flach von vorn auf das Netz projizieren statt die Originaltextur zu übernehmen')
     a = ap.parse_args()
 
     m = normalize(load_single(a.inp), a.yaw)
@@ -214,7 +238,7 @@ def main():
     verts = nv[vmap]; normals = vn[vmap]; faces = indices.astype(np.int64)
     print(f'Neue Texturkoordinaten: {len(verts)} Vertices')
 
-    img = bake(m, verts, faces, uvs, a.tex)
+    img = bake(m, verts, faces, uvs, a.tex, a.project)
     if a.kill_green:
         hsv = np.asarray(img.convert('HSV')).astype(np.float32)
         hue = hsv[..., 0] * 360 / 255

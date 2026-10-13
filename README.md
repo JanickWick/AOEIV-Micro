@@ -84,9 +84,35 @@ Sichtfeld 35°, aus dem Minimap-Trapez des Spiel-Screenshots berechnet), um 45°
 Karte als Raute erscheint. Der Standardabstand ergibt in Bildmitte etwa 74 px pro Tile bei
 2560×1440; dieser Maßstab, die Kollisionsradien (Infanterie 0,22, Kavallerie 0,40 Tiles) und der
 Formationsabstand (2·Radius + 0,2 Tiles) stammen aus den Videoclips unter `reference/videos/`
-(Messung in `docs/G0-INVENTUR.md`, Abschnitt 4b). Gelände, Bäume, Felsen, Büsche und Gebäude-Kulisse sind prozedural
-erzeugt; Bäume und Felsen haben Kollision (Einheiten laufen um sie herum), die Kampfzone in der
-Kartenmitte bleibt frei.
+(Messung in `docs/G0-INVENTUR.md`, Abschnitt 4b). Die Lage von Bäumen, Felsen, Büschen und
+Gebäude-Kulisse ist prozedural (deterministisch aus dem Karten-Seed); Bäume und Felsen haben
+Kollision (Einheiten laufen um sie herum), die Kampfzone in der Kartenmitte bleibt frei.
+
+### Gelände, Landschaft und Effekte (Stufe 3, H4)
+
+Der Boden mischt fünf erzeugte, kachelbare Texturen (`public/textures/terrain/`: Gras, sattes
+Gras, trockenes Gras, Erde, Sand; Prompts unter `assets/prompts/terrain/`, Nahtkorrektur mit
+`scripts/img/tools.py seam`) über eine Verteilungskarte aus dem Karten-Seed
+(`src/app/render3d/terrain.ts`): weiche Flecken je Bodenart, eine zweite gedrehte Abtastung gegen
+sichtbare Kachelwiederholung und eine großflächige Helligkeitsvariation. Bäume (Eiche, Kiefer),
+Felsen, Büsche und Häuser sind erzeugte 3D-Modelle (`public/models/{oak,pine,boulder,bush,house}.glb`,
+Bild → 3D wie bei den Figuren, Prompts unter `assets/prompts/scenery/` und `assets/prompts/models/`),
+als Instanzen je Modell gezeichnet (`src/app/render3d/scenery.ts`); Laub wiegt leicht im Wind
+(Vertex-Verschiebung im Shader, rein dekorativ). Laubkronen texturiert der Generator schlecht,
+deshalb projiziert `scripts/mesh/process.py --project <bild.png>` das freigestellte Bild flach auf
+das Netz (Eiche, Busch).
+
+Effekte (`src/app/render3d/effects.ts`): Pfeile mit Schaft, Spitze und Befiederung; Staub und
+Funken als weiche, zur Kamera gedrehte Flecken (erzeugte Textur, Deckkraft je Instanz);
+Mangonel-Einschläge hinterlassen einen Krater-Aufkleber (`public/textures/effects/crater.png`,
+erzeugt und freigestellt), der nach 40 s verblasst. `effects-preview.html` zeigt alle Effekte mit
+synthetischen Ereignissen zur Sichtprüfung. Alle Zeitpunkte stammen aus Simulationsereignissen;
+nichts davon beeinflusst die Simulation.
+
+Bildqualität: »Mittel« und »Hoch« zeichnen über eine Nachbearbeitungskette mit MSAA-Ziel
+(Kantenglättung), »Hoch« zusätzlich mit Umgebungsverdunklung (GTAO) und weicheren Schatten;
+»Niedrig« zeichnet direkt ohne Schatten. `?scenario=<id>` und `?cam=x,y` in der Spiel-URL
+stellen Szenario und Kamerablick für Screenshots ein.
 
 Figuren (G2) sind prozedural aus Grundkörpern mit Gelenken gebaut und pro Körperteil instanziert
 (ein Draw-Call je Teil für alle Einheiten): Speerkämpfer mit Speer, Bogenschütze mit Bogen, Soldat

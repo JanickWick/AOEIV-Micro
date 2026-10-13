@@ -99,14 +99,19 @@ export async function loadGeneratedModel(def: GeneratedModelDef, base = ''): Pro
   };
 }
 
-async function loadGltf(def: GeneratedModelDef, base: string): Promise<Awaited<ReturnType<GLTFLoader['loadAsync']>>> {
+function loadGltf(def: GeneratedModelDef, base: string): Promise<Awaited<ReturnType<GLTFLoader['loadAsync']>>> {
+  return loadGltfFile(base + def.file, base);
+}
+
+/** Lädt eine .glb-Datei; fällt auf <datei>.b64.json zurück, wenn der Hoster keine .glb ausliefert. */
+export async function loadGltfFile(url: string, base = ''): Promise<Awaited<ReturnType<GLTFLoader['loadAsync']>>> {
   const loader = new GLTFLoader();
   let gltf: Awaited<ReturnType<GLTFLoader['loadAsync']>>;
   try {
-    gltf = await loader.loadAsync(base + def.file);
+    gltf = await loader.loadAsync(url);
   } catch (e) {
     // Rückfall für Hoster ohne .glb: dieselben Bytes Base64-kodiert in <datei>.b64.json ({"glb": "..."})
-    const res = await fetch(base + def.file + '.b64.json');
+    const res = await fetch(url + '.b64.json');
     if (!res.ok) throw e;
     const { glb } = (await res.json()) as { glb: string };
     const bin = Uint8Array.from(atob(glb), (c) => c.charCodeAt(0));
