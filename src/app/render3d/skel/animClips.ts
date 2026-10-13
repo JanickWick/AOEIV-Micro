@@ -9,16 +9,9 @@
  * Linker Arm ab mit rz < 0, rechter mit rz > 0.
  */
 import { boneIndex, type BonePose, type Pose } from './humanRig';
+import type { ClipDef, ClipName } from './rig';
 
-export type ClipName = 'idle' | 'ready' | 'walk' | 'run' | 'draw' | 'release' | 'recover' | 'hit' | 'die1' | 'die2' | 'die3';
-
-export interface ClipDef {
-  name: ClipName;
-  /** Nominale Dauer in Sekunden (Bildrate 30/s beim Backen). */
-  duration: number;
-  loop: boolean;
-  pose: (t: number, p: Pose) => void;
-}
+export type { ClipDef, ClipName };
 
 const TAU = Math.PI * 2;
 const I = {
@@ -191,10 +184,10 @@ export const HUMAN_CLIPS: readonly ClipDef[] = [
   { name: 'walk', duration: 1, loop: true, pose: (t, p) => gait(p, t, 0.55, 1.0, 0.06, 0.3, -0.35, 0.02) },
   { name: 'run', duration: 0.7, loop: true, pose: (t, p) => gait(p, t, 0.85, 1.5, 0.2, 0.7, -1.1, 0.035) },
   /** Spannen: wird auf die Windup-Zeit gestreckt (t = Fortschritt). */
-  { name: 'draw', duration: 0.6, loop: false, pose: (t, p) => mixInto(p, readyPose, drawnPose, smooth(t)) },
+  { name: 'windup', duration: 0.6, loop: false, pose: (t, p) => mixInto(p, readyPose, drawnPose, smooth(t)) },
   /** Lösen: erste 25 % des Nachlaufs. */
   {
-    name: 'release', duration: 0.12, loop: false,
+    name: 'strike', duration: 0.12, loop: false,
     pose: (t, p) => {
       mixInto(p, drawnPose, releasedPose, easeOut(t));
       b(p, I.arrow).s = 0; // der Pfeil ist ab dem Abschuss ein Projektil der Simulation
@@ -298,4 +291,3 @@ export const HUMAN_CLIPS: readonly ClipDef[] = [
   },
 ];
 
-export const CLIP_INDEX: Readonly<Record<ClipName, number>> = Object.fromEntries(HUMAN_CLIPS.map((c, i) => [c.name, i])) as Record<ClipName, number>;

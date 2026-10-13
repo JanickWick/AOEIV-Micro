@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable texture of dark forged iron with a rough hammered surface and light rust, for siege engine fittings. Perfectly flat, even lighting, no highlights, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/mat-iron.png",
+  "result": {
+    "request_id": "01a13509-417f-7d12-a181-2c6fc9486e0a",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:33:00.544Z",
+    "files": [
+      "assets/raw/units/mat-iron.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae357c/21O4El3Gg3OdaL2wjfyQH_15yLl1XD.png"
+    ],
+    "description": ""
+  }
+}

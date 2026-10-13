@@ -88,7 +88,7 @@ let last = performance.now();
 function frame(now: number): void {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
-  const clip = model.anim.byName[clipSel.value as keyof typeof model.anim.byName];
+  const clip = model.anim.get(clipSel.value as never);
   if (playing) {
     t += (dt * Number(speedIn.value)) / clip.duration;
     if (clip.loop) t %= 1;
@@ -97,7 +97,7 @@ function frame(now: number): void {
   timeIn.value = String(Math.min(1, t));
   timeLabel.textContent = Math.min(1, t).toFixed(2);
   const rowA = clipRow(clip, t);
-  const rowB = clipRow(model.anim.byName[prevSel.value as keyof typeof model.anim.byName], 0);
+  const rowB = clipRow(model.anim.get(prevSel.value as never), 0);
   const n = three ? 3 : 1;
   for (let i = 0; i < n; i++) {
     dummy.position.set((i - (n - 1) / 2) * 0.6, 0, 0);

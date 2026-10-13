@@ -9,7 +9,7 @@ import * as THREE from 'three';
 import { lerp, lerpAngle } from '../../../sim/math';
 import type { UnitId, UnitState, World } from '../../../sim/types';
 import { PLAYER_COLORS_HEX, unitHeight } from '../../unitVisual';
-import type { ClipName } from './animClips';
+import type { ClipName } from './rig';
 import { bakeHumanClips, clipRow, type BakedAnimation, type BakedClip } from './animBake';
 import { buildArcher } from './humanModels';
 import atlasJson from '../../../data/atlas/archer.json';
@@ -190,13 +190,13 @@ export class SkinnedUnitRenderer {
       const { clip, t } = chooseClip(u, {
         now, tickRate: world.rules.tickRate, recoveryS: w.timing.recovery, deadT, running,
         walkPhase: vis.walkPhase + vis.phase * 0.05, nowS: nowMs / 1000 + vis.phase, dieVariant: vis.dieVariant,
-        idleDuration: this.anim.byName.idle.duration, readyDuration: this.anim.byName.ready.duration, dieDuration: this.anim.byName[vis.dieVariant].duration,
+        idleDuration: this.anim.get('idle').duration, readyDuration: this.anim.get('ready').duration, dieDuration: this.anim.get(vis.dieVariant).duration,
       });
       if (!dead) {
         if (u.attack.phase === 'windup') vis.cancelT = t;
         // Sichtbarer Abbruch: aus dem Spannen ohne Schuss zurück (Überblenden ab der erreichten Spannung)
         if (vis.prevPhase === 'windup' && u.attack.phase === 'idle') {
-          vis.prevClip = 'draw';
+          vis.prevClip = 'windup';
           vis.prevT = vis.cancelT;
           vis.clip = clip;
           vis.t = t;
@@ -237,8 +237,8 @@ export class SkinnedUnitRenderer {
       this.dummy.updateMatrix();
       this.mesh.setMatrixAt(n, this.dummy.matrix);
       this.mesh.setColorAt(n, this.color.setHex(dead ? 0x6b7280 : PLAYER_COLORS_HEX[u.player]));
-      const rowA = clipRow(this.anim.byName[vis.clip], vis.t);
-      const rowB = clipRow(this.anim.byName[vis.prevClip], vis.prevT);
+      const rowA = clipRow(this.anim.get(vis.clip), vis.t);
+      const rowB = clipRow(this.anim.get(vis.prevClip), vis.prevT);
       // Oberkörperdrehung (Modellraum, um y)
       this.iAnim.setXYZW(n, rowA, rowB, blend, vis.twist);
       n++;
@@ -281,12 +281,12 @@ export function chooseClip(u: UnitState, c: ClipChoiceInput): { clip: ClipName; 
   if (!u.alive) return { clip: c.dieVariant, t: c.deadT / c.dieDuration };
   if (u.attack.phase === 'windup') {
     const total = Math.max(1, u.attack.phaseEndsTick - u.attack.startTick);
-    return { clip: 'draw', t: Math.min(1, Math.max(0, (c.now - u.attack.startTick) / total)) };
+    return { clip: 'windup', t: Math.min(1, Math.max(0, (c.now - u.attack.startTick) / total)) };
   }
   if (u.attack.phase === 'recovery') {
     const total = Math.max(1, Math.round(c.recoveryS * c.tickRate));
     const prog = Math.min(1, Math.max(0, 1 - (u.attack.phaseEndsTick - c.now) / total));
-    return prog < 0.25 ? { clip: 'release', t: prog / 0.25 } : { clip: 'recover', t: (prog - 0.25) / 0.75 };
+    return prog < 0.25 ? { clip: 'strike', t: prog / 0.25 } : { clip: 'recover', t: (prog - 0.25) / 0.75 };
   }
   const hitAge = (c.now - u.lastHitTick) / c.tickRate;
   if (u.lastHitTick > 0 && hitAge >= 0 && hitAge < 0.3) return { clip: 'hit', t: hitAge / 0.3 };

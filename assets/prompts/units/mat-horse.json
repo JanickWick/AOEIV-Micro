@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable texture of short brown horse hide (bay coat), fine hair direction downward, slightly dusty. Perfectly flat, even lighting, no shadows, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/mat-horse.png",
+  "result": {
+    "request_id": "01a13509-41fc-7d23-8577-089e89aed020",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:33:00.756Z",
+    "files": [
+      "assets/raw/units/mat-horse.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae357c/MRycbc6lqgXtIyikK6TLa_Vn4y3QK3.png"
+    ],
+    "description": ""
+  }
+}

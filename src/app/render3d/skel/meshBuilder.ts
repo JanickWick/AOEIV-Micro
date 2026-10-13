@@ -4,7 +4,7 @@
  * skinIndex, skinWeight und upper (Gewicht für die Oberkörperdrehung).
  */
 import * as THREE from 'three';
-import { HUMAN_BONES, boneIndex } from './humanRig';
+import { boneIndexOf, type Rig } from './rig';
 
 export type Vec3 = [number, number, number];
 /** Bis zu vier Knochen-Einflüsse [Index, Gewicht]. */
@@ -58,9 +58,12 @@ export function basis(axis: Vec3, hint: Vec3 = [1, 0, 0]): { u: Vec3; v: Vec3 } 
   return { u, v };
 }
 
-export function W(...pairs: [string, number][]): Weights {
-  const total = pairs.reduce((s, p) => s + p[1], 0) || 1;
-  return pairs.map(([n, w]) => [boneIndex(n), w / total]);
+/** Gewichtsfunktion für ein Rig: W(['hips', 1], ['spine', 0.5]) → normierte Einflüsse. */
+export function weightsFor(rig: Rig): (...pairs: [string, number][]) => Weights {
+  return (...pairs) => {
+    const total = pairs.reduce((s, p) => s + p[1], 0) || 1;
+    return pairs.map(([n, w]) => [boneIndexOf(rig, n), w / total]);
+  };
 }
 
 export function mixW(a: Weights, b: Weights, t: number): Weights {
@@ -80,7 +83,11 @@ export class GeometryBuilder {
   private idx: number[] = [];
   private vcount = 0;
 
-  constructor(private atlas: AtlasLayout) {}
+  readonly W: (...pairs: [string, number][]) => Weights;
+
+  constructor(private atlas: AtlasLayout, readonly rig: Rig) {
+    this.W = weightsFor(rig);
+  }
 
   private region(name: string): [number, number, number, number] {
     const r = this.atlas.regions[name];
@@ -97,7 +104,7 @@ export class GeometryBuilder {
     const ww = w.slice(0, 4);
     while (ww.length < 4) ww.push([0, 0]);
     let upper = 0;
-    for (const [i, wt] of ww) upper += HUMAN_BONES[i]!.upper * wt;
+    for (const [i, wt] of ww) upper += this.rig.bones[i]!.upper * wt;
     for (const [i] of ww) this.si.push(i);
     for (const [, wt] of ww) this.sw.push(wt);
     this.up.push(upper);
@@ -170,11 +177,11 @@ export class GeometryBuilder {
       const a = nodes[i]!, b = nodes[i + 1]!;
       const axis = sub(b.p, a.p);
       const { u, v } = basis(axis, hint);
-      const wa = W([a.bone, 1]);
-      const wb = W([b.bone, 1]);
+      const wa = this.W([a.bone, 1]);
+      const wb = this.W([b.bone, 1]);
       const prevBone = i > 0 ? nodes[i - 1]!.bone : a.bone;
       const nextIsLast = i + 1 === nodes.length - 1;
-      const wStart = i === 0 ? wa : mixW(W([prevBone, 1]), wa, 0.5);
+      const wStart = i === 0 ? wa : mixW(this.W([prevBone, 1]), wa, 0.5);
       const wEnd = nextIsLast && b.bone === a.bone ? wa : mixW(wa, wb, 0.5);
       const ru = (n: typeof a) => n.r;
       const rv = (n: typeof a) => n.rv ?? n.r;

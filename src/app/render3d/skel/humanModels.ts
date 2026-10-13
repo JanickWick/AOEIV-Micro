@@ -3,8 +3,10 @@
  * Pilot: Bogenschütze (Lederkappe, Gambeson, Wappenrock in Teamfarbe, Köcher, Langbogen).
  */
 import type * as THREE from 'three';
-import { HUMAN_BONES, boneIndex } from './humanRig';
-import { GeometryBuilder, W, basis, mixv, type AtlasLayout, type Ring, type Vec3 } from './meshBuilder';
+import { HUMAN_BONES, HUMAN_RIG, boneIndex } from './humanRig';
+import { GeometryBuilder, basis, mixv, weightsFor, type AtlasLayout, type Ring, type Vec3 } from './meshBuilder';
+
+const W = weightsFor(HUMAN_RIG);
 
 function pos(bone: string): Vec3 {
   return [...HUMAN_BONES[boneIndex(bone)]!.pos] as Vec3;
@@ -17,7 +19,7 @@ export interface HumanModel {
 }
 
 export function buildArcher(atlas: AtlasLayout): HumanModel {
-  const g = new GeometryBuilder(atlas);
+  const g = new GeometryBuilder(atlas, HUMAN_RIG);
   buildBody(g, { cap: true });
   buildQuiver(g);
   buildBow(g);

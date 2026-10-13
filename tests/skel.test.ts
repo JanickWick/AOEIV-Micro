@@ -49,7 +49,7 @@ describe('Animationsclips', () => {
 
   it('Spannen endet mit sichtbarem Pfeil und senkrechtem Bogen vor dem Schützen', () => {
     const p = emptyPose();
-    HUMAN_CLIPS.find((c) => c.name === 'draw')!.pose(1, p);
+    HUMAN_CLIPS.find((c) => c.name === 'windup')!.pose(1, p);
     expect(p.bones[HUMAN_BONES.findIndex((b) => b.name === 'arrow')]!.s).toBe(1);
     const hand = jointPosition(p, 'handL', [0, 0, 0]);
     expect(hand[2]).toBeGreaterThan(0.25); // Bogenhand deutlich vor dem Körper
@@ -58,7 +58,7 @@ describe('Animationsclips', () => {
 
   it('nach dem Lösen ist der Pfeil ausgeblendet, Sterbe-Clips enden am Boden', () => {
     const p = emptyPose();
-    HUMAN_CLIPS.find((c) => c.name === 'release')!.pose(0.5, p);
+    HUMAN_CLIPS.find((c) => c.name === 'strike')!.pose(0.5, p);
     expect(p.bones[HUMAN_BONES.findIndex((b) => b.name === 'arrow')]!.s).toBe(0);
     for (const name of ['die1', 'die2', 'die3'] as const) {
       resetPose(p);
@@ -97,7 +97,7 @@ describe('Gebackene Knochen-Textur', () => {
   });
 
   it('clipRow bildet t auf den Clipbereich ab (Schleife wickelt, sonst geklemmt)', () => {
-    const walk = baked.byName.walk, draw = baked.byName.draw;
+    const walk = baked.get('walk'), draw = baked.get('windup');
     expect(clipRow(walk, 0)).toBe(walk.start);
     expect(clipRow(walk, 1.25)).toBeCloseTo(walk.start + 0.25 * walk.span, 6);
     expect(clipRow(draw, 2)).toBe(draw.start + draw.span);
@@ -135,16 +135,16 @@ describe('Clipwahl aus dem Simulationszustand', () => {
     const w = makeWorld();
     const u = spawn(w, 'archer', 5, 5, 0);
     u.attack = { ...u.attack, phase: 'windup', startTick: 100, phaseEndsTick: 115, targetId: 2 };
-    expect(chooseClip(u, { ...base, now: 100 })).toEqual({ clip: 'draw', t: 0 });
+    expect(chooseClip(u, { ...base, now: 100 })).toEqual({ clip: 'windup', t: 0 });
     expect(chooseClip(u, { ...base, now: 110 }).t).toBeCloseTo(10 / 15, 6);
-    expect(chooseClip(u, { ...base, now: 130 })).toEqual({ clip: 'draw', t: 1 });
+    expect(chooseClip(u, { ...base, now: 130 })).toEqual({ clip: 'windup', t: 1 });
   });
   it('Nachlauf → Lösen (erstes Viertel) und Erholen (Rest)', () => {
     const w = makeWorld();
     const u = spawn(w, 'archer', 5, 5, 0);
     u.attack = { ...u.attack, phase: 'recovery', startTick: 100, phaseEndsTick: 145, targetId: 2 };
-    expect(chooseClip(u, { ...base, now: 115 })).toEqual({ clip: 'release', t: 0 });
-    expect(chooseClip(u, { ...base, now: 115 + 30 * 0.125 }).clip).toBe('release');
+    expect(chooseClip(u, { ...base, now: 115 })).toEqual({ clip: 'strike', t: 0 });
+    expect(chooseClip(u, { ...base, now: 115 + 30 * 0.125 }).clip).toBe('strike');
     expect(chooseClip(u, { ...base, now: 115 + 30 * 0.5 })).toEqual({ clip: 'recover', t: (0.5 - 0.25) / 0.75 });
   });
   it('Treffer, Bewegung, Bereitschaft, Stehen, Tod', () => {

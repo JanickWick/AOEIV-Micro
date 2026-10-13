@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-13T11:25:22.203Z",
+  "generated": "2026-10-13T11:36:12.330Z",
   "entries": [
     {
       "name": "icon-attack",
@@ -120,6 +120,36 @@
       "generated": "2026-10-13T11:03:57.353Z"
     },
     {
+      "name": "face-soldier",
+      "category": "units",
+      "spec": "assets/prompts/units/face-soldier.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Face texture for a low-poly game character: a weathered medieval soldier, woman around forty, short dark hair pulled back, frontal view, neutral calm expression, eyes open looking straight ahead, perfectly even flat lighting with no shadows, no helmet, no clothing. The face fills the frame; the areas around the face are filled with the same flat skin tone so the texture can be projected onto a sphere. Painted realism matching the reference. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/face-soldier.png",
+      "processed": null,
+      "generated": "2026-10-13T11:33:01.297Z"
+    },
+    {
+      "name": "mat-chainmail",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-chainmail.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of riveted chainmail (small interlocking iron rings), dark grey iron, slightly dusty. Perfectly flat, even lighting, no highlights, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-chainmail.png",
+      "processed": null,
+      "generated": null
+    },
+    {
       "name": "mat-gambeson",
       "category": "units",
       "spec": "assets/prompts/units/mat-gambeson.json",
@@ -135,6 +165,36 @@
       "generated": "2026-10-13T11:03:59.994Z"
     },
     {
+      "name": "mat-horse",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-horse.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of short brown horse hide (bay coat), fine hair direction downward, slightly dusty. Perfectly flat, even lighting, no shadows, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-horse.png",
+      "processed": null,
+      "generated": "2026-10-13T11:33:00.756Z"
+    },
+    {
+      "name": "mat-iron",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-iron.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of dark forged iron with a rough hammered surface and light rust, for siege engine fittings. Perfectly flat, even lighting, no highlights, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-iron.png",
+      "processed": null,
+      "generated": "2026-10-13T11:33:00.544Z"
+    },
+    {
       "name": "mat-leather",
       "category": "units",
       "spec": "assets/prompts/units/mat-leather.json",
@@ -148,6 +208,36 @@
       "raw": "assets/raw/units/mat-leather.png",
       "processed": "assets/processed/units/mat-leather.png",
       "generated": "2026-10-13T11:03:57.421Z"
+    },
+    {
+      "name": "mat-rough-wood",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-rough-wood.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of weathered rough oak beams, grey-brown with cracks and grain, for a medieval siege engine. Perfectly flat, even lighting, no shadows, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-rough-wood.png",
+      "processed": null,
+      "generated": "2026-10-13T11:33:01.031Z"
+    },
+    {
+      "name": "mat-steel",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-steel.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of brushed medieval steel plate armour, matte grey with faint scratches and slight rust in the pores, no rivets, no edges. Perfectly flat, even lighting, no reflections or highlights, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-steel.png",
+      "processed": null,
+      "generated": "2026-10-13T11:33:00.758Z"
     },
     {
       "name": "mat-tabard",

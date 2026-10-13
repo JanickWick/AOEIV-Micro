@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable texture of brushed medieval steel plate armour, matte grey with faint scratches and slight rust in the pores, no rivets, no edges. Perfectly flat, even lighting, no reflections or highlights, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/mat-steel.png",
+  "result": {
+    "request_id": "01a13509-415b-7b63-a3cf-21e39c6ad89b",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:33:00.758Z",
+    "files": [
+      "assets/raw/units/mat-steel.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae357c/XD5oHJj15JEiByNxtf5NN_R3veNZR8.png"
+    ],
+    "description": ""
+  }
+}
