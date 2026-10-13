@@ -14,6 +14,8 @@ export interface SettingsPanelDeps {
   onCalibrationChanged: () => void;
   onDisplayChanged: () => void;
   onImport: (json: string) => void;
+  /** Replay-Datei abspielen. */
+  onReplayImport: (json: string) => void;
   onHotkeysChanged: () => void;
   keyboardLayout?: Map<string, string>;
 }
@@ -115,6 +117,13 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
+  const ghost = el('input', { type: 'checkbox', id: 'set-ghost' });
+  ghost.checked = d.settings.ghost;
+  ghost.addEventListener('change', () => {
+    d.settings.ghost = ghost.checked;
+    saveSettings(d.settings);
+    d.onDisplayChanged();
+  });
   const cardMod = el('select', { id: 'set-cardmod' });
   for (const [v, label] of [
     ['game', 'Shift entfernt den Typ, Strg behält nur ihn (klassisch)'],
@@ -135,6 +144,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
       el('label', {}, [ring, ' Reichweitenring (Kalibrierhilfe für den Zoom)']),
     ]),
     el('div', { class: 'row' }, [el('label', {}, [timing, ' Angriffs-Timing unter eigenen Einheiten (gelb = Ausholen, blau = Nachlauf, grau = Abklingzeit)'])]),
+    el('div', { class: 'row' }, [el('label', {}, [ghost, ' Geisterlauf: eigenen Bestlauf des Szenarios halbtransparent mitlaufen lassen (gilt ab dem nächsten Neustart)'])]),
     el('div', { class: 'row' }, [
       el('label', {}, [plock, ' Mauszeiger im Spielfeld einsperren (Pointer-Lock, eigener Zeiger; Rand-Scrolling auch im Fenster; Esc gibt frei, nächster Klick sperrt wieder)']),
     ]),
@@ -350,4 +360,19 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     buildSettingsPanel(d);
   });
   root.append(el('div', { class: 'row' }, [exportBtn, el('label', {}, ['Importieren: ', importInput]), resetBtn]));
+  root.append(el('div', { class: 'note', text: 'Der Export enthält Anzeige, Kalibrierung, Hotkeys, den Verlauf, die Daily-Versuche und die Geisterläufe.' }));
+
+  // -------- Replay
+  root.append(el('h3', { text: 'Replay' }));
+  const replayInput = el('input', { type: 'file', accept: 'application/json,.json' });
+  replayInput.addEventListener('change', async () => {
+    const f = replayInput.files?.[0];
+    if (!f) return;
+    d.onReplayImport(await f.text());
+    replayInput.value = '';
+  });
+  root.append(
+    el('div', { class: 'row' }, [el('label', {}, ['Replay abspielen: ', replayInput])]),
+    el('div', { class: 'note', text: 'Replays speicherst du nach einer Runde in der Auswertung. Beim Abspielen steuern nur Kamera und Auswahl; am Ende wird geprüft, ob der Lauf exakt gleich verlief (Zustands-Hash).' }),
+  );
 }

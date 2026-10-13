@@ -7,7 +7,7 @@
 import type { Formation } from '../sim/types';
 import { describeBinding, type ActionId, type HotkeyMap } from './hotkeys';
 
-export type MenuItem = 'settings' | 'restart' | 'pause' | 'editor' | 'view' | 'fullscreen';
+export type MenuItem = 'settings' | 'restart' | 'pause' | 'editor' | 'view' | 'fullscreen' | 'daily';
 
 export interface HudCallbacks {
   onAction(action: ActionId): void;
@@ -85,6 +85,7 @@ const ICONS: Record<string, string> = {
   editor: '<path d="M4 20 L8 19 L19 8 L16 5 L5 16 Z"/><path d="M14 7 L17 10"/>',
   view: '<path d="M12 3 L21 8 V16 L12 21 L3 16 V8 Z"/><path d="M12 12 L21 8 M12 12 V21 M12 12 L3 8"/>',
   fullscreen: '<path d="M4 9 V4 H9 M15 4 H20 V9 M20 15 V20 H15 M9 20 H4 V15"/>',
+  calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10 H20 M8 3 V7 M16 3 V7"/><path d="M9 14 L11 16 L15 12"/>',
   hp: '<path d="M12 20 C5 14 3 10 5 7 C7 4 11 5 12 8 C13 5 17 4 19 7 C21 10 19 14 12 20 Z"/>',
   attack: '<path d="M5 19 L16 8"/><path d="M13 5 L19 11"/><path d="M4 16 L8 20"/><path d="M15 7 L17 9"/>',
   armor: '<path d="M12 3 L19 6 V12 C19 16 16 19 12 21 C8 19 5 16 5 12 V6 Z"/>',
@@ -199,6 +200,7 @@ export class Hud {
     mk('settings', 'gear', 'Einstellungen (F10)');
     mk('restart', 'restart', 'Neustart (F4)');
     this.pauseBtn = mk('pause', 'pause', 'Pause (F3)');
+    mk('daily', 'calendar', 'Daily Challenge');
     mk('editor', 'editor', 'Szenario-Editor');
     this.viewBtn = mk('view', 'view', 'Ansicht 3D / 2D-Debug');
     mk('fullscreen', 'fullscreen', 'Vollbild');
@@ -315,12 +317,12 @@ export class Hud {
     this.hint.textContent = hint;
   }
 
-  fillScenarios(items: { id: string; name: string }[], current: string): void {
+  fillScenarios(items: { id: string; name: string; stars?: string }[], current: string): void {
     this.scenarioSelect.replaceChildren();
     for (const it of items) {
       const o = el('option');
       o.value = it.id;
-      o.textContent = it.name;
+      o.textContent = it.stars ? `${it.stars} ${it.name}` : it.name;
       this.scenarioSelect.append(o);
     }
     const edit = el('option');

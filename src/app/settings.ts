@@ -2,6 +2,8 @@
 import { ACTIONS, HotkeyMap, type ActionId, type KeyBinding } from './hotkeys';
 import { emptyCalibration, saveCalibration, type CalibrationState } from './calibration';
 import { exportHistory, importHistory, type Attempt } from './history';
+import { exportDaily, importDaily, type DailyStore } from './daily';
+import { exportGhosts, importGhosts, type GhostStore } from './ghosts';
 
 export type HealthBarMode = 'always' | 'selectedOrDamaged' | 'selected';
 /** Grafikqualität der 3D-Ansicht (Schatten, Auflösung). */
@@ -33,6 +35,8 @@ export interface DisplaySettings {
   sound: boolean;
   soundVolume: number;
   lastScenario: string | null;
+  /** Geisterlauf (eigener Bestlauf) halbtransparent mitlaufen lassen. */
+  ghost: boolean;
 }
 
 export const DEFAULT_SETTINGS: DisplaySettings = {
@@ -53,6 +57,7 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   sound: true,
   soundVolume: 0.5,
   lastScenario: null,
+  ghost: true,
 };
 
 const STORAGE_KEY = 'kompanie.settings.v1';
@@ -86,12 +91,16 @@ export interface ExportBundle {
   hotkeyPreset?: string;
   /** Verlauf der Versuche pro Szenario. */
   history?: Record<string, Attempt[]>;
+  /** Daily Challenge: Versuche je Tag. */
+  daily?: DailyStore;
+  /** Geisterläufe: Bestlauf je Szenario als Replay. */
+  ghosts?: GhostStore;
 }
 
 export function exportBundle(settings: DisplaySettings, calibration: CalibrationState, hotkeys: HotkeyMap): ExportBundle {
   const hk: Partial<Record<ActionId, KeyBinding[]>> = {};
   for (const a of ACTIONS) hk[a.id] = hotkeys.get(a.id);
-  return { format: 'kompanie-settings', version: 1, exportedAt: new Date().toISOString(), settings, calibration, hotkeys: hk, hotkeyPreset: hotkeys.presetId, history: exportHistory() };
+  return { format: 'kompanie-settings', version: 1, exportedAt: new Date().toISOString(), settings, calibration, hotkeys: hk, hotkeyPreset: hotkeys.presetId, history: exportHistory(), daily: exportDaily(), ghosts: exportGhosts() };
 }
 
 export interface ImportResult {
@@ -116,5 +125,7 @@ export function importBundle(json: string): ImportResult {
   saveCalibration(calibration);
   hotkeys.save();
   if (b.history && typeof b.history === 'object') importHistory(b.history);
+  if (b.daily && typeof b.daily === 'object') importDaily(b.daily);
+  if (b.ghosts && typeof b.ghosts === 'object') importGhosts(b.ghosts);
   return { settings, calibration, hotkeys };
 }
