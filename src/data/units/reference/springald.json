@@ -15,58 +15,27 @@
     "springald"
   ],
   "source": {
-    "provider": "aoe4world",
-    "url": "https://data.aoe4world.com/units/all.json",
+    "provider": "Referenzprofil, importiert mit scripts/import-units.mjs (Quelle in CREDITS.md)",
     "version": "0.0.2",
-    "importedAt": "2026-10-12",
-    "variants": {
-      "3": {
-        "id": "springald-3",
-        "attribName": "unit_springald_3_abb",
-        "pbgid": 199743,
-        "civs": [
-          "ab",
-          "ay",
-          "by",
-          "ch",
-          "de",
-          "en",
-          "fr",
-          "gol",
-          "hl",
-          "hr",
-          "ja",
-          "je",
-          "kt",
-          "ma",
-          "mac",
-          "mo",
-          "od",
-          "ot",
-          "ru",
-          "sen",
-          "zx"
-        ]
-      }
-    }
+    "importedAt": "2026-10-12"
   },
   "movement": {
     "speed": 0.875,
     "collisionRadius": {
       "value": 0.6,
       "verified": false,
-      "note": "Kollisionsradius in Tiles – nicht in aoe4world, nicht im Video; Schätzung nach Klasse.",
+      "note": "Kollisionsradius in Tiles – nicht in der Quelle, nicht im Video; Schätzung nach Klasse.",
       "measured": false
     },
     "acceleration": {
       "value": 2,
       "verified": false,
-      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
+      "note": "Beschleunigung in Tiles/s² – nicht in der Quelle; Schätzung."
     },
     "turnRate": {
       "value": 120,
       "verified": false,
-      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
+      "note": "Drehrate in Grad/s – nicht in der Quelle; Schätzung."
     }
   },
   "sight": {
@@ -144,7 +113,7 @@
           "speed": {
             "value": 12,
             "verified": false,
-            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in aoe4world; im Spiel nachmessen."
+            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in der Quelle; nachmessen."
           },
           "homing": true
         }

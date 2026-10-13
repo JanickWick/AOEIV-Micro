@@ -22,60 +22,27 @@
     "torch_thrower"
   ],
   "source": {
-    "provider": "aoe4world",
-    "url": "https://data.aoe4world.com/units/all.json",
+    "provider": "Referenzprofil, importiert mit scripts/import-units.mjs (Quelle in CREDITS.md)",
     "version": "0.0.2",
-    "importedAt": "2026-10-12",
-    "variants": {
-      "2": {
-        "id": "knight-2",
-        "attribName": "unit_knight_2_rus",
-        "pbgid": 133509,
-        "civs": [
-          "ru"
-        ]
-      },
-      "3": {
-        "id": "knight-3",
-        "attribName": "unit_knight_3_eng",
-        "pbgid": 166401,
-        "civs": [
-          "en",
-          "hl",
-          "hr",
-          "ru"
-        ]
-      },
-      "4": {
-        "id": "knight-4",
-        "attribName": "unit_knight_4_eng",
-        "pbgid": 166402,
-        "civs": [
-          "en",
-          "hl",
-          "hr",
-          "ru"
-        ]
-      }
-    }
+    "importedAt": "2026-10-12"
   },
   "movement": {
     "speed": 1.625,
     "collisionRadius": {
       "value": 0.4,
       "verified": false,
-      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 2: Auswahlring-Durchmesser 0,99 Tiles, Formationsabstand 0,93 Tiles; ±15 %); nicht aus Spieldatei.",
+      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 2: Auswahlring-Durchmesser 0,99 Tiles, Formationsabstand 0,93 Tiles; ±15 %); nicht aus der Quelle.",
       "measured": true
     },
     "acceleration": {
       "value": 5,
       "verified": false,
-      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
+      "note": "Beschleunigung in Tiles/s² – nicht in der Quelle; Schätzung."
     },
     "turnRate": {
       "value": 360,
       "verified": false,
-      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
+      "note": "Drehrate in Grad/s – nicht in der Quelle; Schätzung."
     }
   },
   "sight": {
@@ -88,7 +55,7 @@
       "bonusDamage": {
         "value": 10,
         "verified": false,
-        "note": "Zusatzschaden beim Ansturm-Treffer – nicht in aoe4world; im Spiel nachmessen."
+        "note": "Zusatzschaden beim Ansturm-Treffer – nicht in der Quelle; nachmessen."
       },
       "minRunUp": {
         "value": 3,

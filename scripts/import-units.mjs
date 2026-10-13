@@ -115,14 +115,14 @@ function convertWeapon(w, kind) {
   if (w.burst) out.burst = w.burst.count;
   if (w.type === 'ranged') {
     out.projectile = {
-      speed: unverified(12, 'Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in aoe4world; im Spiel nachmessen.'),
+      speed: unverified(12, 'Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in der Quelle; nachmessen.'),
       homing: true,
     };
   } else if (w.type === 'siege') {
     out.projectile = {
-      speed: unverified(6, 'Geschoss-Fluggeschwindigkeit in Tiles/s (Bogenflug) – nicht in aoe4world; im Spiel nachmessen.'),
+      speed: unverified(6, 'Geschoss-Fluggeschwindigkeit in Tiles/s (Bogenflug) – nicht in der Quelle; nachmessen.'),
       homing: false,
-      splashRadius: unverified(1.0, 'Flächenschaden-Radius in Tiles – nicht in aoe4world; im Spiel nachmessen.'),
+      splashRadius: unverified(1.0, 'Flächenschaden-Radius in Tiles – nicht in der Quelle; nachmessen.'),
       splashFalloff: unverified(0, 'Schadensabnahme zum Rand (0 = voller Schaden im ganzen Radius).'),
     };
   }
@@ -152,7 +152,7 @@ function abilitiesFor(baseId) {
     return {
       charge: {
         enabled: true,
-        bonusDamage: unverified(10, 'Zusatzschaden beim Ansturm-Treffer – nicht in aoe4world; im Spiel nachmessen.'),
+        bonusDamage: unverified(10, 'Zusatzschaden beim Ansturm-Treffer – nicht in der Quelle; nachmessen.'),
         minRunUp: unverified(3, 'Mindest-Anlaufstrecke in Tiles, bevor der Ansturm zählt.'),
         speedMultiplier: unverified(1.4, 'Tempo-Multiplikator während des Ansturms.'),
         cooldown: unverified(10, 'Abklingzeit des Ansturms in Sekunden.'),
@@ -163,7 +163,7 @@ function abilitiesFor(baseId) {
     return {
       brace: {
         enabled: true,
-        bonusDamage: unverified(20, 'Zusatzschaden der Abwehrstellung gegen anstürmende Kavallerie – im Spiel nachmessen.'),
+        bonusDamage: unverified(20, 'Zusatzschaden der Abwehrstellung gegen anstürmende Kavallerie – nachmessen.'),
         triggerRange: unverified(2, 'Abstand in Tiles, ab dem sich der Speer gegen anstürmende Kavallerie aufstellt.'),
         duration: unverified(1.5, 'Dauer der Abwehrstellung in Sekunden.'),
       },
@@ -211,6 +211,7 @@ async function main() {
         report.push(`   ${baseId} Zeitalter ${age}: Standard = ${chosen.civs.join(',')}; abweichende Varianten: ${alternatives.map((a) => a.civs.join(',')).join(' | ')}`);
       }
       if (!ref || age === 2 || (age === 3 && ref.age !== 2)) ref = chosen.rep;
+      report.push(`   ${baseId} Zeitalter ${age}: Variante ${sourceVariants[age].id} (${sourceVariants[age].civs.join(',')})`);
     }
     const mv = MOVEMENT_DEFAULTS[meta.kind];
     const generated = {
@@ -220,18 +221,18 @@ async function main() {
       shape: meta.shape,
       displayClass: ref.displayClasses?.[0] ?? '',
       tags: tagsOf(ref),
+      // Herkunft nur knapp (Quelle und Varianten stehen in CREDITS.md bzw. im Importbericht), damit
+      // keine Quellen-URLs im ausgelieferten Bündel landen.
       source: {
-        provider: 'aoe4world',
-        url: SOURCE_URL,
+        provider: 'Referenzprofil, importiert mit scripts/import-units.mjs (Quelle in CREDITS.md)',
         version: src.__version__,
         importedAt: new Date().toISOString().slice(0, 10),
-        variants: sourceVariants,
       },
       movement: {
         speed: ref.movement.speed,
-        collisionRadius: unverified(mv.collisionRadius, 'Kollisionsradius in Tiles – nicht in aoe4world; Schätzung nach Klasse.'),
-        acceleration: unverified(mv.acceleration, 'Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung.'),
-        turnRate: unverified(mv.turnRate, 'Drehrate in Grad/s – nicht in aoe4world; Schätzung.'),
+        collisionRadius: unverified(mv.collisionRadius, 'Kollisionsradius in Tiles – nicht in der Quelle; Schätzung nach Klasse.'),
+        acceleration: unverified(mv.acceleration, 'Beschleunigung in Tiles/s² – nicht in der Quelle; Schätzung.'),
+        turnRate: unverified(mv.turnRate, 'Drehrate in Grad/s – nicht in der Quelle; Schätzung.'),
       },
       sight: { line: ref.sight?.line ?? 0, base: ref.sight?.base ?? 0 },
       abilities: abilitiesFor(baseId),

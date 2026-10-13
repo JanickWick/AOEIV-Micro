@@ -16,56 +16,27 @@
     "siege_range"
   ],
   "source": {
-    "provider": "aoe4world",
-    "url": "https://data.aoe4world.com/units/all.json",
+    "provider": "Referenzprofil, importiert mit scripts/import-units.mjs (Quelle in CREDITS.md)",
     "version": "0.0.2",
-    "importedAt": "2026-10-12",
-    "variants": {
-      "3": {
-        "id": "mangonel-3",
-        "attribName": "unit_mangonel_3_abb",
-        "pbgid": 199723,
-        "civs": [
-          "ab",
-          "by",
-          "de",
-          "en",
-          "fr",
-          "gol",
-          "hl",
-          "hr",
-          "ja",
-          "je",
-          "kt",
-          "ma",
-          "mac",
-          "mo",
-          "od",
-          "ot",
-          "ru",
-          "sen",
-          "tug"
-        ]
-      }
-    }
+    "importedAt": "2026-10-12"
   },
   "movement": {
     "speed": 0.75,
     "collisionRadius": {
       "value": 0.6,
       "verified": false,
-      "note": "Kollisionsradius in Tiles – nicht in aoe4world, nicht im Video; Schätzung nach Klasse.",
+      "note": "Kollisionsradius in Tiles – nicht in der Quelle, nicht im Video; Schätzung nach Klasse.",
       "measured": false
     },
     "acceleration": {
       "value": 2,
       "verified": false,
-      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
+      "note": "Beschleunigung in Tiles/s² – nicht in der Quelle; Schätzung."
     },
     "turnRate": {
       "value": 120,
       "verified": false,
-      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
+      "note": "Drehrate in Grad/s – nicht in der Quelle; Schätzung."
     }
   },
   "sight": {
@@ -151,13 +122,13 @@
           "speed": {
             "value": 6,
             "verified": false,
-            "note": "Geschoss-Fluggeschwindigkeit in Tiles/s (Bogenflug) – nicht in aoe4world; im Spiel nachmessen."
+            "note": "Geschoss-Fluggeschwindigkeit in Tiles/s (Bogenflug) – nicht in der Quelle; nachmessen."
           },
           "homing": false,
           "splashRadius": {
             "value": 1,
             "verified": false,
-            "note": "Flächenschaden-Radius in Tiles – nicht in aoe4world; im Spiel nachmessen."
+            "note": "Flächenschaden-Radius in Tiles – nicht in der Quelle; nachmessen."
           },
           "splashFalloff": {
             "value": 0,

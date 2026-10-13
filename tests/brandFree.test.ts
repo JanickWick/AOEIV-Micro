@@ -1,7 +1,7 @@
 /**
  * Phase 0: keine Markennamen in Quellcode, Oberfläche, README und package.json, und nichts im
  * ausgelieferten Code verweist auf das Referenzmaterial unter reference/.
- * CREDITS.md und das Referenzprofil (src/data/units/reference/) dürfen Quellen nennen.
+ * Nur CREDITS.md nennt die Quelle des Referenzprofils.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -17,7 +17,6 @@ describe('Markenfreiheit (Phase 0)', () => {
   it('Quellen, Oberfläche, README und package.json enthalten keine Markennamen', () => {
     const hits: string[] = [];
     for (const [path, text] of Object.entries(sources)) {
-      if (path.includes('/src/data/units/reference/')) continue;
       const cleaned = text.replace(LEGACY_OK, '');
       const m = FORBIDDEN.exec(cleaned);
       if (m) hits.push(`${path}: "${m[0]}"`);
