@@ -1,0 +1,108 @@
+{
+  "generated": "2026-10-13T10:53:51.919Z",
+  "entries": [
+    {
+      "name": "icon-attack",
+      "category": "style",
+      "spec": "assets/prompts/style/icon-attack.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/style/ref-battlefield.jpg"
+      ],
+      "prompt": "Command icon for a strategy-game button: a single upright medieval arming sword, antique gold and pale steel, slight bevel and inner glow, drawn as a clean readable symbol with strong silhouette, centered, filling 80% of a square. Background: flat uniform very dark navy #141A24 (no gradient). Icon style: semi-realistic painted, consistent with a set of 15 icons. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+      "raw": "assets/raw/style/icon-attack.png",
+      "processed": null,
+      "generated": "2026-10-13T10:50:54.605Z"
+    },
+    {
+      "name": "key-battlefield",
+      "category": "style",
+      "spec": "assets/prompts/style/key-battlefield.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "16:9",
+      "resolution": "2K",
+      "refs": [],
+      "prompt": "Wide landscape painting of a sunlit medieval battlefield, dry golden grass, scattered oaks, warm afternoon light, realistic strategy game concept art",
+      "raw": "assets/raw/style/key-battlefield.png",
+      "processed": null,
+      "generated": "2026-10-13T10:47:58.525Z"
+    },
+    {
+      "name": "portrait-archer-blue",
+      "category": "style",
+      "spec": "assets/prompts/style/portrait-archer-blue.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/style/ref-battlefield.jpg"
+      ],
+      "prompt": "Portrait bust of a medieval archer, weathered man in his thirties, leather cap, padded gambeson with a cobalt-blue tabard (team colour, saturated blue #1F5FBF), quiver strap over the shoulder, longbow tip visible at the edge. Three-quarter view, looking slightly past the viewer, calm determined expression. Background: plain very dark warm brown vignette, simple, no scenery. Framed for a square unit card: head and shoulders fill the frame. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+      "raw": "assets/raw/style/portrait-archer-blue.png",
+      "processed": null,
+      "generated": "2026-10-13T10:50:57.327Z"
+    },
+    {
+      "name": "portrait-spearman-red",
+      "category": "style",
+      "spec": "assets/prompts/style/portrait-spearman-red.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/style/ref-battlefield.jpg"
+      ],
+      "prompt": "Portrait bust of a medieval spearman, young woman with a weathered face and a simple kettle helmet, padded gambeson with a vermilion-red tabard (team colour, saturated red #E0452B), spear shaft visible at the edge. Three-quarter view, looking slightly past the viewer, calm determined expression. Background: plain very dark warm brown vignette, simple, no scenery. Framed for a square unit card: head and shoulders fill the frame. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+      "raw": "assets/raw/style/portrait-spearman-red.png",
+      "processed": null,
+      "generated": "2026-10-13T10:50:57.365Z"
+    },
+    {
+      "name": "terrain-grass",
+      "category": "style",
+      "spec": "assets/prompts/style/terrain-grass.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "2K",
+      "refs": [
+        "assets/style/ref-battlefield.jpg"
+      ],
+      "prompt": "Seamless tileable top-down ground texture: dry late-summer meadow, short olive-ochre grass with patches of bare sandy-brown earth and a few small pale stones, soft even daylight with no directional shadows, no objects. Colours muted and dusty (not orange, not saturated). Edges must wrap perfectly (seamless tile), uniform density across the whole image, no visible repeated pattern. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+      "raw": "assets/raw/style/terrain-grass.png",
+      "processed": "assets/processed/style/terrain-grass.png",
+      "generated": "2026-10-13T10:51:05.905Z"
+    },
+    {
+      "name": "ui-panel-sample",
+      "category": "style",
+      "spec": "assets/prompts/style/ui-panel-sample.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "16:9",
+      "resolution": "1K",
+      "refs": [
+        "assets/style/ref-battlefield.jpg"
+      ],
+      "prompt": "User-interface panel for a medieval strategy game: a wide rectangular panel of dark blue-black lacquered wood and burnished dark steel, with thin antique gold trim lines, subtle engraved heraldic relief in the center, bevelled edges, small riveted corner brackets, one empty square button slot on the right showing three states side by side (normal, pressed/glowing gold, inactive/greyed). Flat front view, orthographic, evenly lit, crisp, high detail. Background outside the panel: flat uniform pure green #00FF00. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+      "raw": "assets/raw/style/ui-panel-sample.png",
+      "processed": "assets/processed/style/ui-panel-sample.png",
+      "generated": "2026-10-13T10:50:57.355Z"
+    },
+    {
+      "name": "unit-sheet-archer",
+      "category": "style",
+      "spec": "assets/prompts/style/unit-sheet-archer.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "16:9",
+      "resolution": "2K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Character reference sheet of a medieval archer for a 3D model: the same figure shown three times side by side, full body, arms slightly away from the body, front view, side view, back view. The character is the man from the attached portrait: leather cap, padded olive gambeson with a cobalt-blue tabard (team colour #1F5FBF), brown trousers, leather boots, quiver on the back, longbow in the left hand. Painterly-realistic style with crisp detail, warm neutral lighting, no cast shadows, clean readable silhouette. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00 with absolutely no scenery, no ground, no sky, no gradient. No text.",
+      "raw": "assets/raw/style/unit-sheet-archer.png",
+      "processed": "assets/processed/style/unit-sheet-archer.png",
+      "generated": "2026-10-13T10:52:40.260Z"
+    }
+  ]
+}

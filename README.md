@@ -22,7 +22,12 @@ npm run build          # Produktions-Build nach dist/ (statisch, keine Server-Ko
 npm run preview        # Build lokal ansehen
 npm run data:import    # Einheitendaten neu von aoe4world importieren
 npm run data:unverified# Alle Werte mit "verified": false auflisten
+npm run assets:gen -- assets/prompts/<kategorie>/<name>.json   # Bild mit Nano Banana erzeugen (Schlüssel vom Proxy)
+npm run assets:manifest                                         # assets/manifest.json für die Vorschauseite
 ```
+
+Grafik-Vorschau: http://localhost:5173/assets-preview.html zeigt alle erzeugten Grafiken nach Kategorie,
+Stilblatt in `ART_BIBLE.md`, Prompts unter `assets/prompts/`, Nachbearbeitung mit `scripts/img/tools.py`.
 
 ## Darstellung
 

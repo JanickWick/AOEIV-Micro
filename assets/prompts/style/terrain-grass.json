@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable top-down ground texture: dry late-summer meadow, short olive-ochre grass with patches of bare sandy-brown earth and a few small pale stones, soft even daylight with no directional shadows, no objects. Colours muted and dusty (not orange, not saturated). Edges must wrap perfectly (seamless tile), uniform density across the whole image, no visible repeated pattern. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "1:1",
+  "resolution": "2K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/style/terrain-grass.png",
+  "result": {
+    "request_id": "01a134e2-c27d-7583-b624-b752e4e87b46",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T10:51:05.905Z",
+    "files": [
+      "assets/raw/style/terrain-grass.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae347f/ksCjkK8LdTydxLNvDG3Ik_x9dsIuTB.png"
+    ],
+    "description": ""
+  }
+}

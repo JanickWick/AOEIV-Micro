@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "User-interface panel for a medieval strategy game: a wide rectangular panel of dark blue-black lacquered wood and burnished dark steel, with thin antique gold trim lines, subtle engraved heraldic relief in the center, bevelled edges, small riveted corner brackets, one empty square button slot on the right showing three states side by side (normal, pressed/glowing gold, inactive/greyed). Flat front view, orthographic, evenly lit, crisp, high detail. Background outside the panel: flat uniform pure green #00FF00. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "16:9",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/style/ui-panel-sample.png",
+  "result": {
+    "request_id": "01a134e2-c214-7090-a574-461e499503c4",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T10:50:57.355Z",
+    "files": [
+      "assets/raw/style/ui-panel-sample.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae347f/0fW-ppH10ZvTenn7D30Il_1ZnaHD3X.png"
+    ],
+    "description": ""
+  }
+}
