@@ -1,7 +1,7 @@
 {
   "id": "mangonel-ausweichen",
   "name": "5 · Mangonel ausweichen / splitten",
-  "description": "10 Bogenschützen (Zeitalter III) gegen 2 Mangonels mit 4 Speerkämpfern als Schutz. Mangonels schießen auf Gruppen (Reichweite 8, Mindestreichweite 3), Geschosse fliegen sichtbar auf einen Bodenpunkt.",
+  "description": "10 Bogenschützen (Stufe III) gegen 2 Mangonels mit 4 Speerkämpfern als Schutz. Mangonels schießen auf Gruppen (Reichweite 8,5, Mindestreichweite 3), Geschosse fliegen sichtbar auf einen Bodenpunkt.",
   "goal": "Schützen auseinanderziehen, Geschossen ausweichen (gestrichelter Einschlagkreis) und die Mangonels im Nahbereich erledigen. Pfeile machen gegen Mangonels nur 1 Schaden, also unter die Mindestreichweite gehen und die Speere splitten.",
   "map": { "width": 64, "height": 48 },
   "seed": 5,

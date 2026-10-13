@@ -24,7 +24,7 @@ export type Order =
 
 export type AttackPhase = 'idle' | 'windup' | 'recovery';
 
-/** Formation (Spiel: Z Linie, X versetzt, C aufgelockert). */
+/** Formation (Z Linie, X versetzt, C aufgelockert). */
 export type Formation = 'line' | 'wedge' | 'spread';
 
 export interface AttackState {

@@ -416,7 +416,7 @@ function cardsFor(ids: Iterable<UnitId>): { cards: SelectionCard[]; total: numbe
   return { cards, total: groups.reduce((n, g) => n + g.ids.length, 0) };
 }
 
-/** Einzelansicht: wie im Spiel (Clip 6/7) nur bei genau einer ausgewählten Einheit. */
+/** Einzelansicht: nur bei genau einer ausgewählten Einheit. */
 function detailFor(ids: Iterable<UnitId>, active: string | null): UnitDetail | null {
   const groups = subgroupsOf(game.world.units, ids);
   const g = active ? groups.find((x) => x.defId === active) : groups.length === 1 ? groups[0] : undefined;

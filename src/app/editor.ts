@@ -1,11 +1,12 @@
-/** Freier Editor: Einheiten, Anzahl, Zeitalter, Upgrades, KI-Stufe und Startabstand für beide Seiten. */
+/** Freier Editor: Einheiten, Anzahl, Ausbildungsstufe, Upgrades, KI-Stufe und Startabstand für beide Seiten. */
 import type { AiLevel } from '../sim/ai';
 import type { ScenarioDef, ScenarioGroup } from '../sim/scenario';
 import type { Upgrades } from '../sim/types';
 import type { UnitDefLibrary } from '../sim/unitDefs';
 
 export const EDITOR_SCENARIO_ID = 'editor';
-const STORAGE_KEY = 'aoe4micro.editor.v1';
+const STORAGE_KEY = 'kompanie.editor.v1';
+const LEGACY_KEY = 'aoe4micro.editor.v1';
 
 export interface EditorRow {
   unit: string;
@@ -41,7 +42,7 @@ export function defaultEditorState(): EditorState {
 
 export function loadEditorState(): EditorState {
   try {
-    const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
+    const raw = globalThis.localStorage?.getItem(STORAGE_KEY) ?? globalThis.localStorage?.getItem(LEGACY_KEY);
     if (raw) return { ...defaultEditorState(), ...(JSON.parse(raw) as Partial<EditorState>) };
   } catch {
     /* ignorieren */

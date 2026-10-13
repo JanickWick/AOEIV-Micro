@@ -1,7 +1,7 @@
 {
   "id": "zwei-gruppen",
   "name": "8 · Zwei-Gruppen-Micro",
-  "description": "8 Bogenschützen und 4 Reiter (du) gegen 6 Speerkämpfer und 4 Bogenschützen (Zeitalter II). Die gegnerischen Speere laufen auf deine Schützen, ihre Schützen stehen dahinter.",
+  "description": "8 Bogenschützen und 4 Reiter (du) gegen 6 Speerkämpfer und 4 Bogenschützen (Stufe II). Die gegnerischen Speere laufen auf deine Schützen, ihre Schützen stehen dahinter.",
   "goal": "Gruppe 1 (Schützen) kitet die Speere, Gruppe 2 (Reiter) flankiert gleichzeitig die gegnerischen Schützen (Bonus +9). Kontrollgruppen: Strg+1 / Strg+2.",
   "map": { "width": 64, "height": 48 },
   "seed": 8,

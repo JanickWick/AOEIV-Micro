@@ -1,7 +1,7 @@
 {
   "id": "ritter-dive",
   "name": "6 · Ritter-Dive abwehren",
-  "description": "6 Speerkämpfer und 8 Bogenschützen (du, Zeitalter III) gegen 5 Ritter (Zeitalter III). Die Ritter gehen an den Speeren vorbei auf die Schützen.",
+  "description": "6 Speerkämpfer und 8 Bogenschützen (du, Stufe III) gegen 5 Ritter (Stufe III). Die Ritter gehen an den Speeren vorbei auf die Schützen.",
   "goal": "Speere so stellen, dass die Ritter nicht an die Schützen kommen; Schützen hinter die Speere ziehen, Speere auf die Ritter (Bonus +20, Abwehrstellung gegen Ansturm).",
   "map": { "width": 64, "height": 48 },
   "seed": 6,

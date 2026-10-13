@@ -20,14 +20,15 @@ export interface Attempt {
   errors?: number;
 }
 
-const STORAGE_KEY = 'aoe4micro.history.v1';
+const STORAGE_KEY = 'kompanie.history.v1';
+const LEGACY_KEY = 'aoe4micro.history.v1';
 export const HISTORY_LIMIT = 20;
 
 type Store = Record<string, Attempt[]>;
 
 function load(): Store {
   try {
-    const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
+    const raw = globalThis.localStorage?.getItem(STORAGE_KEY) ?? globalThis.localStorage?.getItem(LEGACY_KEY);
     if (raw) return JSON.parse(raw) as Store;
   } catch {
     /* ignorieren */

@@ -1,5 +1,5 @@
 /**
- * Perspektivische Kamera nach AoE4-Vorbild: Blick schräg von oben (Neigung 45°, Sichtfeld 35°,
+ * Perspektivische Kamera im klassischen Echtzeitstrategie-Blick: Blick schräg von oben (Neigung 45°, Sichtfeld 35°,
  * aus dem Minimap-Trapez des Screenshots gelöst), um 45° gedreht, sodass die Karte als Raute
  * erscheint. Bildschirm-rechts = Weltrichtung (+x, +y)/√2, Bildschirm-oben = (+x, −y)/√2.
  * Weltkoordinaten (x, y) liegen in Three.js auf (x, 0, y); Höhe ist die Three-y-Achse.

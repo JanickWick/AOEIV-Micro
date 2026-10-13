@@ -1,7 +1,7 @@
 {
   "id": "focus-fire-armbrust",
-  "name": "3b · Focus-Fire (Armbrust, Zeitalter III)",
-  "description": "8 Armbrustschützen gegen 8 Armbrustschützen (Zeitalter III). Langsamere Schussfolge (2,125 s), jeder Schuss zählt mehr.",
+  "name": "3b · Focus-Fire (Armbrust, Stufe III)",
+  "description": "8 Armbrustschützen gegen 8 Armbrustschützen (Stufe III). Langsamere Schussfolge (2 s), jeder Schuss zählt mehr.",
   "goal": "Sieg nur durch sauberes Fokussieren.",
   "map": { "width": 64, "height": 48 },
   "seed": 3,

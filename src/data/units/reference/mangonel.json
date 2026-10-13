@@ -1,0 +1,175 @@
+{
+  "id": "mangonel",
+  "name": "Mangonel",
+  "kind": "siege",
+  "shape": "square",
+  "displayClass": "Siege",
+  "tags": [
+    "annihilation_condition",
+    "catapult",
+    "formational",
+    "included_by_military_hotkeys",
+    "land_military",
+    "mangonel",
+    "military",
+    "siege",
+    "siege_range"
+  ],
+  "source": {
+    "provider": "aoe4world",
+    "url": "https://data.aoe4world.com/units/all.json",
+    "version": "0.0.2",
+    "importedAt": "2026-10-12",
+    "variants": {
+      "3": {
+        "id": "mangonel-3",
+        "attribName": "unit_mangonel_3_abb",
+        "pbgid": 199723,
+        "civs": [
+          "ab",
+          "by",
+          "de",
+          "en",
+          "fr",
+          "gol",
+          "hl",
+          "hr",
+          "ja",
+          "je",
+          "kt",
+          "ma",
+          "mac",
+          "mo",
+          "od",
+          "ot",
+          "ru",
+          "sen",
+          "tug"
+        ]
+      }
+    }
+  },
+  "movement": {
+    "speed": 0.75,
+    "collisionRadius": {
+      "value": 0.6,
+      "verified": false,
+      "note": "Kollisionsradius in Tiles – nicht in aoe4world, nicht im Video; Schätzung nach Klasse.",
+      "measured": false
+    },
+    "acceleration": {
+      "value": 2,
+      "verified": false,
+      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
+    },
+    "turnRate": {
+      "value": 120,
+      "verified": false,
+      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
+    }
+  },
+  "sight": {
+    "line": 52,
+    "base": 37.6
+  },
+  "abilities": {},
+  "ages": {
+    "3": {
+      "name": "Mangonel",
+      "hp": 130,
+      "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 85
+      },
+      "cost": {
+        "food": 0,
+        "wood": 400,
+        "gold": 200,
+        "stone": 0,
+        "total": 600
+      },
+      "weapon": {
+        "name": "Mangonel",
+        "type": "siege",
+        "damage": 10,
+        "range": {
+          "min": 3,
+          "max": 8
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 2.625,
+          "cooldown": 4,
+          "period": 6.875,
+          "setup": 0,
+          "teardown": 1
+        },
+        "sourceDurations": {
+          "aim": 0.25,
+          "windup": 0,
+          "attack": 0.125,
+          "winddown": 2.5,
+          "reload": 4,
+          "setup": 0,
+          "teardown": 1,
+          "cooldown": 0
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "building"
+              ]
+            ],
+            "damage": 30
+          },
+          {
+            "targetTags": [
+              [
+                "naval",
+                "unit"
+              ]
+            ],
+            "damage": 30
+          },
+          {
+            "targetTags": [
+              [
+                "ranged"
+              ]
+            ],
+            "damage": 10
+          }
+        ],
+        "burst": 3,
+        "projectile": {
+          "speed": {
+            "value": 6,
+            "verified": false,
+            "note": "Geschoss-Fluggeschwindigkeit in Tiles/s (Bogenflug) – nicht in aoe4world; im Spiel nachmessen."
+          },
+          "homing": false,
+          "splashRadius": {
+            "value": 1,
+            "verified": false,
+            "note": "Flächenschaden-Radius in Tiles – nicht in aoe4world; im Spiel nachmessen."
+          },
+          "splashFalloff": {
+            "value": 0,
+            "verified": false,
+            "note": "Schadensabnahme zum Rand (0 = voller Schaden im ganzen Radius)."
+          }
+        }
+      },
+      "otherWeapons": [
+        "Incendiary",
+        "Adjustable Crossbars"
+      ]
+    }
+  }
+}

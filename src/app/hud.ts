@@ -1,5 +1,5 @@
 /**
- * HUD nach AoE4-Vorbild als HTML/CSS-Ebene: dunkelblaue Paneele mit feinem Rahmen und goldenen
+ * HUD im klassischen Echtzeitstrategie-Aufbau als HTML/CSS-Ebene: dunkelblaue Paneele mit feinem Rahmen und goldenen
  * Akzenten. Oben links Szenario und Menü, oben Mitte Spielzeit, links Kontrollgruppen-Marken,
  * unten links Zähler, unten Mitte Auswahl-Leiste und Befehlsraster mit Tastenbeschriftung,
  * unten rechts der Rahmen der Minimap (die Karte selbst zeichnet der Overlay-Canvas).
@@ -119,18 +119,18 @@ interface GridCell {
   icon: string;
   label: string;
   disabled?: boolean;
-  /** Fester Platz im Spiel ohne Funktion hier. */
+  /** Fester Platz im Raster ohne Funktion hier. */
   note?: string;
 }
 
-/** Befehlsraster 5×3 wie das Command-Card des Spiels (Reihe 1 leer, Reihe 2 A S D F, Reihe 3 Z X C V ENTF). */
+/** Befehlsraster 5×3 (Reihe 1 leer, Reihe 2 A S D F, Reihe 3 Z X C V ENTF). */
 const GRID: GridCell[][] = [
   [null, null, null, null, null].map(() => ({ action: null, icon: '', label: '' })),
   [
     { action: 'unit.attackMove', icon: 'attackMove', label: 'Angriffsbewegung' },
     { action: 'unit.stop', icon: 'stop', label: 'Stopp' },
     { action: 'unit.patrol', icon: 'patrol', label: 'Patrouille' },
-    { action: null, icon: 'garrison', label: 'Verschanzen', disabled: true, note: 'im Trainer ohne Gebäude ohne Funktion' },
+    { action: null, icon: 'garrison', label: 'Verschanzen', disabled: true, note: 'ohne Gebäude ohne Funktion' },
     { action: null, icon: '', label: '' },
   ],
   [
@@ -227,7 +227,7 @@ export class Hud {
     // Oben Mitte: Zeitalter-Ornament und Spielzeit
     const tc = el('div', 'hud-tc');
     this.age = el('div', 'hud-age', 'II');
-    this.age.title = 'Zeitalter';
+    this.age.title = 'Ausbildungsstufe der Kompanie';
     this.time = el('div', 'hud-time', '00:00');
     tc.append(this.age, this.time);
     root.append(tc);
@@ -410,7 +410,7 @@ export class Hud {
       this.detailSig = sig2;
       this.selectionDetail.innerHTML = `
         <div class="portrait img" style="background-image:url('${portraitUrl(d.defId)}')"><span class="code">${d.code}</span></div>
-        <div class="dname"><span class="n"></span><span class="age">Zeitalter ${['', 'I', 'II', 'III', 'IV'][d.age] ?? d.age}</span></div>
+        <div class="dname"><span class="n"></span><span class="age">Stufe ${['', 'I', 'II', 'III', 'IV'][d.age] ?? d.age}</span></div>
         <div class="dstats">
           <span class="st hp" title="Lebenspunkte (Summe der Auswahl / Maximum)">${svg('hp', 14)}<b class="hp"></b></span>
           <span class="st" title="Angriff (${d.weaponType === 'melee' ? 'Nahkampf' : d.weaponType === 'ranged' ? 'Fernkampf' : 'Belagerung'})">${svg('attack', 14)}<b>${d.damage}</b></span>

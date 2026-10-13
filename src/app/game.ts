@@ -648,7 +648,7 @@ export class Game {
     this.onStateChanged?.();
   }
 
-  /** Ausgewählte eigene Einheiten löschen (wie ENTF im Spiel). */
+  /** Ausgewählte eigene Einheiten löschen (ENTF). */
   commandDelete(): void {
     const ids = this.commandIds();
     if (ids.length === 0) return;

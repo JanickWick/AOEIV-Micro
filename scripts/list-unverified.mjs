@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-/** Listet alle Werte mit "verified": false in src/data/units/*.json auf. */
+/** Listet alle Werte mit "verified": false im Referenzprofil src/data/units/reference/*.json auf. */
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'data', 'units');
+const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'data', 'units', 'reference');
 
 function walk(node, path, out) {
   if (!node || typeof node !== 'object') return;

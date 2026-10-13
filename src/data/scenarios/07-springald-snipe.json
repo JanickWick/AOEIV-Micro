@@ -1,7 +1,7 @@
 {
   "id": "springald-snipe",
   "name": "7 · Springald-Snipe",
-  "description": "2 Springalds und 4 Reiter (du, Zeitalter III) gegen 2 Mangonels mit 6 Speerkämpfern (Zeitalter III). Springalds (Reichweite 7,5) umgehen die Fernkampf-Resistenz der Mangonels; Reiter haben Bonus gegen Belagerung.",
+  "description": "2 Springalds und 4 Reiter (du, Stufe III) gegen 2 Mangonels mit 6 Speerkämpfern (Stufe III). Springalds (Reichweite 8) umgehen die Fernkampf-Resistenz der Mangonels; Reiter haben Bonus gegen Belagerung.",
   "goal": "Mangonels ausschalten, ohne die Springalds zu verlieren: Springalds außerhalb der Mangonel-Reichweite (8) halten oder Mangonels zum Umstellen zwingen, Reiter an den Speeren vorbei auf die Mangonels.",
   "map": { "width": 64, "height": 48 },
   "seed": 7,

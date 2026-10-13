@@ -1,6 +1,6 @@
 {
   "id": "focus-fire",
-  "name": "3 · Focus-Fire (Bogen, Zeitalter II)",
+  "name": "3 · Focus-Fire (Bogen, Stufe II)",
   "description": "8 Bogenschützen gegen 8 Bogenschützen, gleiche Werte. Die KI fokussiert angeschlagene Ziele.",
   "goal": "Sieg nur durch sauberes Fokussieren: alle Schützen auf dasselbe Ziel, dann sofort das nächste. Jede Einheit, die stirbt, nimmt ihren Schaden mit.",
   "map": { "width": 64, "height": 48 },

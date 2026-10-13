@@ -62,15 +62,15 @@ describe('Angriffsablauf', () => {
     const startTick = ev.find((e) => e.kind === 'attackStarted')!.tick;
     const hitTick = ev.find((e) => e.kind === 'hit')!.tick;
     expect(hitTick - startTick).toBe(15); // 0,25 s Windup bei 60 Ticks/s
-    expect(archer.hp).toBe(archer.maxHp - 8);
+    expect(archer.hp).toBe(archer.maxHp - 9);
     // Direkt nach dem Treffer: Bewegungsbefehl, Einheit läuft sofort los, Schaden bleibt.
     stepWorld(w, [{ kind: 'move', unitIds: [spear.id], target: { x: 30, y: 10 }, queue: false }]);
     runTicks(w, 3);
     expect(spear.speed).toBeGreaterThan(0);
-    expect(archer.hp).toBe(archer.maxHp - 8);
+    expect(archer.hp).toBe(archer.maxHp - 9);
   });
 
-  it('Angriffsperiode: zwei Angriffe eines Speerkämpfers liegen 1,875 s auseinander', () => {
+  it('Angriffsperiode: zwei Angriffe eines Speerkämpfers liegen 1,9 s auseinander', () => {
     const w = makeWorld();
     const spear = spawn(w, 'spearman', 10, 10);
     const maa = passive(spawn(w, 'man-at-arms', 10.6, 10, 1));
@@ -78,8 +78,8 @@ describe('Angriffsablauf', () => {
       .filter((e) => e.kind === 'attackStarted')
       .map((e) => e.tick);
     expect(starts.length).toBeGreaterThanOrEqual(3);
-    expect(starts[1]! - starts[0]!).toBe(Math.round(1.875 * 60));
-    expect(starts[2]! - starts[1]!).toBe(Math.round(1.875 * 60));
+    expect(starts[1]! - starts[0]!).toBe(Math.round(1.9 * 60));
+    expect(starts[2]! - starts[1]!).toBe(Math.round(1.9 * 60));
   });
 
   it('Nahkampf verfehlt, wenn das Ziel während des Windups entkommt', () => {
@@ -107,43 +107,43 @@ describe('Schadensformel', () => {
     );
   };
   it('Speer gegen Reiter erhält Bonus', () => {
-    expect(dmg('spearman', 2, 'horseman', 2)).toBe(28); // 8 + 20
-    expect(dmg('spearman', 2, 'knight', 2)).toBe(25); // 8 + 20 - 3
-    expect(dmg('spearman', 2, 'archer', 2)).toBe(8);
+    expect(dmg('spearman', 2, 'horseman', 2)).toBe(31); // 9 + 22
+    expect(dmg('spearman', 2, 'knight', 2)).toBe(28); // 9 + 22 - 3
+    expect(dmg('spearman', 2, 'archer', 2)).toBe(9);
   });
   it('Rüstung senkt Schaden, mindestens 1', () => {
-    expect(dmg('archer', 2, 'man-at-arms', 2)).toBe(2); // 5 - 3
-    expect(dmg('archer', 2, 'knight', 2)).toBe(2);
-    expect(dmg('archer', 2, 'spearman', 2)).toBe(10); // 5 + 5 Bonus
-    expect(dmg('horseman', 2, 'archer', 2)).toBe(18); // 9 + 9
+    expect(dmg('archer', 2, 'man-at-arms', 2)).toBe(2); // 6 - 4
+    expect(dmg('archer', 2, 'knight', 2)).toBe(2); // 6 - 4
+    expect(dmg('archer', 2, 'spearman', 2)).toBe(12); // 6 + 6 Bonus
+    expect(dmg('horseman', 2, 'archer', 2)).toBe(20); // 10 + 10
   });
   it('Resistenz: Pfeile machen gegen Mangonel nur 1 Schaden', () => {
-    expect(dmg('archer', 3, 'mangonel', 3)).toBe(1); // 7 * 0,15 = 1,05 -> 1
-    expect(dmg('crossbowman', 3, 'mangonel', 3)).toBe(2); // 11 * 0,15 = 1,65 -> 2
-    expect(dmg('springald', 3, 'mangonel', 3)).toBe(15); // Belagerung umgeht die Resistenz
-    expect(dmg('horseman', 3, 'mangonel', 3)).toBe(22); // 11 + 11 (Bonus gegen Belagerung, Zeitalter III)
+    expect(dmg('archer', 3, 'mangonel', 3)).toBe(1); // 7 * 0,2 = 1,4 -> 1
+    expect(dmg('crossbowman', 3, 'mangonel', 3)).toBe(2); // 12 * 0,2 = 2,4 -> 2
+    expect(dmg('springald', 3, 'mangonel', 3)).toBe(16); // Belagerung umgeht die Resistenz
+    expect(dmg('horseman', 3, 'mangonel', 3)).toBe(24); // 12 + 12 (Bonus gegen Belagerung, Stufe III)
   });
-  it('Integration: Speer-Treffer auf Reiter nimmt 28 HP', () => {
+  it('Integration: Speer-Treffer auf Reiter nimmt 31 HP', () => {
     const w = makeWorld();
     const spear = spawn(w, 'spearman', 10, 10);
     const horse = passive(spawn(w, 'horseman', 10.7, 10, 1));
     const hits = hitsBy(collect(w, 200, (t) => (t === 0 ? [{ kind: 'attack', unitIds: [spear.id], targetId: horse.id, queue: false }] : [])), spear.id);
-    expect(hits[0]?.damage).toBe(28);
-    expect(horse.hp).toBe(horse.maxHp - 28 * hits.length);
+    expect(hits[0]?.damage).toBe(31);
+    expect(horse.hp).toBe(horse.maxHp - 31 * hits.length);
   });
 });
 
 describe('Projektile', () => {
-  it('Pfeil braucht Flugzeit (5 Tiles bei 12 Tiles/s ≈ 25 Ticks) und trifft dann', () => {
+  it('Pfeil braucht Flugzeit (5,5 Tiles bei 13 Tiles/s ≈ 25 Ticks) und trifft dann', () => {
     const w = makeWorld();
     const archer = spawn(w, 'archer', 10, 10);
     const spear = passive(spawn(w, 'spearman', 10 + 5 + archer.radius + 0.25, 10, 1));
     const ev = stepUntil(w, [{ kind: 'attack', unitIds: [archer.id], targetId: spear.id, queue: false }], (e) => e.kind === 'hit');
     const launch = ev.find((e) => e.kind === 'projectileLaunched')!.tick;
     const hit = ev.find((e) => e.kind === 'hit')!.tick;
-    expect(hit - launch).toBeGreaterThanOrEqual(23);
+    expect(hit - launch).toBeGreaterThanOrEqual(20);
     expect(hit - launch).toBeLessThanOrEqual(27);
-    expect(spear.hp).toBe(spear.maxHp - 10);
+    expect(spear.hp).toBe(spear.maxHp - 12);
   });
 
   it('Pfeil folgt einem laufenden Ziel und trifft trotzdem', () => {
@@ -236,7 +236,7 @@ describe('Automatisches Angreifen', () => {
   it('Position halten: kein Verfolgen, aber Angriff in Reichweite', () => {
     const w = makeWorld();
     const archer = spawn(w, 'archer', 10, 10);
-    const far = passive(spawn(w, 'spearman', 18, 10, 1)); // außerhalb von 5 Tiles
+    const far = passive(spawn(w, 'spearman', 19, 10, 1)); // weit außerhalb der Reichweite (5,5 Tiles)
     stepWorld(w, [{ kind: 'hold', unitIds: [archer.id], queue: false }]);
     const ev = collect(w, 120);
     expect(ev.some((e) => e.kind === 'attackStarted')).toBe(false);
@@ -273,9 +273,9 @@ describe('Ansturm und Abwehrstellung', () => {
     const ev = collect(w, 60 * 8, (t) => (t === 0 ? [{ kind: 'attack', unitIds: [knight.id], targetId: archer.id, queue: false }] : []));
     expect(ev.some((e) => e.kind === 'charge' && e.unitId === knight.id)).toBe(true);
     const hits = hitsBy(ev, knight.id);
-    expect(hits[0]?.damage).toBe(19 + 10);
+    expect(hits[0]?.damage).toBe(20 + 12);
     expect(hits[0]?.charge).toBe(true);
-    expect(hits[1]?.damage).toBe(19);
+    expect(hits[1]?.damage).toBe(20);
   });
 
   it('Speerkämpfer stellt sich gegen anstürmende Kavallerie und bestraft den Ansturm', () => {
@@ -284,7 +284,7 @@ describe('Ansturm und Abwehrstellung', () => {
     const knight = spawn(w, 'knight', 5, 10, 1);
     const ev = collect(w, 60 * 8, (t) => (t === 0 ? [{ kind: 'attack', unitIds: [knight.id], targetId: spear.id, queue: false }] : []));
     expect(ev.some((e) => e.kind === 'brace' && e.unitId === spear.id)).toBe(true);
-    const braceHits = hitsBy(ev, spear.id).filter((h) => h.damage === 20);
+    const braceHits = hitsBy(ev, spear.id).filter((h) => h.damage === 22);
     expect(braceHits.length).toBe(1);
     expect(knight.charge?.charging).toBe(false);
     const knightHits = hitsBy(ev, knight.id);

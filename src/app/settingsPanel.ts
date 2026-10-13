@@ -2,6 +2,7 @@
 import { listCalibrationEntries, RULE_ENTRIES, ruleDefault, saveCalibration, type CalibrationState } from './calibration';
 import { ACTIONS, bindingFromEvent, describeBinding, PRESETS, type ActionId, type HotkeyMap, type KeyBinding } from './hotkeys';
 import { exportBundle, saveSettings, type DisplaySettings, type HealthBarMode, type QualityLevel } from './settings';
+import { PROFILES, type ValueProfile } from '../sim/unitDefs';
 void (0 as unknown as KeyBinding);
 
 export interface SettingsPanelDeps {
@@ -116,7 +117,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
   });
   const cardMod = el('select', { id: 'set-cardmod' });
   for (const [v, label] of [
-    ['game', 'Shift entfernt den Typ, Strg behält nur ihn (wie im Spiel)'],
+    ['game', 'Shift entfernt den Typ, Strg behält nur ihn (klassisch)'],
     ['swapped', 'Strg entfernt den Typ, Shift behält nur ihn'],
   ] as const)
     cardMod.append(el('option', { value: v, text: label }));
@@ -131,7 +132,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, ['Qualität (3D) ', qualitySel]), el('label', {}, [fps, ' FPS anzeigen']), el('label', {}, [sound, ' Ton']), el('label', {}, ['Lautstärke ', vol])]),
     el('div', { class: 'row' }, [
       el('label', {}, ['Lebensbalken ', hb]),
-      el('label', {}, [ring, ' Reichweitenring (Kalibrierhilfe: Zoom so einstellen, dass der Ring so groß wirkt wie im Spiel)']),
+      el('label', {}, [ring, ' Reichweitenring (Kalibrierhilfe für den Zoom)']),
     ]),
     el('div', { class: 'row' }, [el('label', {}, [timing, ' Angriffs-Timing unter eigenen Einheiten (gelb = Ausholen, blau = Nachlauf, grau = Abklingzeit)'])]),
     el('div', { class: 'row' }, [
@@ -139,6 +140,19 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     ]),
     el('div', { class: 'note', text: `Zoom 2D: ${d.settings.zoom.toFixed(1)} px/Tile · Kameraabstand 3D: ${d.settings.zoom3d.toFixed(1)} Tiles (Standard 52 ≈ 44 px/Tile in Bildmitte bei 2560×1440, Neigung 45°, Sichtfeld 35°). Backspace setzt die Kamera zurück.` }),
   );
+
+  // -------- Werteprofil
+  const profSel = el('select', { id: 'set-profile' });
+  for (const p of PROFILES) profSel.append(el('option', { value: p.id, text: p.label }));
+  profSel.value = d.calibration.profile;
+  const profNote = el('span', { class: 'note', text: PROFILES.find((p) => p.id === d.calibration.profile)?.note ?? '' });
+  profSel.addEventListener('change', () => {
+    d.calibration.profile = profSel.value as ValueProfile;
+    saveCalibration(d.calibration);
+    d.onCalibrationChanged();
+    buildSettingsPanel(d);
+  });
+  root.append(el('h3', { text: 'Einheitenwerte' }), el('div', { class: 'row' }, [el('label', {}, ['Werteprofil ', profSel]), profNote]));
 
   // -------- Regeln
   root.append(el('h3', { text: 'Simulationsregeln' }));
@@ -177,14 +191,18 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
   }
   root.append(rt);
 
-  // -------- Kalibrierung der Einheitenwerte
-  root.append(
-    el('h3', { text: 'Kalibrierung: nicht bestätigte Einheitenwerte' }),
-    el('div', { class: 'note', text: 'Alle Werte, die aoe4world nicht liefert. Platzhalter sind orange markiert; ein von dir gesetzter Wert gilt als nachgemessen. Leeres Feld = Platzhalter wiederherstellen.' }),
-  );
+  // -------- Kalibrierung der Einheitenwerte (nur im Kalibrierprofil)
+  root.append(el('h3', { text: 'Kalibrierung: nicht bestätigte Werte des Kalibrierprofils' }));
+  if (d.calibration.profile !== 'referenz') {
+    root.append(el('div', { class: 'note', text: 'Nur im Kalibrierprofil einstellbar. Das eigene Werteprofil hat keine Platzhalter.' }));
+  } else {
+    root.append(el('div', { class: 'note', text: 'Alle Werte, die die importierte Quelle nicht liefert. Platzhalter sind orange markiert; ein von dir gesetzter Wert gilt als nachgemessen. Leeres Feld = Platzhalter wiederherstellen.' }));
+  }
   const ct = el('table');
+  if (d.calibration.profile === 'referenz') ct.hidden = false;
+  else ct.hidden = true;
   ct.append(el('tr', {}, [el('th', { text: 'Einheit' }), el('th', { text: 'Wert' }), el('th', { text: 'Eingabe' }), el('th', { text: 'Hinweis' })]));
-  // Werte, die pro Zeitalter vorliegen (z. B. Projektiltempo), werden einmal angezeigt und für alle Zeitalter gesetzt.
+  // Werte, die pro Stufe vorliegen (z. B. Projektiltempo), werden einmal angezeigt und für alle Stufen gesetzt.
   const groups = new Map<string, { unitId: string; unitName: string; label: string; paths: string[]; defaultValue: number; note: string }>();
   for (const e of listCalibrationEntries()) {
     const label = e.path.replace(/^ages\.\d+\./, 'ages.*.');
@@ -219,7 +237,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
         el('td', { text: g.unitName }),
         el('td', {}, [el('code', { text: g.label }), ' ', badge]),
         el('td', {}, [input]),
-        el('td', { class: 'note', text: g.note + (g.paths.length > 1 ? ' Gilt für alle Zeitalter.' : '') }),
+        el('td', { class: 'note', text: g.note + (g.paths.length > 1 ? ' Gilt für alle Stufen.' : '') }),
       ]),
     );
   }
@@ -238,7 +256,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
   root.append(
     el('h3', { text: 'Hotkeys' }),
     el('div', { class: 'row' }, [el('label', {}, ['Preset ', presetSel])]),
-    el('div', { class: 'note', text: '"Mein Layout" stammt aus deiner Spieldatei (reference/hotkeys/Dorfzenter.rkp). Klick auf "Belegen", dann Tastenkombination drücken (Esc bricht ab). "Entfernen" löscht die Belegung. Orange = Taste stammt nicht aus der Spieldatei. Grau = Aktion wird erst in einer späteren Etappe wirksam. Tasten werden als physische Taste gespeichert; "Z" der Spieldatei ist die Taste links neben X.' }),
+    el('div', { class: 'note', text: '"Mein Layout" ist dein importiertes persönliches Hotkey-Profil. Klick auf "Belegen", dann Tastenkombination drücken (Esc bricht ab). "Entfernen" löscht die Belegung. Orange = Taste stammt nicht aus dem importierten Profil. Grau = Aktion wird erst in einer späteren Etappe wirksam. Tasten werden als physische Taste gespeichert; "Z" ist die Taste links neben X.' }),
   );
   const ht = el('table');
   ht.append(el('tr', {}, [el('th', { text: 'Aktion' }), el('th', { text: 'Taste(n)' }), el('th', { text: '' })]));
@@ -251,7 +269,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     }
     const keysCell = el('td', { text: describeAll(a.id) });
     const unsure = d.hotkeys.preset.unsure.has(a.id) && !d.hotkeys.isCustom(a.id);
-    const badge = el('span', { class: `badge ${unsure ? 'unverified' : 'set'}`, text: unsure ? 'nicht aus Spieldatei' : '' });
+    const badge = el('span', { class: `badge ${unsure ? 'unverified' : 'set'}`, text: unsure ? 'nicht aus dem Profil' : '' });
     if (!unsure) badge.hidden = true;
     const pendingBadge = el('span', { class: 'badge pending', text: a.pending ? `ab ${a.pending}` : '' });
     if (!a.pending) pendingBadge.hidden = true;
@@ -310,7 +328,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     const json = JSON.stringify(exportBundle(d.settings, d.calibration, d.hotkeys), null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = el('a', { href: url, download: `aoe4micro-einstellungen-${new Date().toISOString().slice(0, 10)}.json` });
+    const a = el('a', { href: url, download: `freie-kompanie-einstellungen-${new Date().toISOString().slice(0, 10)}.json` });
     document.body.append(a);
     a.click();
     a.remove();

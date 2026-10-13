@@ -31,7 +31,7 @@ export function unitAtPoint(units: readonly UnitState[], p: Vec2, pickRadius = 0
   return best;
 }
 
-/** Eigene Einheiten im Rahmen (Mittelpunkt im Rechteck, wie im Spiel). */
+/** Eigene Einheiten im Rahmen (Mittelpunkt im Rechteck). */
 export function unitsInRect(units: readonly UnitState[], r: Rect, player: PlayerId): UnitState[] {
   return units.filter((u) => u.alive && u.player === player && u.pos.x >= r.x0 && u.pos.x <= r.x1 && u.pos.y >= r.y0 && u.pos.y <= r.y1);
 }

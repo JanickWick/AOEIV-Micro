@@ -22,7 +22,7 @@ describe('Bewegung', () => {
     expect(maxStep).toBeLessThanOrEqual(u.maxSpeed * w.dt + 1e-9);
   });
 
-  it('Laufzeit entspricht Tempo aus den Daten (Spearman 1,25 Tiles/s über 10 Tiles ≈ 8 s)', () => {
+  it('Laufzeit entspricht Tempo aus den Daten (Speerkämpfer 1,3 Tiles/s über 10 Tiles ≈ 7,7 s)', () => {
     const w = makeWorld();
     const u = spawn(w, 'spearman', 10, 10);
     stepWorld(w, [{ kind: 'move', unitIds: [u.id], target: { x: 20, y: 10 }, queue: false }]);
@@ -32,8 +32,8 @@ describe('Bewegung', () => {
       ticks++;
     }
     const seconds = ticks / 60;
-    expect(seconds).toBeGreaterThan(7.9);
-    expect(seconds).toBeLessThan(8.6);
+    expect(seconds).toBeGreaterThan(7.6);
+    expect(seconds).toBeLessThan(8.3);
   });
 
   it('Reiter ist schneller als Speerkämpfer', () => {

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * Importiert Einheitendaten von aoe4world (https://data.aoe4world.com/units/all.json)
- * und schreibt sie in das Format dieses Projekts nach src/data/units/<id>.json.
+ * und schreibt sie als Referenzprofil nach src/data/units/reference/<id>.json.
+ * Der Auslieferungsstandard ist das eigene Werteprofil in src/data/units/<id>.json
+ * (scripts/write-own-units.mjs); das Referenzprofil ist nur als Kalibrierprofil wählbar.
  *
  * Aufruf:
  *   node scripts/import-units.mjs                # lädt aus dem Netz
@@ -21,7 +23,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SOURCE_URL = 'https://data.aoe4world.com/units/all.json';
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'data', 'units');
+const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'data', 'units', 'reference');
 
 /** Einheiten des Start-Umfangs (aoe4world baseId -> Anzeige/Form). */
 const WANTED = {

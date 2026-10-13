@@ -1,0 +1,492 @@
+{
+  "id": "spearman",
+  "name": "Spearman",
+  "kind": "infantry",
+  "shape": "circle",
+  "displayClass": "Light Melee Infantry",
+  "tags": [
+    "annihilation_condition",
+    "find_non_siege_land_military",
+    "formational",
+    "human",
+    "included_by_military_hotkeys",
+    "infantry",
+    "infantry_light",
+    "land_military",
+    "light",
+    "light_melee_infantry",
+    "melee",
+    "melee_infantry",
+    "military",
+    "spearman",
+    "torch_thrower"
+  ],
+  "source": {
+    "provider": "aoe4world",
+    "url": "https://data.aoe4world.com/units/all.json",
+    "version": "0.0.2",
+    "importedAt": "2026-10-12",
+    "variants": {
+      "1": {
+        "id": "spearman-1",
+        "attribName": "unit_spearman_1_abb",
+        "pbgid": 199736,
+        "civs": [
+          "ab",
+          "ay",
+          "ch",
+          "de",
+          "fr",
+          "gol",
+          "hl",
+          "hr",
+          "ja",
+          "je",
+          "jin",
+          "kt",
+          "mo",
+          "ot",
+          "ru",
+          "sen",
+          "tug",
+          "zx"
+        ]
+      },
+      "2": {
+        "id": "spearman-2",
+        "attribName": "unit_spearman_2_abb",
+        "pbgid": 199738,
+        "civs": [
+          "ab",
+          "ay",
+          "ch",
+          "de",
+          "en",
+          "fr",
+          "gol",
+          "hl",
+          "hr",
+          "ja",
+          "je",
+          "jin",
+          "kt",
+          "mo",
+          "ot",
+          "ru",
+          "sen",
+          "tug",
+          "zx"
+        ]
+      },
+      "3": {
+        "id": "spearman-3",
+        "attribName": "unit_spearman_3_abb",
+        "pbgid": 199740,
+        "civs": [
+          "ab",
+          "ay",
+          "ch",
+          "de",
+          "en",
+          "fr",
+          "gol",
+          "hl",
+          "hr",
+          "ja",
+          "je",
+          "jin",
+          "kt",
+          "mo",
+          "ot",
+          "ru",
+          "sen",
+          "tug",
+          "zx"
+        ]
+      },
+      "4": {
+        "id": "spearman-4",
+        "attribName": "unit_spearman_4_abb",
+        "pbgid": 199742,
+        "civs": [
+          "ab",
+          "ay",
+          "ch",
+          "de",
+          "en",
+          "fr",
+          "gol",
+          "hl",
+          "hr",
+          "ja",
+          "je",
+          "jin",
+          "kt",
+          "mo",
+          "ot",
+          "ru",
+          "sen",
+          "tug",
+          "zx"
+        ]
+      }
+    }
+  },
+  "movement": {
+    "speed": 1.25,
+    "collisionRadius": {
+      "value": 0.22,
+      "verified": false,
+      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 5: Auswahlring-Durchmesser 0,45 Tiles, Formationsabstand 0,65 Tiles; Maßstab 55,6 px/Tile ±15 %); nicht aus Spieldatei.",
+      "measured": true
+    },
+    "acceleration": {
+      "value": 10,
+      "verified": false,
+      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
+    },
+    "turnRate": {
+      "value": 720,
+      "verified": false,
+      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
+    }
+  },
+  "sight": {
+    "line": 36,
+    "base": 21.6
+  },
+  "abilities": {
+    "brace": {
+      "enabled": true,
+      "bonusDamage": {
+        "value": 20,
+        "verified": false,
+        "note": "Zusatzschaden der Abwehrstellung gegen anstürmende Kavallerie – im Spiel nachmessen."
+      },
+      "triggerRange": {
+        "value": 2,
+        "verified": false,
+        "note": "Abstand in Tiles, ab dem sich der Speer gegen anstürmende Kavallerie aufstellt."
+      },
+      "duration": {
+        "value": 1.5,
+        "verified": false,
+        "note": "Dauer der Abwehrstellung in Sekunden."
+      }
+    }
+  },
+  "ages": {
+    "1": {
+      "name": "Spearman",
+      "hp": 80,
+      "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 60,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 80
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 7,
+        "range": {
+          "min": 0,
+          "max": 0.295
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.875,
+          "cooldown": 0.75,
+          "period": 1.875,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.75,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 0.75
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "cavalry"
+              ]
+            ],
+            "damage": 17
+          },
+          {
+            "targetTags": [
+              [
+                "war",
+                "elephant"
+              ]
+            ],
+            "damage": 3
+          },
+          {
+            "targetTags": [
+              [
+                "worker",
+                "elephant"
+              ]
+            ],
+            "damage": 20
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    },
+    "2": {
+      "name": "Hardened Spearman",
+      "hp": 90,
+      "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 60,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 80
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 8,
+        "range": {
+          "min": 0,
+          "max": 0.295
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.875,
+          "cooldown": 0.75,
+          "period": 1.875,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.75,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 0.75
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "cavalry"
+              ]
+            ],
+            "damage": 20
+          },
+          {
+            "targetTags": [
+              [
+                "war",
+                "elephant"
+              ]
+            ],
+            "damage": 4
+          },
+          {
+            "targetTags": [
+              [
+                "worker",
+                "elephant"
+              ]
+            ],
+            "damage": 24
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    },
+    "3": {
+      "name": "Veteran Spearman",
+      "hp": 110,
+      "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 60,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 80
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 9,
+        "range": {
+          "min": 0,
+          "max": 0.295
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.875,
+          "cooldown": 0.75,
+          "period": 1.875,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.75,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 0.75
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "cavalry"
+              ]
+            ],
+            "damage": 23
+          },
+          {
+            "targetTags": [
+              [
+                "war",
+                "elephant"
+              ]
+            ],
+            "damage": 5
+          },
+          {
+            "targetTags": [
+              [
+                "worker",
+                "elephant"
+              ]
+            ],
+            "damage": 28
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    },
+    "4": {
+      "name": "Elite Spearman",
+      "hp": 140,
+      "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 60,
+        "wood": 20,
+        "gold": 0,
+        "stone": 0,
+        "total": 80
+      },
+      "weapon": {
+        "name": "Spear",
+        "type": "melee",
+        "damage": 11,
+        "range": {
+          "min": 0,
+          "max": 0.295
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.875,
+          "cooldown": 0.75,
+          "period": 1.875,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.75,
+          "reload": 0,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 0.75
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "cavalry"
+              ]
+            ],
+            "damage": 28
+          },
+          {
+            "targetTags": [
+              [
+                "war",
+                "elephant"
+              ]
+            ],
+            "damage": 6
+          },
+          {
+            "targetTags": [
+              [
+                "worker",
+                "elephant"
+              ]
+            ],
+            "damage": 34
+          }
+        ]
+      },
+      "otherWeapons": [
+        "Torch"
+      ]
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "id": "springald",
+  "name": "Springald",
+  "kind": "siege",
+  "shape": "square",
+  "displayClass": "Siege",
+  "tags": [
+    "annihilation_condition",
+    "formational",
+    "included_by_military_hotkeys",
+    "land_military",
+    "military",
+    "siege",
+    "siege_range",
+    "springald"
+  ],
+  "source": {
+    "provider": "aoe4world",
+    "url": "https://data.aoe4world.com/units/all.json",
+    "version": "0.0.2",
+    "importedAt": "2026-10-12",
+    "variants": {
+      "3": {
+        "id": "springald-3",
+        "attribName": "unit_springald_3_abb",
+        "pbgid": 199743,
+        "civs": [
+          "ab",
+          "ay",
+          "by",
+          "ch",
+          "de",
+          "en",
+          "fr",
+          "gol",
+          "hl",
+          "hr",
+          "ja",
+          "je",
+          "kt",
+          "ma",
+          "mac",
+          "mo",
+          "od",
+          "ot",
+          "ru",
+          "sen",
+          "zx"
+        ]
+      }
+    }
+  },
+  "movement": {
+    "speed": 0.875,
+    "collisionRadius": {
+      "value": 0.6,
+      "verified": false,
+      "note": "Kollisionsradius in Tiles – nicht in aoe4world, nicht im Video; Schätzung nach Klasse.",
+      "measured": false
+    },
+    "acceleration": {
+      "value": 2,
+      "verified": false,
+      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
+    },
+    "turnRate": {
+      "value": 120,
+      "verified": false,
+      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
+    }
+  },
+  "sight": {
+    "line": 56,
+    "base": 41.6
+  },
+  "abilities": {},
+  "ages": {
+    "3": {
+      "name": "Springald",
+      "hp": 85,
+      "armor": {
+        "melee": 3,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 55
+      },
+      "cost": {
+        "food": 0,
+        "wood": 150,
+        "gold": 100,
+        "stone": 0,
+        "total": 250
+      },
+      "weapon": {
+        "name": "Springald",
+        "type": "ranged",
+        "damage": 15,
+        "range": {
+          "min": 0,
+          "max": 7.5
+        },
+        "timing": {
+          "windup": 0.375,
+          "hit": 0.375,
+          "recovery": 0.625,
+          "cooldown": 2.125,
+          "period": 3.125,
+          "setup": 0,
+          "teardown": 0.25
+        },
+        "sourceDurations": {
+          "aim": 0.125,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.5,
+          "reload": 2.125,
+          "setup": 0,
+          "teardown": 0.25,
+          "cooldown": 0
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "melee",
+                "infantry"
+              ]
+            ],
+            "damage": 12
+          },
+          {
+            "targetTags": [
+              [
+                "naval",
+                "unit"
+              ]
+            ],
+            "damage": 65
+          }
+        ],
+        "projectile": {
+          "speed": {
+            "value": 12,
+            "verified": false,
+            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in aoe4world; im Spiel nachmessen."
+          },
+          "homing": true
+        }
+      },
+      "otherWeapons": []
+    }
+  }
+}

@@ -555,7 +555,7 @@ function drawMinimap(ctx: CanvasRenderingContext2D, s: RenderState): void {
     ctx.closePath();
   };
   ctx.save();
-  // Hintergrund: im 3D-Modus eine runde Scheibe mit Goldring und "N" wie im Spiel, im 2D-Debug ein Paneel
+  // Hintergrund: im 3D-Modus eine runde Scheibe mit Goldring und "N", im 2D-Debug ein Paneel
   if (m.rotation !== 0) {
     const r = (m.x1 - m.x0) / 2 + 6;
     ctx.beginPath();
