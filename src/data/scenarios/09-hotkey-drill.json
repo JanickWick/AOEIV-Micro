@@ -3,15 +3,66 @@
   "name": "9 · Hotkey-Drill (ohne Kampf)",
   "description": "Drei Gruppen (Bogenschützen = Gruppe 1, Speerkämpfer = Gruppe 2, Reiter = Gruppe 3) sind vorbelegt. Ansagen wie \"Gruppe 2 auswählen, Attack-Move auf den Marker\" auf Zeit.",
   "goal": "20 Aufgaben so schnell und fehlerfrei wie möglich. Gemessen werden Reaktionszeit (Ansage bis Erfüllung) und Fehlgriffe.",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 9,
   "victory": "none",
   "kind": "drill",
-  "drill": { "tasks": 20 },
-  "ai": { "level": "none", "reactionMs": 500 },
+  "drill": {
+    "tasks": 20
+  },
+  "ai": {
+    "level": "none",
+    "reactionMs": 500
+  },
+  "stars": {
+    "bronze": {
+      "maxErrors": 3
+    },
+    "silver": {
+      "maxErrors": 1,
+      "maxReactionMs": 1500
+    },
+    "gold": {
+      "maxErrors": 0,
+      "maxReactionMs": 900
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "archer", "age": 2, "count": 6, "center": { "x": 28, "y": 20 }, "facing": 0 },
-    { "player": 0, "unit": "spearman", "age": 2, "count": 6, "center": { "x": 32, "y": 26 }, "facing": 0 },
-    { "player": 0, "unit": "horseman", "age": 2, "count": 4, "center": { "x": 26, "y": 30 }, "facing": 0 }
+    {
+      "player": 0,
+      "unit": "archer",
+      "age": 2,
+      "count": 6,
+      "center": {
+        "x": 28,
+        "y": 20
+      },
+      "facing": 0
+    },
+    {
+      "player": 0,
+      "unit": "spearman",
+      "age": 2,
+      "count": 6,
+      "center": {
+        "x": 32,
+        "y": 26
+      },
+      "facing": 0
+    },
+    {
+      "player": 0,
+      "unit": "horseman",
+      "age": 2,
+      "count": 4,
+      "center": {
+        "x": 26,
+        "y": 30
+      },
+      "facing": 0
+    }
   ]
 }

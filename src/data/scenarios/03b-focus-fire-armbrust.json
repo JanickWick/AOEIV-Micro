@@ -3,13 +3,50 @@
   "name": "3b · Focus-Fire (Armbrust, Stufe III)",
   "description": "8 Armbrustschützen gegen 8 Armbrustschützen (Stufe III). Langsamere Schussfolge (2 s), jeder Schuss zählt mehr.",
   "goal": "Sieg nur durch sauberes Fokussieren.",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 3,
   "randomOffset": 4,
   "victory": "annihilation",
-  "ai": { "level": "medium", "reactionMs": 500 },
+  "ai": {
+    "level": "medium",
+    "reactionMs": 500
+  },
+  "stars": {
+    "bronze": {},
+    "silver": {
+      "maxLost": 5,
+      "maxOverkill": 120
+    },
+    "gold": {
+      "maxLost": 3,
+      "maxOverkill": 80
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "crossbowman", "age": 3, "count": 8, "center": { "x": 26, "y": 24 }, "facing": 0 },
-    { "player": 1, "unit": "crossbowman", "age": 3, "count": 8, "center": { "x": 38, "y": 24 }, "facing": 180 }
+    {
+      "player": 0,
+      "unit": "crossbowman",
+      "age": 3,
+      "count": 8,
+      "center": {
+        "x": 26,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 1,
+      "unit": "crossbowman",
+      "age": 3,
+      "count": 8,
+      "center": {
+        "x": 38,
+        "y": 24
+      },
+      "facing": 180
+    }
   ]
 }

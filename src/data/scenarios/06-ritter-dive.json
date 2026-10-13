@@ -3,20 +3,65 @@
   "name": "6 · Ritter-Dive abwehren",
   "description": "6 Speerkämpfer und 8 Bogenschützen (du, Stufe III) gegen 5 Ritter (Stufe III). Die Ritter gehen an den Speeren vorbei auf die Schützen.",
   "goal": "Speere so stellen, dass die Ritter nicht an die Schützen kommen; Schützen hinter die Speere ziehen, Speere auf die Ritter (Bonus +20, Abwehrstellung gegen Ansturm).",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 6,
   "randomOffset": 4,
   "victory": "annihilation",
-  "ai": { "level": "hard", "reactionMs": 300 },
+  "ai": {
+    "level": "hard",
+    "reactionMs": 300
+  },
   "dependsOnUnverified": [
     "knight.abilities.charge.bonusDamage",
     "knight.abilities.charge.minRunUp",
     "spearman.abilities.brace.bonusDamage",
     "spearman.abilities.brace.triggerRange"
   ],
+  "stars": {
+    "bronze": {},
+    "silver": {
+      "maxLost": 4
+    },
+    "gold": {
+      "maxLost": 2
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "archer", "age": 3, "count": 8, "center": { "x": 22, "y": 24 }, "facing": 0 },
-    { "player": 0, "unit": "spearman", "age": 3, "count": 6, "center": { "x": 27, "y": 24 }, "facing": 0 },
-    { "player": 1, "unit": "knight", "age": 3, "count": 5, "center": { "x": 46, "y": 24 }, "facing": 180 }
+    {
+      "player": 0,
+      "unit": "archer",
+      "age": 3,
+      "count": 8,
+      "center": {
+        "x": 22,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 0,
+      "unit": "spearman",
+      "age": 3,
+      "count": 6,
+      "center": {
+        "x": 27,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 1,
+      "unit": "knight",
+      "age": 3,
+      "count": 5,
+      "center": {
+        "x": 46,
+        "y": 24
+      },
+      "facing": 180
+    }
   ]
 }

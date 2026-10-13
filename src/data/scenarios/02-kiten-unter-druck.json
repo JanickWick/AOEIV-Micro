@@ -3,14 +3,60 @@
   "name": "2 · Kiten unter Druck",
   "description": "8 Bogenschützen und 4 Speerkämpfer (du) gegen 6 Reiter (Stufe II). Reiter sind schneller als deine Schützen (1,95 gegen 1,3 Tiles/s): Kiten allein reicht nicht.",
   "goal": "Speerkämpfer zwischen Reiter und Schützen stellen, Schützen hinter den Speeren kiten. Die KI versucht, die Speere zu umgehen.",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 2,
   "randomOffset": 5,
   "victory": "annihilation",
-  "ai": { "level": "hard", "reactionMs": 350 },
+  "ai": {
+    "level": "hard",
+    "reactionMs": 350
+  },
+  "stars": {
+    "bronze": {},
+    "silver": {
+      "maxLost": 4
+    },
+    "gold": {
+      "maxLost": 2,
+      "minKite": 0.5
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "archer", "age": 2, "count": 8, "center": { "x": 22, "y": 24 }, "facing": 0 },
-    { "player": 0, "unit": "spearman", "age": 2, "count": 4, "center": { "x": 26, "y": 24 }, "facing": 0 },
-    { "player": 1, "unit": "horseman", "age": 2, "count": 6, "center": { "x": 44, "y": 24 }, "facing": 180 }
+    {
+      "player": 0,
+      "unit": "archer",
+      "age": 2,
+      "count": 8,
+      "center": {
+        "x": 22,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 0,
+      "unit": "spearman",
+      "age": 2,
+      "count": 4,
+      "center": {
+        "x": 26,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 1,
+      "unit": "horseman",
+      "age": 2,
+      "count": 6,
+      "center": {
+        "x": 44,
+        "y": 24
+      },
+      "facing": 180
+    }
   ]
 }

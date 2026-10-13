@@ -3,15 +3,67 @@
   "name": "10 · Untergruppen-Drill (ohne Kampf)",
   "description": "Gemischte Truppe aus Speerkämpfern, Bogenschützen und Reitern (Gruppe 1 = alle). Ansagen wie \"Alle auswählen, Untergruppe Bogenschützen (Tab), Attack-Move auf den Marker\" auf Zeit. Tab/Strg+Tab wechselt die Untergruppe, Klick auf eine Typ-Karte wählt nur diesen Typ, Shift/Strg+Klick entfernt ihn.",
   "goal": "20 Aufgaben so schnell und fehlerfrei wie möglich. Befehle zählen nur, wenn genau die Einheiten der verlangten Untergruppe sie bekommen.",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 10,
   "victory": "none",
   "kind": "drill",
-  "drill": { "tasks": 20, "mode": "subgroups" },
-  "ai": { "level": "none", "reactionMs": 500 },
+  "drill": {
+    "tasks": 20,
+    "mode": "subgroups"
+  },
+  "ai": {
+    "level": "none",
+    "reactionMs": 500
+  },
+  "stars": {
+    "bronze": {
+      "maxErrors": 3
+    },
+    "silver": {
+      "maxErrors": 1,
+      "maxReactionMs": 1800
+    },
+    "gold": {
+      "maxErrors": 0,
+      "maxReactionMs": 1100
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "spearman", "age": 2, "count": 5, "center": { "x": 30, "y": 22 }, "facing": 0 },
-    { "player": 0, "unit": "archer", "age": 2, "count": 6, "center": { "x": 30, "y": 26 }, "facing": 0 },
-    { "player": 0, "unit": "horseman", "age": 2, "count": 3, "center": { "x": 26, "y": 24 }, "facing": 0 }
+    {
+      "player": 0,
+      "unit": "spearman",
+      "age": 2,
+      "count": 5,
+      "center": {
+        "x": 30,
+        "y": 22
+      },
+      "facing": 0
+    },
+    {
+      "player": 0,
+      "unit": "archer",
+      "age": 2,
+      "count": 6,
+      "center": {
+        "x": 30,
+        "y": 26
+      },
+      "facing": 0
+    },
+    {
+      "player": 0,
+      "unit": "horseman",
+      "age": 2,
+      "count": 3,
+      "center": {
+        "x": 26,
+        "y": 24
+      },
+      "facing": 0
+    }
   ]
 }
