@@ -181,7 +181,7 @@ function rebuildSettingsPanel(): void {
     },
     onDisplayChanged: () => {
       if (settings.view !== game.view) game.setView(settings.view);
-      game.setShadows(settings.shadows);
+      game.setQuality(settings.quality);
       game.audio.enabled = settings.sound;
       game.audio.setVolume(settings.soundVolume);
       hud.setScale(settings.uiScale);

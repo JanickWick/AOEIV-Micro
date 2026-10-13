@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable texture of quilted padded gambeson fabric: olive-khaki coarse linen with diamond-pattern stitching, slightly worn and dusty. Perfectly flat, even lighting, no directional shadows, no objects, no edges or seams, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/mat-gambeson.png",
+  "result": {
+    "request_id": "01a134ee-b1d3-72f2-86b8-12ee080e81bb",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:03:59.994Z",
+    "files": [
+      "assets/raw/units/mat-gambeson.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae34ce/O9gBf6Kpj8DmcN9v_-f6s_pHFQ8Ozp.png"
+    ],
+    "description": ""
+  }
+}

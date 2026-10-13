@@ -9,12 +9,21 @@ import type { SimEvent, UnitId, World } from '../../sim/types';
 import type { Camera3D } from '../camera3d';
 import { EffectsRenderer } from './effects';
 import { FigureRenderer } from './figures';
+import { SkinnedUnitRenderer } from './skel/skinnedUnits';
+import type { QualityLevel } from '../settings';
 
 const MAX_UNITS = 512;
 
 export interface SceneOptions {
-  shadows: boolean;
+  quality: QualityLevel;
 }
+
+/** Was die drei Qualitätsstufen einstellen. */
+export const QUALITY_PRESETS: Record<QualityLevel, { shadows: boolean; shadowMap: number; soft: boolean; pixelRatio: number }> = {
+  low: { shadows: false, shadowMap: 1024, soft: false, pixelRatio: 1 },
+  medium: { shadows: true, shadowMap: 2048, soft: false, pixelRatio: 1.5 },
+  high: { shadows: true, shadowMap: 4096, soft: true, pixelRatio: 2 },
+};
 
 export class Scene3D {
   readonly renderer: THREE.WebGLRenderer;
@@ -24,7 +33,9 @@ export class Scene3D {
   private outer: THREE.Mesh;
   private decorGroup = new THREE.Group();
   readonly figures = new FigureRenderer();
+  readonly skinned = new SkinnedUnitRenderer();
   readonly effects = new EffectsRenderer();
+  private quality: QualityLevel;
   private rings: THREE.InstancedMesh;
   private hoverRing: THREE.Mesh;
   private dummy = new THREE.Object3D();
@@ -34,9 +45,11 @@ export class Scene3D {
 
   constructor(canvas: HTMLCanvasElement, opts: SceneOptions) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    this.renderer.shadowMap.enabled = opts.shadows;
-    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    this.quality = opts.quality;
+    const q = QUALITY_PRESETS[opts.quality];
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, q.pixelRatio));
+    this.renderer.shadowMap.enabled = q.shadows;
+    this.renderer.shadowMap.type = q.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
@@ -46,8 +59,8 @@ export class Scene3D {
     const hemi = new THREE.HemisphereLight(0xdfe9ff, 0x6b5a3a, 0.75);
     this.scene.add(hemi);
     this.sun = new THREE.DirectionalLight(0xfff1d6, 2.4);
-    this.sun.castShadow = opts.shadows;
-    this.sun.shadow.mapSize.set(2048, 2048);
+    this.sun.castShadow = q.shadows;
+    this.sun.shadow.mapSize.set(q.shadowMap, q.shadowMap);
     this.sun.shadow.camera.near = 1;
     this.sun.shadow.camera.far = 200;
     this.sun.shadow.bias = -0.0005;
@@ -64,6 +77,7 @@ export class Scene3D {
     this.scene.add(this.decorGroup);
 
     this.scene.add(this.figures.group);
+    this.scene.add(this.skinned.group);
     this.scene.add(this.effects.group);
 
     const ringGeo = new THREE.RingGeometry(0.44, 0.52, 28);
@@ -78,10 +92,29 @@ export class Scene3D {
     this.scene.add(this.hoverRing);
   }
 
+  setQuality(level: QualityLevel): void {
+    if (level === this.quality) return;
+    this.quality = level;
+    const q = QUALITY_PRESETS[level];
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, q.pixelRatio));
+    this.renderer.shadowMap.type = q.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+    this.sun.shadow.mapSize.set(q.shadowMap, q.shadowMap);
+    if (this.sun.shadow.map) {
+      this.sun.shadow.map.dispose();
+      this.sun.shadow.map = null;
+    }
+    this.setShadows(q.shadows);
+  }
+
+  get qualityLevel(): QualityLevel {
+    return this.quality;
+  }
+
   setShadows(on: boolean): void {
     this.renderer.shadowMap.enabled = on;
     this.sun.castShadow = on;
     this.figures.setShadows(on);
+    this.skinned.setShadows(on);
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.material) (Array.isArray(m.material) ? m.material : [m.material]).forEach((x) => (x.needsUpdate = true));
@@ -198,7 +231,8 @@ export class Scene3D {
     sc.updateProjectionMatrix();
     this.outer.position.set(c.x, -0.05, c.y);
 
-    this.figures.update(world, alpha, { nowMs });
+    this.figures.update(world, alpha, { nowMs, skip: this.skinned.handles });
+    this.skinned.update(world, alpha, nowMs);
     this.effects.update(world, alpha, nowMs);
     let ringCount = 0;
     this.hoverRing.visible = false;

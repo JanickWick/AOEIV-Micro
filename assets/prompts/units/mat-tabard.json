@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable texture of coarse medieval wool cloth dyed cobalt blue #1F5FBF, subtle weave, light wear and dust, a few faint creases. Perfectly flat, even lighting, no directional shadows, no objects, no edges or seams, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/mat-tabard.png",
+  "result": {
+    "request_id": "01a134ee-b2c1-7bd1-9d8c-6a966f2917c8",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:04:00.975Z",
+    "files": [
+      "assets/raw/units/mat-tabard.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae34ce/Zp_lOKkzaYDOQtDX2h9YJ_5eKiAcwa.png"
+    ],
+    "description": ""
+  }
+}

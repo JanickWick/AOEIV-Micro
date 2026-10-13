@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-13T10:53:51.919Z",
+  "generated": "2026-10-13T11:25:22.203Z",
   "entries": [
     {
       "name": "icon-attack",
@@ -103,6 +103,96 @@
       "raw": "assets/raw/style/unit-sheet-archer.png",
       "processed": "assets/processed/style/unit-sheet-archer.png",
       "generated": "2026-10-13T10:52:40.260Z"
+    },
+    {
+      "name": "face-archer",
+      "category": "units",
+      "spec": "assets/prompts/units/face-archer.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Face texture for a low-poly game character: the face of the man in the attached portrait, frontal view, neutral calm expression, eyes open looking straight ahead, perfectly even flat lighting with no shadows, no cap, no hair (bare forehead), no clothing. The face fills the frame; the areas around the face are filled with the same flat skin tone so the texture can be projected onto a sphere. Painted realism matching the portrait. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/face-archer.png",
+      "processed": null,
+      "generated": "2026-10-13T11:03:57.353Z"
+    },
+    {
+      "name": "mat-gambeson",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-gambeson.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of quilted padded gambeson fabric: olive-khaki coarse linen with diamond-pattern stitching, slightly worn and dusty. Perfectly flat, even lighting, no directional shadows, no objects, no edges or seams, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-gambeson.png",
+      "processed": "assets/processed/units/mat-gambeson.png",
+      "generated": "2026-10-13T11:03:59.994Z"
+    },
+    {
+      "name": "mat-leather",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-leather.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of worn brown leather, scuffed and creased, matte, medieval equipment. Perfectly flat, even lighting, no directional shadows, no objects, no stitched edges, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-leather.png",
+      "processed": "assets/processed/units/mat-leather.png",
+      "generated": "2026-10-13T11:03:57.421Z"
+    },
+    {
+      "name": "mat-tabard",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-tabard.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of coarse medieval wool cloth dyed cobalt blue #1F5FBF, subtle weave, light wear and dust, a few faint creases. Perfectly flat, even lighting, no directional shadows, no objects, no edges or seams, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-tabard.png",
+      "processed": "assets/processed/units/mat-tabard.png",
+      "generated": "2026-10-13T11:04:00.975Z"
+    },
+    {
+      "name": "mat-wood",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-wood.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of smooth polished yew wood for a longbow, warm brown with fine straight grain. Perfectly flat, even lighting, no directional shadows, no objects, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-wood.png",
+      "processed": "assets/processed/units/mat-wood.png",
+      "generated": "2026-10-13T11:03:57.495Z"
+    },
+    {
+      "name": "mat-wool-brown",
+      "category": "units",
+      "spec": "assets/prompts/units/mat-wool-brown.json",
+      "model": "fal-ai/nano-banana-pro",
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "refs": [
+        "assets/raw/style/portrait-archer-blue.png"
+      ],
+      "prompt": "Seamless tileable texture of coarse undyed brown wool fabric for medieval trousers, visible weave, slightly dusty. Perfectly flat, even lighting, no directional shadows, no objects, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+      "raw": "assets/raw/units/mat-wool-brown.png",
+      "processed": "assets/processed/units/mat-wool-brown.png",
+      "generated": "2026-10-13T11:03:57.194Z"
     }
   ]
 }

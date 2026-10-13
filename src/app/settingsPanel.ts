@@ -1,7 +1,7 @@
 /** Einstellungs- und Kalibrierungsmenü (HTML). Änderungen werden sofort gespeichert und übernommen. */
 import { listCalibrationEntries, RULE_ENTRIES, ruleDefault, saveCalibration, type CalibrationState } from './calibration';
 import { ACTIONS, bindingFromEvent, describeBinding, PRESETS, type ActionId, type HotkeyMap, type KeyBinding } from './hotkeys';
-import { exportBundle, saveSettings, type DisplaySettings, type HealthBarMode } from './settings';
+import { exportBundle, saveSettings, type DisplaySettings, type HealthBarMode, type QualityLevel } from './settings';
 void (0 as unknown as KeyBinding);
 
 export interface SettingsPanelDeps {
@@ -75,10 +75,12 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
-  const shadows = el('input', { type: 'checkbox', id: 'set-shadows' });
-  shadows.checked = d.settings.shadows;
-  shadows.addEventListener('change', () => {
-    d.settings.shadows = shadows.checked;
+  const qualitySel = el('select', { id: 'set-quality' });
+  qualitySel.append(el('option', { value: 'low', text: 'Niedrig (keine Schatten)' }), el('option', { value: 'medium', text: 'Mittel' }), el('option', { value: 'high', text: 'Hoch (weiche Schatten, volle Auflösung)' }));
+  qualitySel.value = d.settings.quality;
+  qualitySel.addEventListener('change', () => {
+    d.settings.quality = qualitySel.value as QualityLevel;
+    d.settings.shadows = d.settings.quality !== 'low';
     saveSettings(d.settings);
     d.onDisplayChanged();
   });
@@ -126,7 +128,7 @@ export function buildSettingsPanel(d: SettingsPanelDeps): void {
   });
   root.append(
     el('div', { class: 'row' }, [el('label', {}, ['UI-Größe ', ui, ' ', uiLabel]), el('label', {}, ['Typ-Karten: ', cardMod]), el('span', { class: 'note', text: '(Klick ohne Taste = Untergruppe aktivieren, Tab / Strg+Tab = Untergruppe wechseln)' })]),
-    el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, [shadows, ' Schatten (3D)']), el('label', {}, [fps, ' FPS anzeigen']), el('label', {}, [sound, ' Ton']), el('label', {}, ['Lautstärke ', vol])]),
+    el('div', { class: 'row' }, [el('label', {}, ['Ansicht ', viewSel]), el('label', {}, ['Qualität (3D) ', qualitySel]), el('label', {}, [fps, ' FPS anzeigen']), el('label', {}, [sound, ' Ton']), el('label', {}, ['Lautstärke ', vol])]),
     el('div', { class: 'row' }, [
       el('label', {}, ['Lebensbalken ', hb]),
       el('label', {}, [ring, ' Reichweitenring (Kalibrierhilfe: Zoom so einstellen, dass der Ring so groß wirkt wie im Spiel)']),

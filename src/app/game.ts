@@ -20,7 +20,7 @@ import { computeMinimapLayout, minimapContains, minimapScreenToWorld, type Minim
 import { render, type Marker } from './renderer';
 import { commandTargets, cycleSubgroup, onlyType, removeType, resolveActive, subgroupsOf, unitName } from './subgroups';
 import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitAtScreenPoint, unitsInScreenRect, unitsOfTypeInRect, type Rect } from './selection';
-import type { DisplaySettings } from './settings';
+import type { DisplaySettings, QualityLevel } from './settings';
 import { RoundStats, type InputAction, type RoundSummary } from '../sim/stats';
 import { Drill, type DrillSummary } from './drill';
 
@@ -143,7 +143,7 @@ export class Game {
     if (view === '3d') {
       if (!this.scene3d) {
         try {
-          this.scene3d = new Scene3D(this.glCanvas, { shadows: this.settings.shadows });
+          this.scene3d = new Scene3D(this.glCanvas, { quality: this.settings.quality });
         } catch (e) {
           console.error('3D-Ansicht nicht verfügbar (WebGL?):', e);
           this.view = '2d';
@@ -159,6 +159,10 @@ export class Game {
 
   setShadows(on: boolean): void {
     this.scene3d?.setShadows(on);
+  }
+
+  setQuality(level: QualityLevel): void {
+    this.scene3d?.setQuality(level);
   }
 
   // ---------------------------------------------------------------- Szenario

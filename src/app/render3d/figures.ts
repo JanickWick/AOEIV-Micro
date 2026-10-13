@@ -38,6 +38,8 @@ interface Visual {
 
 export interface FigureRenderOptions {
   nowMs: number;
+  /** Einheitentypen, die ein anderer Renderer (geskinnte Figuren) zeichnet. */
+  skip?: ReadonlySet<string>;
 }
 
 export class FigureRenderer {
@@ -156,6 +158,7 @@ export class FigureRenderer {
     const nowMs = opts.nowMs;
     const seen = new Set<UnitId>();
     for (const u of world.units) {
+      if (opts.skip?.has(u.defId)) continue;
       const dead = !u.alive;
       const deadT = dead ? (world.tick + alpha - u.diedTick) / world.rules.tickRate : 0;
       if (dead && deadT > 3.2) continue;

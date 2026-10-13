@@ -28,6 +28,25 @@ npm run assets:manifest                                         # assets/manifes
 
 Grafik-Vorschau: http://localhost:5173/assets-preview.html zeigt alle erzeugten Grafiken nach Kategorie,
 Stilblatt in `ART_BIBLE.md`, Prompts unter `assets/prompts/`, Nachbearbeitung mit `scripts/img/tools.py`.
+Figur-Vorschau: http://localhost:5173/figure-preview.html zeigt die geskinnte Figur mit allen Clips
+(Zeit, Überblenden, Teamfarbe, Oberkörperdrehung).
+
+### Geskinnte Figuren (Stufe 3, Pilot Bogenschütze)
+
+Der Bogenschütze ist eine geskinnte Low-Poly-Figur (`src/app/render3d/skel/`): gemeinsames
+Menschen-Skelett (`humanRig.ts`, 21 Knochen inkl. Requisiten), prozedural gebautes Modell mit weichen
+Gelenkgewichten (`meshBuilder.ts`, `humanModels.ts`), Animationssatz als Posenfunktionen
+(`animClips.ts`: Stehen, Bereit, Gehen, Rennen, Spannen, Lösen, Nachlauf, Treffer, drei Sterbe-
+Varianten). Die Clips werden beim Start in eine Knochen-Textur gebacken (`animBake.ts`), das Skinning
+läuft im Vertex-Shader eines InstancedMesh mit Überblenden zwischen zwei Clips und Oberkörperdrehung
+zum Ziel (`skinnedUnits.ts`). Die Animationszeit kommt strikt aus der Simulation: Spannen = Windup-
+Fortschritt, Lösen/Nachlauf = Recovery-Ticks, Laufphase = zurückgelegte Strecke, Treffer und Tod aus
+den Ticks. Textur-Atlas: `python3 scripts/img/atlas.py src/data/atlas/archer.json public/textures/units/archer`
+(Farbe plus Teamfarben-Maske; die Teamfarbe wird im Shader eingefärbt). Die übrigen Einheiten nutzen bis
+H3 weiterhin die Gelenkfiguren aus Grundkörpern.
+
+Qualitätsstufen (Einstellungen → Qualität): Niedrig ohne Schatten und mit Pixelverhältnis 1, Mittel mit
+2048er-Schattenkarte, Hoch mit 4096er-Karte, weichen Schatten und voller Auflösung.
 
 ## Darstellung
 

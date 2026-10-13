@@ -4,6 +4,8 @@ import { emptyCalibration, saveCalibration, type CalibrationState } from './cali
 import { exportHistory, importHistory, type Attempt } from './history';
 
 export type HealthBarMode = 'always' | 'selectedOrDamaged' | 'selected';
+/** Grafikqualität der 3D-Ansicht (Schatten, Auflösung). */
+export type QualityLevel = 'low' | 'medium' | 'high';
 
 export interface DisplaySettings {
   healthBars: HealthBarMode;
@@ -18,8 +20,10 @@ export interface DisplaySettings {
   view: '3d' | '2d';
   /** Kameraabstand der 3D-Ansicht in Tiles. */
   zoom3d: number;
-  /** Schatten in der 3D-Ansicht. */
+  /** Schatten in der 3D-Ansicht (wird von `quality` abgeleitet; bleibt für alte Exporte). */
   shadows: boolean;
+  /** Qualitätsstufe der 3D-Ansicht. */
+  quality: QualityLevel;
   /** FPS-Anzeige. */
   showFps: boolean;
   /** Größe des HUD in Prozent (wie die UI-Skalierung im Spiel). */
@@ -42,6 +46,7 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
   view: '3d',
   zoom3d: 31,
   shadows: true,
+  quality: 'medium',
   showFps: true,
   uiScale: 100,
   cardModifiers: 'game',

@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: true,
-    rollupOptions: { input: { main: 'index.html', 'assets-preview': 'assets-preview.html' } },
+    rollupOptions: { input: { main: 'index.html', 'assets-preview': 'assets-preview.html', 'figure-preview': 'figure-preview.html' } },
   },
   test: {
     include: ['tests/**/*.test.ts'],
