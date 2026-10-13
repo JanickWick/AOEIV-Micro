@@ -248,9 +248,18 @@ export class Scene3D {
     }
     this.rings.count = ringCount;
     this.rings.instanceMatrix.needsUpdate = true;
+    // Zähler je Bild (nicht je Durchgang) zurücksetzen, damit renderInfo die ganze Kette umfasst
+    this.renderer.info.autoReset = false;
+    this.renderer.info.reset();
     const composer = this.ensureComposer(cam.three);
     if (composer) composer.render();
     else this.renderer.render(this.scene, cam.three);
+  }
+
+  /** Zeichenaufrufe und Dreiecke des letzten Bildes (renderer.info, hardwareunabhängig). */
+  get renderInfo(): { calls: number; triangles: number } {
+    const r = this.renderer.info.render;
+    return { calls: r.calls, triangles: r.triangles };
   }
 
   dispose(): void {

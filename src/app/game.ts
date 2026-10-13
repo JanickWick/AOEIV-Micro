@@ -353,11 +353,12 @@ export class Game {
     this.renderAcc += performance.now() - renderStart;
   }
 
-  get stats(): { tick: number; fps: number; simMs: number; renderMs: number; simTime: number; mine: number; theirs: number } {
+  get stats(): { tick: number; fps: number; simMs: number; renderMs: number; simTime: number; mine: number; theirs: number; calls: number; triangles: number } {
     let mine = 0;
     let theirs = 0;
     for (const u of this.world.units) if (u.alive) u.player === MY_PLAYER ? mine++ : theirs++;
-    return { tick: this.world.tick, fps: this.fps, simMs: this.simMs, renderMs: this.renderMs, simTime: this.world.tick * this.world.dt, mine, theirs };
+    const info = this.scene3d?.renderInfo ?? { calls: 0, triangles: 0 };
+    return { tick: this.world.tick, fps: this.fps, simMs: this.simMs, renderMs: this.renderMs, simTime: this.world.tick * this.world.dt, mine, theirs, calls: info.calls, triangles: info.triangles };
   }
 
   get pointerLockActive(): boolean {

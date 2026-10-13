@@ -35,6 +35,8 @@ function allScenarios(): ScenarioDef[] {
 const wantedScenario = new URLSearchParams(location.search).get('scenario');
 const initialScenario = allScenarios().find((s) => s.id === wantedScenario) ?? allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
 const game = new Game(canvas, glCanvas, defs, hotkeys, settings, effectiveRules(calibration), initialScenario);
+// ?perf=1 schreibt die Messwerte je Sekunde in die Konsole (Leistungsmessung ohne Oberfläche)
+const perfLog = new URLSearchParams(location.search).get('perf') === '1';
 // ?cam=x,y richtet die Kamera auf einen Kartenpunkt (Vorschau, Screenshots)
 const wantedCam = new URLSearchParams(location.search).get('cam');
 if (wantedCam) {
@@ -554,7 +556,8 @@ function loop(now: number): void {
     lastStats = now;
     refreshCounts();
     const st = game.stats;
-    hud.setFps(settings.showFps ? `${Math.round(st.fps)} FPS · Sim ${st.simMs.toFixed(1)} ms · Bild ${st.renderMs.toFixed(1)} ms · ${st.mine + st.theirs} Einh.` : '');
+    hud.setFps(settings.showFps ? `${Math.round(st.fps)} FPS · Sim ${st.simMs.toFixed(1)} ms · Bild ${st.renderMs.toFixed(1)} ms · ${st.calls} Aufrufe · ${(st.triangles / 1000).toFixed(0)}k Dreiecke · ${st.mine + st.theirs} Einh.` : '');
+    if (perfLog) console.info(`PERF ${JSON.stringify({ q: settings.quality, fps: +st.fps.toFixed(1), simMs: +st.simMs.toFixed(2), renderMs: +st.renderMs.toFixed(2), calls: st.calls, triangles: st.triangles, units: st.mine + st.theirs, zoom: game.camera.zoomLevel })}`);
     // Auswahl, Gruppen, Formations- und Halten-Zustand ändern sich auch ohne Eingabe (Einheiten sterben, Befehle enden)
     refreshSelection();
     refreshGroups();

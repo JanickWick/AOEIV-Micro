@@ -141,6 +141,40 @@ geladen sind. Die Minimap-Scheibe ist jetzt 62 % des Feldes, damit der Ring hine
 untere Leiste selbst lässt Klicks durch (vorher schluckte der leere Streifen über den Paneelen
 Klicks auf die Karte).
 
+### Leistung und verbleibende Schwächen (Stufe 3, H6)
+
+Die FPS-Anzeige oben rechts (Einstellungen → FPS anzeigen) zeigt jetzt auch Zeichenaufrufe und
+Dreiecke je Bild; `?perf=1` in der URL schreibt die Werte sekündlich in die Browser-Konsole.
+Szenario 11 (`leistungstest`, 100 gegen 100) bei 1280×720, alle 200 Einheiten ausgewählt und im
+Bild (hardwareunabhängige Werte, gemessen ohne Grafikkarte im Software-Renderer):
+
+| Stufe   | Zeichenaufrufe | Dreiecke je Bild | Durchgänge                          |
+|---------|---------------:|-----------------:|-------------------------------------|
+| Niedrig |             16 |         1,25 Mio | Bild direkt, keine Schatten         |
+| Mittel  |             31 |         2,67 Mio | + Schattenkarte, MSAA-Ziel          |
+| Hoch    |             58 |         4,16 Mio | + Normalen-Durchgang für GTAO       |
+
+Die Simulation braucht mit 200 Einheiten 1,8 ms je Tick (`tests/simPerf.test.ts`, Node). Die
+Einheitenmodelle wurden dafür von 7000 auf 3500 Dreiecke reduziert (Pferd 4000, Belagerung 2500),
+ohne sichtbaren Unterschied im Spielabstand. Bilder pro Sekunde auf echter Hardware lassen sich
+hier nicht messen; Richtwert: 60 FPS auf »Hoch« brauchen eine Grafikkarte, die etwa 250 Mio
+Dreiecke je Sekunde zeichnet (dedizierte Karten ab Mittelklasse), »Mittel« etwa die Hälfte,
+»Niedrig« läuft auf integrierter Grafik.
+
+Vorher-Nachher-Bilder (Stufe 2 → Stufe 3) liegen im Projektordner unter `grafik/h6-vorher-nachher-*.png`.
+
+Verbleibende Schwächen:
+- Laubkronen (Eiche, Busch) sind aus der Nähe kantig; der 3D-Generator texturiert Laub nicht, das
+  Bild wird flach projiziert.
+- Der Kartenrand ist als Helligkeitskante zum Außengelände sichtbar.
+- Schild des Soldaten ist ein einfacher Block; Pferdebeine knicken im Galopp etwas eckig; Gesicht
+  des Armbrustschützen ist weich.
+- Schatten der wiegenden Bäume bewegen sich nicht mit (Tiefenmaterial ohne Windversatz).
+- Keine Stufen-Umschaltung der Modelle nach Entfernung (LOD); bei sehr weitem Herauszoomen
+  bleibt die Dreieckszahl gleich.
+- Umgebungsverdunklung (GTAO) nutzt die ungeskinnte Figur für den Normalen-Durchgang; bei großer
+  Nähe kann ein leichter Halo um Arme entstehen.
+
 ### HUD (G3)
 
 Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spiel-Icons):
