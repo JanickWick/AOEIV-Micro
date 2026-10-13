@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "A tall Scots pine tree with a straight reddish trunk and a layered dark-green crown, for a medieval strategy game. One single object, centred, fully in frame with margin, three-quarter view slightly from above, painterly-realistic with crisp detail, warm neutral even lighting, no cast shadow on the ground. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00, no ground plane, no scenery, no text.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/key-battlefield.png"
+  ],
+  "out": "assets/raw/scenery/pine.png",
+  "result": {
+    "request_id": "01a13553-2913-7ab3-971e-de3db9bd07f1",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:53:46.909Z",
+    "files": [
+      "assets/raw/scenery/pine.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3760/QCAhz5gGDmAQ2amaqunxA_pOjeKSOx.png"
+    ],
+    "description": ""
+  }
+}

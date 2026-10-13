@@ -7,6 +7,10 @@ import { Game } from './app/game';
 import { Hud, type GroupMarker, type SelectionCard, type UnitDetail } from './app/hud';
 import { subgroupsOf, unitClass, unitCode, unitName } from './app/subgroups';
 import { attemptFromSummary, bestAttempt, getAttempts, isBetter, recordAttempt, type Attempt } from './app/history';
+import { attemptsLeft, bestDailyAttempt, DAILY_ATTEMPTS, dailyKey, dailyLeaderboard, dailyPick, dailyScore, getDaily, recordDailyAttempt } from './app/daily';
+import { getGhost, ghostKey, offerGhost } from './app/ghosts';
+import { parseReplay, serializeReplay } from './sim/replay';
+import { bestStars, STAR_NAMES, starsFor, starText } from './sim/stars';
 import { HotkeyMap, loadKeyboardLayout, type ActionId } from './app/hotkeys';
 import { importBundle, loadSettings, saveSettings, type DisplaySettings } from './app/settings';
 import { buildSettingsPanel } from './app/settingsPanel';
@@ -31,12 +35,49 @@ function allScenarios(): ScenarioDef[] {
   return [...SCENARIOS, scenarioFromEditor(editorState, defs)];
 }
 
-const initialScenario = allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
+// ?scenario=<id> wählt ein Szenario direkt (Vorschau, Screenshots)
+const wantedScenario = new URLSearchParams(location.search).get('scenario');
+const initialScenario = allScenarios().find((s) => s.id === wantedScenario) ?? allScenarios().find((s) => s.id === settings.lastScenario) ?? SCENARIOS[0]!;
 const game = new Game(canvas, glCanvas, defs, hotkeys, settings, effectiveRules(calibration), initialScenario);
+game.profile = calibration.profile;
+game.showGhost = settings.ghost;
+// Geisterlauf: der gespeicherte Bestlauf des Szenarios (bei Daily je Tag)
+game.ghostProvider = (id, _seed, _random, daily) => getGhost(ghostKey(id, daily))?.replay ?? null;
+game.restart(); // mit Geist-Anbindung neu aufbauen
+// ?perf=1 schreibt die Messwerte je Sekunde in die Konsole (Leistungsmessung ohne Oberfläche)
+const perfLog = new URLSearchParams(location.search).get('perf') === '1';
+// ?cam=x,y richtet die Kamera auf einen Kartenpunkt (Vorschau, Screenshots)
+const wantedCam = new URLSearchParams(location.search).get('cam');
+if (wantedCam) {
+  const [cx, cy] = wantedCam.split(',').map(Number);
+  if (Number.isFinite(cx) && Number.isFinite(cy)) game.camera.lookAt({ x: cx!, y: cy! });
+}
+
+// Ladebildschirm: bleibt, bis die erzeugten Modelle da sind (mindestens kurz sichtbar), dann ausblenden
+{
+  const loading = $('loading');
+  const bar = loading.querySelector('.bar > i') as HTMLElement | null;
+  const started = performance.now();
+  let pct = 10;
+  const tick = setInterval(() => {
+    pct = Math.min(90, pct + 8);
+    if (bar) bar.style.width = `${pct}%`;
+  }, 150);
+  void game.whenReady().catch(() => undefined).then(() => {
+    clearInterval(tick);
+    if (bar) bar.style.width = '100%';
+    const wait = Math.max(0, 400 - (performance.now() - started));
+    setTimeout(() => {
+      loading.classList.add('fade');
+      setTimeout(() => (loading.hidden = true), 550);
+    }, wait);
+  });
+}
 
 const result = $('result');
 const settingsOverlay = $('settings');
 const editorOverlay = $('editor');
+const dailyOverlay = $('daily');
 let keyboardLayout: Map<string, string> | undefined;
 
 const hud = new Hud($('hud'), {
@@ -78,6 +119,9 @@ const hud = new Hud($('hud'), {
       case 'editor':
         openEditor();
         return;
+      case 'daily':
+        openDaily();
+        return;
       case 'view':
         game.setView(game.view === '3d' ? '2d' : '3d');
         saveSettings(settings);
@@ -117,11 +161,12 @@ void loadKeyboardLayout().then((m) => {
 });
 hud.setScale(settings.uiScale);
 game.minimapBox = () => hud.minimapBox();
+game.relayoutMinimap(); // die erste Lage entstand vor der HUD-Zuweisung
 game.onActionTriggered = (a) => hud.flash(a);
 
 function fillScenarioSelect(): void {
   hud.fillScenarios(
-    allScenarios().map((sc) => ({ id: sc.id, name: sc.name })),
+    allScenarios().map((sc) => ({ id: sc.id, name: sc.name, stars: sc.stars ? starText(bestStars(getAttempts(sc.id), sc.stars)) : undefined })),
     game.scenario.id,
   );
 }
@@ -162,7 +207,7 @@ function openOverlay(el: HTMLElement): void {
 }
 function closeOverlay(el: HTMLElement): void {
   el.hidden = true;
-  game.inputBlocked = !settingsOverlay.hidden || !editorOverlay.hidden;
+  game.inputBlocked = !settingsOverlay.hidden || !editorOverlay.hidden || !dailyOverlay.hidden;
   canvas.focus();
 }
 
@@ -175,13 +220,14 @@ function rebuildSettingsPanel(): void {
     hotkeys,
     onCalibrationChanged: () => {
       defs = buildUnitDefs(calibration);
-      game.setDefs(defs, effectiveRules(calibration));
+      game.setDefs(defs, effectiveRules(calibration), calibration.profile);
       game.restart();
       refreshHud();
     },
     onDisplayChanged: () => {
+      game.showGhost = settings.ghost;
       if (settings.view !== game.view) game.setView(settings.view);
-      game.setShadows(settings.shadows);
+      game.setQuality(settings.quality);
       game.audio.enabled = settings.sound;
       game.audio.setVolume(settings.soundVolume);
       hud.setScale(settings.uiScale);
@@ -197,16 +243,103 @@ function rebuildSettingsPanel(): void {
         calibration = r.calibration;
         hotkeys = r.hotkeys;
         game.hotkeys = hotkeys;
+        game.showGhost = settings.ghost;
         defs = buildUnitDefs(calibration);
-        game.setDefs(defs, effectiveRules(calibration));
+        game.setDefs(defs, effectiveRules(calibration), calibration.profile);
         game.restart();
         rebuildSettingsPanel();
+        fillScenarioSelect();
         refreshHud();
       } catch (e) {
         window.alert(`Import fehlgeschlagen: ${(e as Error).message}`);
       }
     },
+    onReplayImport: (json) => {
+      try {
+        const replay = parseReplay(json);
+        if (replay.profile !== calibration.profile) {
+          window.alert(`Das Replay wurde mit dem Werteprofil "${replay.profile}" aufgezeichnet, aktiv ist "${calibration.profile}". Es wird mit den aktuellen Werten abgespielt und kann abweichen.`);
+        }
+        closeOverlay(settingsOverlay);
+        result.hidden = true;
+        game.restart(undefined, { replay });
+        fillScenarioSelect();
+        hud.scenarioSelect.value = replay.scenarioId;
+        refreshHud();
+      } catch (e) {
+        window.alert(`Replay nicht abspielbar: ${(e as Error).message}`);
+      }
+    },
   });
+}
+
+// -------- Daily Challenge
+function openDaily(): void {
+  renderDaily();
+  openOverlay(dailyOverlay);
+}
+$('daily-close').addEventListener('click', () => closeOverlay(dailyOverlay));
+
+function dailyScenarioName(id: string): string {
+  return allScenarios().find((s) => s.id === id)?.name ?? id;
+}
+
+function renderDaily(): void {
+  const body = $('daily-body');
+  body.replaceChildren();
+  const key = dailyKey();
+  const pick = dailyPick(key, SCENARIOS);
+  const mk = (tag: string, cls = '', text = ''): HTMLElement => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  };
+  if (!pick) {
+    body.append(mk('div', 'note', 'Kein Szenario für die tägliche Herausforderung verfügbar.'));
+    return;
+  }
+  const day = getDaily(key);
+  const left = attemptsLeft(key);
+  const best = bestDailyAttempt(day);
+  const today = mk('div', 'today');
+  today.append(mk('div', 'big', `Heute (${key}): ${pick.scenario.name}`));
+  today.append(mk('div', '', `Gleiche Aufstellung für alle, die heute spielen (Seed ${pick.seed}). ${DAILY_ATTEMPTS} Versuche, der beste zählt.`));
+  today.append(mk('div', '', best ? `Dein Bestes heute: ${best.score} Punkte, ${starText(best.stars)} (${best.outcome === 'victory' ? 'Sieg' : 'Niederlage'}, Verlustwert ${best.valueLostMine}, ${best.seconds.toFixed(1)} s)` : 'Noch kein Versuch heute.'));
+  today.append(mk('div', '', `Versuche übrig: ${left} von ${DAILY_ATTEMPTS}`));
+  const play = mk('button', '', left > 0 ? `Spielen (Versuch ${DAILY_ATTEMPTS - left + 1} von ${DAILY_ATTEMPTS})` : 'Keine Versuche mehr heute (frei üben geht weiter)') as HTMLButtonElement;
+  play.disabled = left === 0;
+  play.addEventListener('click', () => {
+    closeOverlay(dailyOverlay);
+    result.hidden = true;
+    settings.lastScenario = pick.scenario.id;
+    saveSettings(settings);
+    game.restart(pick.scenario, { seed: pick.seed, randomStart: true, dailyKey: key });
+    hud.scenarioSelect.value = pick.scenario.id;
+    refreshHud();
+  });
+  const row = mk('div', 'row');
+  row.append(play);
+  today.append(row);
+  body.append(today);
+
+  body.append(mk('h3', '', 'Rangliste (nur auf diesem Gerät)'));
+  const rows = dailyLeaderboard();
+  if (rows.length === 0) {
+    body.append(mk('div', 'note', 'Noch keine Einträge. Jeder Tag mit mindestens einem Versuch erscheint hier mit seinem besten Ergebnis.'));
+    return;
+  }
+  const table = document.createElement('table');
+  const head = document.createElement('tr');
+  for (const h of ['Platz', 'Tag', 'Szenario', 'Punkte', 'Sterne', 'Verlustwert', 'Dauer', 'Versuche']) head.append(mk('th', '', h));
+  table.append(head);
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    if (r.key === key) tr.className = 'today-row';
+    tr.append(mk('td', 'num', String(i + 1)), mk('td', '', r.key), mk('td', '', dailyScenarioName(r.scenarioId)), mk('td', 'num', String(r.best.score)), mk('td', 'stars' + (r.best.stars ? '' : ' none'), starText(r.best.stars)), mk('td', 'num', String(r.best.valueLostMine)), mk('td', 'num', `${r.best.seconds.toFixed(1)} s`), mk('td', 'num', `${r.attempts}/${DAILY_ATTEMPTS}`));
+    table.append(tr);
+  });
+  body.append(table);
 }
 function openSettings(): void {
   if (!settingsOverlay.hidden) return;
@@ -231,6 +364,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code !== 'Escape') return;
   if (!settingsOverlay.hidden) closeOverlay(settingsOverlay);
   else if (!editorOverlay.hidden) closeOverlay(editorOverlay);
+  else if (!dailyOverlay.hidden) closeOverlay(dailyOverlay);
   else if (!result.hidden) closeOverlay(result);
 });
 
@@ -249,6 +383,44 @@ function row(table: HTMLElement, k: string, v: string, cls = ''): void {
   table.append(tr);
 }
 
+/** Sterne-Zeile in der Auswertung: erreichte Stufe und was zur nächsten fehlt. */
+function starRows(table: HTMLElement, attempt: Attempt, sc: ScenarioDef): void {
+  if (!sc.stars) return;
+  const r = starsFor(attempt, sc.stars);
+  const prevBest = bestStars(getAttempts(sc.id).slice(0, -1), sc.stars);
+  const tr = document.createElement('tr');
+  const a = document.createElement('td');
+  a.textContent = 'Sterne';
+  const b = document.createElement('td');
+  b.className = 'num';
+  const span = document.createElement('span');
+  span.className = 'stars' + (r.stars ? '' : ' none');
+  span.textContent = starText(r.stars);
+  b.append(span, document.createTextNode(` ${STAR_NAMES[r.stars]}${r.stars > prevBest ? ' (neu!)' : ''}`));
+  tr.append(a, b);
+  table.append(tr);
+  if (r.missed) row(table, 'Nächster Stern', r.missed);
+}
+
+/** Replay der letzten Runde als Datei anbieten. */
+function offerReplayDownload(): void {
+  const btn = $<HTMLButtonElement>('result-replay');
+  btn.hidden = !game.lastReplay;
+}
+$('result-replay').addEventListener('click', () => {
+  const r = game.lastReplay;
+  if (!r) return;
+  const blob = new Blob([serializeReplay(r)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `replay-${r.scenarioId}-${r.recordedAt.slice(0, 19).replace(/[:T]/g, '-')}.json`;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
 function showResult(s: RoundSummary): void {
   const sc = game.scenario;
   const title = $('result-title');
@@ -256,10 +428,35 @@ function showResult(s: RoundSummary): void {
   title.className = s.outcome;
 
   const attempt = attemptFromSummary(s);
+  if (game.isPlayback) {
+    // Wiedergabe: nichts speichern, nur zeigen, ob der Lauf exakt gleich verlief
+    title.textContent = `Replay: ${title.textContent}`;
+    const table = $('result-table');
+    table.replaceChildren();
+    row(table, 'Dauer', `${s.seconds.toFixed(1)} s`);
+    row(table, 'Eigene Verluste / Überlebende', `${s.lostMine} / ${s.survivorsMine} (Verlustwert ${s.valueLostMine})`);
+    row(table, 'Zustands-Hash', game.playbackMatches === false ? 'weicht ab (andere Version oder andere Werte)' : 'stimmt mit der Aufzeichnung überein', game.playbackMatches === false ? 'bad' : 'good');
+    $('result-chart-wrap').hidden = true;
+    $<HTMLButtonElement>('result-replay').hidden = true;
+    openOverlay(result);
+    return;
+  }
   const previous = getAttempts(sc.id);
   const prevBest = bestAttempt(previous);
   const newBest = isBetter(attempt, prevBest);
   const attempts = recordAttempt(sc.id, attempt);
+  // Geisterlauf: besserer Lauf ersetzt den gespeicherten (je Szenario, beim Daily je Tag)
+  let ghostReplaced = false;
+  if (game.lastReplay) ghostReplaced = offerGhost(ghostKey(sc.id, game.dailyKey), attempt, game.lastReplay);
+  // Daily: Versuch eintragen
+  let dailyLine: string | null = null;
+  if (game.dailyKey) {
+    const stars = starsFor(attempt, sc.stars).stars;
+    const day = recordDailyAttempt(game.dailyKey, sc.id, game.roundSeed, { ...attempt, stars, score: dailyScore(attempt) });
+    const best = bestDailyAttempt(day);
+    dailyLine = `Versuch ${day.attempts.length} von ${DAILY_ATTEMPTS}: ${dailyScore(attempt)} Punkte` + (best ? `, Tagesbestes ${best.score}` : '') + (attemptsLeft(game.dailyKey) === 0 ? ' (keine Versuche mehr heute)' : '');
+  }
+  fillScenarioSelect();
 
   let baseline: BaselineResult | null = null;
   if ((sc.victory ?? 'annihilation') !== 'none') {
@@ -272,6 +469,8 @@ function showResult(s: RoundSummary): void {
 
   const table = $('result-table');
   table.replaceChildren();
+  starRows(table, attempt, sc);
+  if (dailyLine) row(table, 'Daily Challenge', dailyLine, 'good');
   row(table, 'Dauer', `${s.seconds.toFixed(1)} s`);
   row(table, 'Eigene Verluste / Überlebende', `${s.lostMine} / ${s.survivorsMine} (Verlustwert ${s.valueLostMine})`);
   row(table, 'Gegner getötet', `${s.lostTheirs} (Wert ${s.valueKilled})`);
@@ -299,9 +498,11 @@ function showResult(s: RoundSummary): void {
     row(table, 'Bisheriger Bestwert', `${prevBest.outcome === 'victory' ? 'Sieg' : 'Niederlage'}, Verlustwert ${prevBest.valueLostMine}, ${prevBest.seconds.toFixed(1)} s`);
   }
   row(table, 'Bestwert', newBest ? 'Neuer Bestwert!' : 'nicht übertroffen', newBest ? 'good' : '');
+  if (game.lastReplay) row(table, 'Geisterlauf', ghostReplaced ? 'Dieser Lauf ist ab jetzt dein Geist in diesem Szenario.' : 'Der gespeicherte Bestlauf bleibt dein Geist.');
 
   renderChart(attempts, 'valueLostMine', 'Verlustwert pro Versuch (niedriger ist besser)', baseline?.valueLostMine ?? null, 'nur Attack-Move');
   $('result-chart-wrap').hidden = false;
+  offerReplayDownload();
   openOverlay(result);
 }
 
@@ -336,8 +537,10 @@ function showDrillResult(d: DrillSummary): void {
   const prevBest = bestAttempt(previous);
   const newBest = isBetter(attempt, prevBest);
   const attempts = recordAttempt(sc.id, attempt);
+  fillScenarioSelect();
   const table = $('result-table');
   table.replaceChildren();
+  starRows(table, attempt, sc);
   row(table, 'Aufgaben', String(d.results.length));
   row(table, 'Ø Reaktionszeit', `${Math.round(d.avgMs)} ms`);
   row(table, 'Median / beste / schlechteste', `${Math.round(d.medianMs)} / ${Math.round(d.bestMs)} / ${Math.round(d.worstMs)} ms`);
@@ -347,6 +550,7 @@ function showDrillResult(d: DrillSummary): void {
   row(table, 'Bestwert', newBest ? 'Neuer Bestwert!' : 'nicht übertroffen', newBest ? 'good' : '');
   renderChart(attempts, 'reactionMs', 'Ø Reaktionszeit in ms pro Durchgang (niedriger ist besser)', null, '');
   $('result-chart-wrap').hidden = false;
+  $<HTMLButtonElement>('result-replay').hidden = true;
   openOverlay(result);
 }
 
@@ -384,7 +588,7 @@ function cardsFor(ids: Iterable<UnitId>): { cards: SelectionCard[]; total: numbe
   return { cards, total: groups.reduce((n, g) => n + g.ids.length, 0) };
 }
 
-/** Einzelansicht: wie im Spiel (Clip 6/7) nur bei genau einer ausgewählten Einheit. */
+/** Einzelansicht: nur bei genau einer ausgewählten Einheit. */
 function detailFor(ids: Iterable<UnitId>, active: string | null): UnitDetail | null {
   const groups = subgroupsOf(game.world.units, ids);
   const g = active ? groups.find((x) => x.defId === active) : groups.length === 1 ? groups[0] : undefined;
@@ -504,7 +708,17 @@ function refreshHud(): void {
       ? 'Angriffsbewegung: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)'
       : game.targeting === 'patrol'
         ? 'Patrouille: Ziel mit Linksklick wählen (Shift = einreihen, Rechtsklick/Esc = abbrechen)'
-        : null,
+        : game.isPlayback
+          ? game.playbackMatches === null
+            ? 'Replay läuft: Kamera und Auswahl frei, Befehle aus der Aufzeichnung (F4 beendet)'
+            : game.playbackMatches
+              ? 'Replay zu Ende: Lauf stimmt exakt mit der Aufzeichnung überein'
+              : 'Replay zu Ende: Lauf weicht von der Aufzeichnung ab (andere Version oder Werte)'
+          : game.dailyKey
+            ? `Daily Challenge ${game.dailyKey}: Versuch ${DAILY_ATTEMPTS - attemptsLeft(game.dailyKey) + 1} von ${DAILY_ATTEMPTS}` + (game.ghostWorld ? ' · Geist läuft mit' : '')
+            : game.ghostWorld
+              ? 'Geisterlauf: dein Bestlauf läuft halbtransparent mit'
+              : null,
   );
   refreshDrill();
 }
@@ -524,7 +738,8 @@ function loop(now: number): void {
     lastStats = now;
     refreshCounts();
     const st = game.stats;
-    hud.setFps(settings.showFps ? `${Math.round(st.fps)} FPS · Sim ${st.simMs.toFixed(1)} ms · Bild ${st.renderMs.toFixed(1)} ms · ${st.mine + st.theirs} Einh.` : '');
+    hud.setFps(settings.showFps ? `${Math.round(st.fps)} FPS · Sim ${st.simMs.toFixed(1)} ms · Bild ${st.renderMs.toFixed(1)} ms · ${st.calls} Aufrufe · ${(st.triangles / 1000).toFixed(0)}k Dreiecke · ${st.mine + st.theirs} Einh.` : '');
+    if (perfLog) console.info(`PERF ${JSON.stringify({ q: settings.quality, fps: +st.fps.toFixed(1), simMs: +st.simMs.toFixed(2), renderMs: +st.renderMs.toFixed(2), calls: st.calls, triangles: st.triangles, units: st.mine + st.theirs, zoom: game.camera.zoomLevel })}`);
     // Auswahl, Gruppen, Formations- und Halten-Zustand ändern sich auch ohne Eingabe (Einheiten sterben, Befehle enden)
     refreshSelection();
     refreshGroups();
@@ -538,3 +753,6 @@ function loop(now: number): void {
 }
 requestAnimationFrame(loop);
 canvas.focus();
+
+// Zugriff für Skripte und Fehlersuche in der Browser-Konsole (z. B. kompanie.game.lastReplay)
+(window as unknown as { kompanie: { game: Game } }).kompanie = { game };

@@ -1,9 +1,9 @@
 {
-  "name": "aoe4-micro-trainer",
-  "version": "0.1.0",
+  "name": "freie-kompanie",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Browser-Trainer für Age of Empires IV Micro-Mechaniken (1v1).",
+  "description": "Freie Kompanie: Micro-Arena im Browser. Truppenführung in kurzen Gefechten üben: Kiten, Focus-Fire, Rückzug, Belagerung ausweichen, Kontrollgruppen.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "data:import": "node scripts/import-units.mjs",
-    "data:unverified": "node scripts/list-unverified.mjs"
+    "data:unverified": "node scripts/list-unverified.mjs",
+    "assets:gen": "NODE_USE_ENV_PROXY=1 node scripts/gen-image.mjs",
+    "assets:manifest": "node scripts/assets-manifest.mjs"
   },
   "devDependencies": {
     "@types/three": "^0.186.0",

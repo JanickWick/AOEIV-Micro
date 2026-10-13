@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AoE4 Micro Trainer</title>
+    <title>Freie Kompanie</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
@@ -12,6 +12,7 @@
       <canvas id="game3d"></canvas>
       <canvas id="game"></canvas>
       <div id="hud"></div>
+      <div id="loading"><div class="title">Freie Kompanie</div><div class="sub">Micro-Arena · Lade Figuren und Gelände …</div><div class="bar"><i></i></div></div>
       <div id="dialogs">
         <div id="result" class="overlay" hidden>
           <div class="dialog">
@@ -24,8 +25,18 @@
             </div>
             <div class="row">
               <button id="result-restart">Neustart (F4)</button>
+              <button id="result-replay" hidden>Replay speichern</button>
               <button id="result-close">Schließen</button>
             </div>
+          </div>
+        </div>
+        <div id="daily" class="overlay" hidden>
+          <div class="dialog">
+            <div class="row space">
+              <h2>Daily Challenge</h2>
+              <button id="daily-close">Schließen (Esc)</button>
+            </div>
+            <div id="daily-body"></div>
           </div>
         </div>
         <div id="editor" class="overlay" hidden>

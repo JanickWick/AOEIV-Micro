@@ -1,15 +1,52 @@
 {
   "id": "focus-fire",
-  "name": "3 · Focus-Fire (Bogen, Zeitalter II)",
+  "name": "3 · Focus-Fire (Bogen, Stufe II)",
   "description": "8 Bogenschützen gegen 8 Bogenschützen, gleiche Werte. Die KI fokussiert angeschlagene Ziele.",
   "goal": "Sieg nur durch sauberes Fokussieren: alle Schützen auf dasselbe Ziel, dann sofort das nächste. Jede Einheit, die stirbt, nimmt ihren Schaden mit.",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 3,
   "randomOffset": 4,
   "victory": "annihilation",
-  "ai": { "level": "medium", "reactionMs": 500 },
+  "ai": {
+    "level": "medium",
+    "reactionMs": 500
+  },
+  "stars": {
+    "bronze": {},
+    "silver": {
+      "maxLost": 5,
+      "maxOverkill": 60
+    },
+    "gold": {
+      "maxLost": 3,
+      "maxOverkill": 40
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "archer", "age": 2, "count": 8, "center": { "x": 26, "y": 24 }, "facing": 0 },
-    { "player": 1, "unit": "archer", "age": 2, "count": 8, "center": { "x": 38, "y": 24 }, "facing": 180 }
+    {
+      "player": 0,
+      "unit": "archer",
+      "age": 2,
+      "count": 8,
+      "center": {
+        "x": 26,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 1,
+      "unit": "archer",
+      "age": 2,
+      "count": 8,
+      "center": {
+        "x": 38,
+        "y": 24
+      },
+      "facing": 180
+    }
   ]
 }

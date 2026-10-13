@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grafik-Vorschau – Freie Kompanie</title>
+    <link rel="icon" href="data:," />
+    <style>
+      :root { color-scheme: dark; --bg: #14161a; --panel: #1d2026; --line: #3a3f48; --gold: #c9a24f; --text: #e8e2d4; --muted: #9a9484; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+      header { padding: 18px 28px; border-bottom: 1px solid var(--line); display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+      header h1 { margin: 0; font-size: 20px; color: var(--gold); font-weight: 600; }
+      header a, header span { color: var(--muted); }
+      nav { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 28px; border-bottom: 1px solid var(--line); }
+      nav button { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+      nav button.active { border-color: var(--gold); color: var(--gold); }
+      main { padding: 20px 28px; }
+      section h2 { font-size: 16px; color: var(--gold); margin: 24px 0 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+      .img { position: relative; background: repeating-conic-gradient(#2a2d33 0 25%, #202329 0 50%) 0 0 / 24px 24px; min-height: 180px; display: flex; align-items: center; justify-content: center; }
+      .img img { max-width: 100%; max-height: 360px; display: block; }
+      .img.tile { background: none; }
+      .img.tile img { display: none; }
+      .img.tile .tiled { width: 100%; height: 300px; background-size: 150px 150px; }
+      .card .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+      .card .name { font-weight: 600; }
+      .card .meta { color: var(--muted); font-size: 13px; }
+      .card .meta b { color: var(--text); font-weight: 500; }
+      .card details { font-size: 13px; color: var(--muted); }
+      .card details summary { cursor: pointer; }
+      .card details p { white-space: pre-wrap; margin: 6px 0 0; color: var(--text); }
+      .toggle { display: flex; gap: 6px; }
+      .toggle button { font-size: 12px; padding: 2px 8px; background: #262a31; color: var(--text); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+      .toggle button.active { border-color: var(--gold); color: var(--gold); }
+      .empty { color: var(--muted); padding: 40px 0; }
+      .swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+      .swatch { width: 120px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; font-size: 12px; }
+      .swatch div { height: 56px; }
+      .swatch span { display: block; padding: 4px 6px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Grafik-Vorschau</h1>
+      <span>Alle erzeugten Grafiken nach Kategorie. Quelle: <code>assets/manifest.json</code> (erzeugt mit <code>npm run assets:manifest</code>).</span>
+      <a href="./ART_BIBLE.md" target="_blank">Stilblatt (ART_BIBLE.md)</a>
+      <a href="./index.html">Zum Trainer</a>
+    </header>
+    <nav id="nav"></nav>
+    <main id="main"><div class="empty">Lade Manifest…</div></main>
+    <script type="module">
+      const PALETTE = [
+        ['Himmel/Dunst', '#d9c9a3'], ['Sonnenlicht', '#f2d58a'], ['Gras trocken', '#a89659'], ['Gras olive', '#6f7a3c'],
+        ['Erde', '#b08a5a'], ['Erde dunkel', '#6e5236'], ['Fels', '#8f8678'], ['Holz', '#7a4f2a'],
+        ['Stahl', '#9aa3ad'], ['Leder', '#6a4528'], ['Paneel', '#141a24'], ['Gold', '#c9a24f'],
+        ['Team Blau', '#1f5fbf'], ['Team Rot', '#e0452b'],
+      ];
+      const LABELS = { style: 'Stilblatt (Schritt A)', terrain: 'Gelände', units: 'Figuren', ui: 'Interface', fx: 'Effekte', scenery: 'Kulisse' };
+      const res = await fetch('./assets/manifest.json');
+      const main = document.getElementById('main');
+      const nav = document.getElementById('nav');
+      if (!res.ok) { main.innerHTML = '<div class="empty">Kein Manifest gefunden. Erst <code>npm run assets:manifest</code> ausführen.</div>'; }
+      else {
+        const { entries } = await res.json();
+        const cats = [...new Set(entries.map((e) => e.category))];
+        let active = 'alle';
+        const render = () => {
+          nav.innerHTML = ['alle', ...cats].map((c) => `<button data-c="${c}" class="${c === active ? 'active' : ''}">${c === 'alle' ? 'Alle' : (LABELS[c] ?? c)}</button>`).join('');
+          nav.querySelectorAll('button').forEach((b) => b.onclick = () => { active = b.dataset.c; render(); });
+          main.innerHTML = '';
+          const pal = document.createElement('section');
+          pal.innerHTML = `<h2>Farbpalette</h2><div class="swatches">${PALETTE.map(([n, c]) => `<div class="swatch"><div style="background:${c}"></div><span>${n}<br>${c}</span></div>`).join('')}</div>`;
+          main.append(pal);
+          for (const c of cats) {
+            if (active !== 'alle' && active !== c) continue;
+            const sec = document.createElement('section');
+            sec.innerHTML = `<h2>${LABELS[c] ?? c}</h2>`;
+            const grid = document.createElement('div'); grid.className = 'grid';
+            for (const e of entries.filter((x) => x.category === c)) grid.append(card(e));
+            sec.append(grid); main.append(sec);
+          }
+        };
+        const card = (e) => {
+          const el = document.createElement('div'); el.className = 'card';
+          const isTile = /terrain|tile/.test(e.name);
+          const src = e.processed ?? e.raw;
+          el.innerHTML = `
+            <div class="img ${isTile ? 'tile' : ''}"><img src="./${src}" alt="${e.name}" loading="lazy">${isTile ? `<div class="tiled" style="background-image:url(./${src})"></div>` : ''}</div>
+            <div class="body">
+              <div class="name">${e.name}</div>
+              <div class="meta"><b>${e.model}</b> · ${e.aspect_ratio ?? '–'} · ${e.resolution ?? '–'}${e.refs.length ? ` · ${e.refs.length} Referenz(en)` : ''}${e.generated ? ` · ${e.generated.slice(0, 10)}` : ''}</div>
+              <div class="toggle">
+                ${e.processed ? `<button data-v="processed" class="active">bearbeitet</button><button data-v="raw">roh</button>` : '<button class="active">roh</button>'}
+                ${isTile ? '<button data-v="single">einzeln</button>' : ''}
+              </div>
+              <details><summary>Prompt (${e.spec})</summary><p>${e.prompt.replace(/</g, '&lt;')}</p></details>
+            </div>`;
+          const img = el.querySelector('img'); const imgWrap = el.querySelector('.img'); const tiled = el.querySelector('.tiled');
+          el.querySelectorAll('.toggle button[data-v]').forEach((b) => b.onclick = () => {
+            if (b.dataset.v === 'single') { imgWrap.classList.toggle('tile'); b.classList.toggle('active'); return; }
+            el.querySelectorAll('.toggle button[data-v]:not([data-v=single])').forEach((x) => x.classList.toggle('active', x === b));
+            const s = `./${b.dataset.v === 'raw' ? e.raw : e.processed}`; img.src = s; if (tiled) tiled.style.backgroundImage = `url(${s})`;
+          });
+          return el;
+        };
+        render();
+      }
+    </script>
+  </body>
+</html>

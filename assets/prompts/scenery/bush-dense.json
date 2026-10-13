@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "A compact, very dense, rounded shrub with a solid mass of small dark-green leaves (box or privet), no gaps between leaves, no visible twigs, a few red berries, for a medieval strategy game. One single solid object, centred, fully in frame with margin, three-quarter view slightly from above, painterly-realistic with crisp detail, warm neutral even lighting, no cast shadow on the ground. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00, no ground plane, no scenery, no text.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/key-battlefield.png"
+  ],
+  "out": "assets/raw/scenery/bush-dense.png",
+  "result": {
+    "request_id": "01a1355f-a70d-76c1-82cf-0a3ea90ba99f",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T13:07:22.402Z",
+    "files": [
+      "assets/raw/scenery/bush-dense.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae37b2/RhxbkteN1KmqM_NgDoWrz_EK53T6EM.png"
+    ],
+    "description": ""
+  }
+}

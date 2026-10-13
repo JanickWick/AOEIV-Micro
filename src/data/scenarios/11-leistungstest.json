@@ -1,7 +1,7 @@
 {
   "id": "leistungstest",
   "name": "11 · Leistungstest 100 gegen 100",
-  "description": "Je 100 Einheiten (Speerkämpfer, Soldaten, Bogenschützen, Reiter) auf beiden Seiten, Zeitalter II, harte KI. Zum Prüfen der Bildrate: FPS-Anzeige oben rechts zeigt Bilder pro Sekunde, Simulations- und Darstellungszeit je Bild.",
+  "description": "Je 100 Einheiten (Speerkämpfer, Schwertkämpfer, Bogenschützen, Reiter) auf beiden Seiten, Stufe II, harte KI. Zum Prüfen der Bildrate: FPS-Anzeige oben rechts zeigt Bilder pro Sekunde, Simulations- und Darstellungszeit je Bild.",
   "goal": "Kein Trainingsziel. Ziel der Stufe G5: 200 Einheiten bei 60 Bildern pro Sekunde.",
   "map": { "width": 80, "height": 60 },
   "seed": 11,

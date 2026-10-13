@@ -1,0 +1,20 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Wide landscape painting of a sunlit medieval battlefield, dry golden grass, scattered oaks, warm afternoon light, realistic strategy game concept art",
+  "aspect_ratio": "16:9",
+  "resolution": "2K",
+  "output_format": "png",
+  "out": "assets/raw/style/key-battlefield.png",
+  "result": {
+    "request_id": "01a134df-e4a2-7993-84fb-6f0943dd05a0",
+    "endpoint": "fal-ai/nano-banana-pro",
+    "at": "2026-10-13T10:47:58.525Z",
+    "files": [
+      "assets/raw/style/key-battlefield.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae346d/59Xl8A9FtVK_BR2Vt1FxH_EiuufA8m.png"
+    ],
+    "description": ""
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Top-down seamless texture of dry, sun-bleached summer meadow grass with some yellow-green and straw-coloured blades, small clover patches, viewed exactly from above. Seamless and tileable: the left edge continues the right edge and the top edge continues the bottom edge, no visible border, no vignette, no text, no watermark. Even diffuse daylight, no strong cast shadows, photoreal-painterly like the attached reference.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/processed/style/terrain-grass.png"
+  ],
+  "out": "assets/raw/terrain/terrain-drygrass.png",
+  "result": {
+    "request_id": "01a13553-25e7-72a1-a23d-1257c7117ca3",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:54:07.497Z",
+    "files": [
+      "assets/raw/terrain/terrain-drygrass.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3760/1oced7sB_0cTKNtQ3d4MF_DC25tJnY.png"
+    ],
+    "description": ""
+  }
+}

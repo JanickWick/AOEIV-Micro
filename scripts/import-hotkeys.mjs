@@ -128,8 +128,8 @@ for (const [action, group, cmd] of MAP) {
 
 const out = {
   id: 'mein-layout',
-  label: `Mein Layout (${profileName})`,
-  sourceFile: src.replace(ROOT + '/', ''),
+  label: 'Mein Layout',
+  source: `persönliches Hotkey-Profil (${profileName}), importiert mit scripts/import-hotkeys.mjs`,
   importedAt: new Date().toISOString().slice(0, 10),
   keyNaming: qwertzChars ? 'qwertz-chars' : 'us-physical',
   bindings,

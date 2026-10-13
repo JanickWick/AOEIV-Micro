@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "A dense round hawthorn bush with small green leaves and a few red berries, for a medieval strategy game. One single object, centred, fully in frame with margin, three-quarter view slightly from above, painterly-realistic with crisp detail, warm neutral even lighting, no cast shadow on the ground. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00, no ground plane, no scenery, no text.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/key-battlefield.png"
+  ],
+  "out": "assets/raw/scenery/bush.png",
+  "result": {
+    "request_id": "01a13553-2875-7801-ac6e-0ed237d71b5c",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:54:03.204Z",
+    "files": [
+      "assets/raw/scenery/bush.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3760/QPlYbfI5mRdpO_xWLktQh_jtRhLALp.png"
+    ],
+    "description": ""
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Portrait bust of a medieval knight, nobleman in a polished great helm with raised visor and steel plate pauldrons over the tabard, padded gambeson with a cobalt-blue tabard (team colour, saturated blue #1F5FBF). Three-quarter view, looking slightly past the viewer, calm determined expression. Background: plain very dark warm brown vignette, simple, no scenery. Framed for a square unit card: head and shoulders fill the frame. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/ui/portrait-knight.png",
+  "result": {
+    "request_id": "01a13581-4937-7942-a031-ad3345f6221b",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T13:44:06.484Z",
+    "files": [
+      "assets/raw/ui/portrait-knight.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae388e/nt-cNNMhUQHVmBnRlxHjG_zduTAPLS.png"
+    ],
+    "description": ""
+  }
+}

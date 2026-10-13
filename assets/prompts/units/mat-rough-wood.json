@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable texture of weathered rough oak beams, grey-brown with cracks and grain, for a medieval siege engine. Perfectly flat, even lighting, no shadows, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/mat-rough-wood.png",
+  "result": {
+    "request_id": "01a13509-4246-7f53-a559-248e2b190379",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:33:01.031Z",
+    "files": [
+      "assets/raw/units/mat-rough-wood.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae357c/HQEULjGWG4wJL5fyIThYr_r6hza0RU.png"
+    ],
+    "description": ""
+  }
+}

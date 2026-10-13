@@ -1,0 +1,35 @@
+{
+  "model": "fal-ai/hunyuan3d/v2/multi-view",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "front_image_url": "assets/processed/units/mangonel-front.png",
+    "back_image_url": "assets/processed/units/mangonel-back.png",
+    "left_image_url": "assets/processed/units/mangonel-side.png"
+  },
+  "out": "assets/raw/models/mangonel-hunyuan-mv.glb",
+  "result": {
+    "request_id": "01a1353c-242b-7c93-a7b4-4b27f4f1f3a1",
+    "at": "2026-10-13T12:28:49.005Z",
+    "seconds": 34,
+    "files": [
+      "assets/raw/models/mangonel-hunyuan-mv.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36cc/S8FLaCb5WC79_n3g_fhnU_multiview_mesh-1791894505-933488.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae36cc/S8FLaCb5WC79_n3g_fhnU_multiview_mesh-1791894505-933488.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "multiview_mesh-1791894505-933488.glb",
+        "file_size": 3291092
+      },
+      "seed": 933488
+    }
+  }
+}

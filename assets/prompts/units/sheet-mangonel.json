@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Reference sheet of a medieval mangonel (torsion catapult on a wooden frame with four solid wooden wheels, throwing arm with a sling, tilted back in loaded position) for a 3D model: the same machine shown three times side by side, each one COMPLETELY inside the frame with generous empty margin above the top of the throwing arm (nothing cropped at the image edges, the machines are small in frame). Views: left side view, front view, back view. Dark weathered oak, iron fittings, a small cobalt-blue cloth banner (team colour #1F5FBF) tied to the frame. Painterly-realistic style with crisp detail, warm neutral even lighting, no cast shadows, clean readable silhouette. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00 with absolutely no scenery, no ground, no sky, no gradient. No text.",
+  "aspect_ratio": "16:9",
+  "resolution": "2K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/sheet-mangonel.png",
+  "result": {
+    "request_id": "01a13538-ee09-7a31-867a-afd605ef3747",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:25:10.283Z",
+    "files": [
+      "assets/raw/units/sheet-mangonel.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36b4/Zp97VgWYjF__ma62J3YgI_KTcLiBQe.png"
+    ],
+    "description": ""
+  }
+}

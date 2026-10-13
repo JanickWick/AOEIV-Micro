@@ -1,0 +1,186 @@
+{
+  "id": "crossbowman",
+  "name": "Crossbowman",
+  "kind": "infantry",
+  "shape": "circle",
+  "displayClass": "Light Ranged Infantry",
+  "tags": [
+    "annihilation_condition",
+    "crossbow_incendiary_3",
+    "crossbowman",
+    "find_non_siege_land_military",
+    "formational",
+    "human",
+    "included_by_military_hotkeys",
+    "infantry",
+    "infantry_light",
+    "land_military",
+    "light",
+    "military",
+    "ranged",
+    "ranged_infantry"
+  ],
+  "source": {
+    "provider": "Referenzprofil, importiert mit scripts/import-units.mjs (Quelle in CREDITS.md)",
+    "version": "0.0.2",
+    "importedAt": "2026-10-12"
+  },
+  "movement": {
+    "speed": 1.125,
+    "collisionRadius": {
+      "value": 0.22,
+      "verified": false,
+      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 5: Auswahlring-Durchmesser 0,45 Tiles, Formationsabstand 0,65 Tiles; Maßstab 55,6 px/Tile ±15 %); nicht aus der Quelle.",
+      "measured": true
+    },
+    "acceleration": {
+      "value": 10,
+      "verified": false,
+      "note": "Beschleunigung in Tiles/s² – nicht in der Quelle; Schätzung."
+    },
+    "turnRate": {
+      "value": 720,
+      "verified": false,
+      "note": "Drehrate in Grad/s – nicht in der Quelle; Schätzung."
+    }
+  },
+  "sight": {
+    "line": 40,
+    "base": 25.6
+  },
+  "abilities": {},
+  "ages": {
+    "3": {
+      "name": "Crossbowman",
+      "hp": 80,
+      "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 80,
+        "wood": 0,
+        "gold": 40,
+        "stone": 0,
+        "total": 120
+      },
+      "weapon": {
+        "name": "Crossbow",
+        "type": "ranged",
+        "damage": 11,
+        "range": {
+          "min": 0,
+          "max": 5
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.125,
+          "cooldown": 1.75,
+          "period": 2.125,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0.25,
+          "windup": 0,
+          "attack": 0.125,
+          "winddown": 0,
+          "reload": 1.75,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 0
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "heavy"
+              ]
+            ],
+            "damage": 10
+          }
+        ],
+        "projectile": {
+          "speed": {
+            "value": 12,
+            "verified": false,
+            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in der Quelle; nachmessen."
+          },
+          "homing": true
+        }
+      },
+      "otherWeapons": []
+    },
+    "4": {
+      "name": "Elite Crossbowman",
+      "hp": 95,
+      "armor": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 80,
+        "wood": 0,
+        "gold": 40,
+        "stone": 0,
+        "total": 120
+      },
+      "weapon": {
+        "name": "Crossbow",
+        "type": "ranged",
+        "damage": 14,
+        "range": {
+          "min": 0,
+          "max": 5
+        },
+        "timing": {
+          "windup": 0.25,
+          "hit": 0.25,
+          "recovery": 0.125,
+          "cooldown": 1.75,
+          "period": 2.125,
+          "setup": 0,
+          "teardown": 0
+        },
+        "sourceDurations": {
+          "aim": 0.25,
+          "windup": 0,
+          "attack": 0.125,
+          "winddown": 0,
+          "reload": 1.75,
+          "setup": 0,
+          "teardown": 0,
+          "cooldown": 0
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "heavy"
+              ]
+            ],
+            "damage": 12
+          }
+        ],
+        "projectile": {
+          "speed": {
+            "value": 12,
+            "verified": false,
+            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in der Quelle; nachmessen."
+          },
+          "homing": true
+        }
+      },
+      "otherWeapons": []
+    }
+  }
+}

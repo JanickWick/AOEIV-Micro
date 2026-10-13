@@ -1,5 +1,6 @@
 /** Szenario-Dateien (src/data/scenarios/*.json) in eine Welt übersetzen. */
 import type { AiConfig } from './ai';
+import type { StarSpec } from './stars';
 import { generateDecor, obstaclesOf } from './decor';
 import { computeFormation } from './formation';
 import { degToRad, fromAngle, type Vec2 } from './math';
@@ -40,6 +41,8 @@ export interface ScenarioDef {
   kind?: 'battle' | 'drill';
   /** Hotkey-Drill: Anzahl Aufgaben; Szenario-Gruppen werden den Kontrollgruppen 1..n zugewiesen. */
   drill?: { tasks: number; mode?: 'groups' | 'subgroups' };
+  /** Schwellen für Bronze/Silber/Gold (src/sim/stars.ts); ohne Eintrag gibt es keine Sterne. */
+  stars?: StarSpec;
   groups: ScenarioGroup[];
 }
 

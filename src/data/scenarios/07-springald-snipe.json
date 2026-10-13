@@ -1,22 +1,77 @@
 {
   "id": "springald-snipe",
   "name": "7 · Springald-Snipe",
-  "description": "2 Springalds und 4 Reiter (du, Zeitalter III) gegen 2 Mangonels mit 6 Speerkämpfern (Zeitalter III). Springalds (Reichweite 7,5) umgehen die Fernkampf-Resistenz der Mangonels; Reiter haben Bonus gegen Belagerung.",
+  "description": "2 Springalds und 4 Reiter (du, Stufe III) gegen 2 Mangonels mit 6 Speerkämpfern (Stufe III). Springalds (Reichweite 8) umgehen die Fernkampf-Resistenz der Mangonels; Reiter haben Bonus gegen Belagerung.",
   "goal": "Mangonels ausschalten, ohne die Springalds zu verlieren: Springalds außerhalb der Mangonel-Reichweite (8) halten oder Mangonels zum Umstellen zwingen, Reiter an den Speeren vorbei auf die Mangonels.",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 7,
   "randomOffset": 3,
   "victory": "annihilation",
-  "ai": { "level": "medium", "reactionMs": 500 },
+  "ai": {
+    "level": "medium",
+    "reactionMs": 500
+  },
   "dependsOnUnverified": [
     "mangonel.ages.3.weapon.projectile.speed",
     "mangonel.ages.3.weapon.projectile.splashRadius",
     "springald.ages.3.weapon.projectile.speed"
   ],
+  "stars": {
+    "bronze": {},
+    "silver": {
+      "maxLost": 3
+    },
+    "gold": {
+      "maxLost": 1
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "springald", "age": 3, "count": 2, "center": { "x": 18, "y": 24 }, "facing": 0 },
-    { "player": 0, "unit": "horseman", "age": 3, "count": 4, "center": { "x": 20, "y": 30 }, "facing": 0 },
-    { "player": 1, "unit": "mangonel", "age": 3, "count": 2, "center": { "x": 42, "y": 24 }, "facing": 180 },
-    { "player": 1, "unit": "spearman", "age": 3, "count": 6, "center": { "x": 38, "y": 24 }, "facing": 180 }
+    {
+      "player": 0,
+      "unit": "springald",
+      "age": 3,
+      "count": 2,
+      "center": {
+        "x": 18,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 0,
+      "unit": "horseman",
+      "age": 3,
+      "count": 4,
+      "center": {
+        "x": 20,
+        "y": 30
+      },
+      "facing": 0
+    },
+    {
+      "player": 1,
+      "unit": "mangonel",
+      "age": 3,
+      "count": 2,
+      "center": {
+        "x": 42,
+        "y": 24
+      },
+      "facing": 180
+    },
+    {
+      "player": 1,
+      "unit": "spearman",
+      "age": 3,
+      "count": 6,
+      "center": {
+        "x": 38,
+        "y": 24
+      },
+      "facing": 180
+    }
   ]
 }

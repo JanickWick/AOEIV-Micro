@@ -1,0 +1,35 @@
+{
+  "model": "fal-ai/hunyuan3d/v2/multi-view",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "front_image_url": "assets/processed/units/springald-front.png",
+    "back_image_url": "assets/processed/units/springald-back.png",
+    "left_image_url": "assets/processed/units/springald-side.png"
+  },
+  "out": "assets/raw/models/springald-hunyuan-mv.glb",
+  "result": {
+    "request_id": "01a13539-4484-70a2-bbc1-d0542ad4f86c",
+    "at": "2026-10-13T12:26:48.691Z",
+    "seconds": 101,
+    "files": [
+      "assets/raw/models/springald-hunyuan-mv.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36c0/Ntyc_VyvSbFxvKbi7K_sf_multiview_mesh-1791894384-236639.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae36c0/Ntyc_VyvSbFxvKbi7K_sf_multiview_mesh-1791894384-236639.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "multiview_mesh-1791894384-236639.glb",
+        "file_size": 3813544
+      },
+      "seed": 236639
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Face texture for a low-poly game character: the face of the man in the attached portrait, frontal view, neutral calm expression, eyes open looking straight ahead, perfectly even flat lighting with no shadows, no cap, no hair (bare forehead), no clothing. The face fills the frame; the areas around the face are filled with the same flat skin tone so the texture can be projected onto a sphere. Painted realism matching the portrait. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/face-archer.png",
+  "result": {
+    "request_id": "01a134ee-b269-7561-997f-f6386864e89e",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:03:57.353Z",
+    "files": [
+      "assets/raw/units/face-archer.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae34ce/uEyC9dG3KHPljuq7ShsHe_Y481UXio.png"
+    ],
+    "description": ""
+  }
+}

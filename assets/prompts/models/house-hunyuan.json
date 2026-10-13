@@ -1,0 +1,33 @@
+{
+  "model": "fal-ai/hunyuan3d/v2",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "input_image_url": "assets/processed/scenery/house-view.png"
+  },
+  "out": "assets/raw/models/house-hunyuan.glb",
+  "result": {
+    "request_id": "01a13559-6f29-7763-8d73-467fdbc01e82",
+    "at": "2026-10-13T13:02:26.356Z",
+    "seconds": 131,
+    "files": [
+      "assets/raw/models/house-hunyuan.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3796/hlC2iuztwt65ksrl14nDj_mesh-1791896508-986002.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae3796/hlC2iuztwt65ksrl14nDj_mesh-1791896508-986002.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "mesh-1791896508-986002.glb",
+        "file_size": 4823008
+      },
+      "seed": 986002
+    }
+  }
+}

@@ -1,21 +1,66 @@
 {
   "id": "mangonel-ausweichen",
   "name": "5 · Mangonel ausweichen / splitten",
-  "description": "10 Bogenschützen (Zeitalter III) gegen 2 Mangonels mit 4 Speerkämpfern als Schutz. Mangonels schießen auf Gruppen (Reichweite 8, Mindestreichweite 3), Geschosse fliegen sichtbar auf einen Bodenpunkt.",
+  "description": "10 Bogenschützen (Stufe III) gegen 2 Mangonels mit 4 Speerkämpfern als Schutz. Mangonels schießen auf Gruppen (Reichweite 8,5, Mindestreichweite 3), Geschosse fliegen sichtbar auf einen Bodenpunkt.",
   "goal": "Schützen auseinanderziehen, Geschossen ausweichen (gestrichelter Einschlagkreis) und die Mangonels im Nahbereich erledigen. Pfeile machen gegen Mangonels nur 1 Schaden, also unter die Mindestreichweite gehen und die Speere splitten.",
-  "map": { "width": 64, "height": 48 },
+  "map": {
+    "width": 64,
+    "height": 48
+  },
   "seed": 5,
   "randomOffset": 3,
   "victory": "annihilation",
-  "ai": { "level": "hard", "reactionMs": 400 },
+  "ai": {
+    "level": "hard",
+    "reactionMs": 400
+  },
   "dependsOnUnverified": [
     "mangonel.ages.3.weapon.projectile.speed",
     "mangonel.ages.3.weapon.projectile.splashRadius",
     "archer.ages.3.weapon.projectile.speed"
   ],
+  "stars": {
+    "bronze": {},
+    "silver": {
+      "maxLost": 4
+    },
+    "gold": {
+      "maxLost": 2
+    }
+  },
   "groups": [
-    { "player": 0, "unit": "archer", "age": 3, "count": 10, "center": { "x": 22, "y": 24 }, "facing": 0 },
-    { "player": 1, "unit": "mangonel", "age": 3, "count": 2, "center": { "x": 40, "y": 24 }, "facing": 180 },
-    { "player": 1, "unit": "spearman", "age": 3, "count": 4, "center": { "x": 36, "y": 24 }, "facing": 180 }
+    {
+      "player": 0,
+      "unit": "archer",
+      "age": 3,
+      "count": 10,
+      "center": {
+        "x": 22,
+        "y": 24
+      },
+      "facing": 0
+    },
+    {
+      "player": 1,
+      "unit": "mangonel",
+      "age": 3,
+      "count": 2,
+      "center": {
+        "x": 40,
+        "y": 24
+      },
+      "facing": 180
+    },
+    {
+      "player": 1,
+      "unit": "spearman",
+      "age": 3,
+      "count": 4,
+      "center": {
+        "x": 36,
+        "y": 24
+      },
+      "facing": 180
+    }
   ]
 }

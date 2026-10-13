@@ -96,8 +96,8 @@ function withAll(partial: Partial<Record<ActionId, KeyBinding[]>>): Bindings {
   return out;
 }
 
-/** Vorschlag nach AoE4-Grid-Layout, soweit bekannt; unsichere Tasten in PRESET_UNSURE. */
-export const AOE4_DEFAULT_PRESET: Bindings = withAll({
+/** Vorschlag im klassischen Raster-Layout (A S D / Z X C V); unsichere Tasten in PRESET_UNSURE. */
+export const GRID_DEFAULT_PRESET: Bindings = withAll({
   'camera.up': [{ code: 'ArrowUp' }],
   'camera.down': [{ code: 'ArrowDown' }],
   'camera.left': [{ code: 'ArrowLeft' }],
@@ -122,7 +122,7 @@ export const AOE4_DEFAULT_PRESET: Bindings = withAll({
   ...(Object.fromEntries(GROUP_DIGITS.map((d) => [`group.add.${d}`, [{ code: `Digit${d}`, shift: true }]])) as Record<`group.add.${GroupDigit}`, KeyBinding[]>),
 });
 
-/** Aus der Spieldatei importiertes Layout (scripts/import-hotkeys.mjs). Eigene Zusätze: Neustart F4, Pause F3. */
+/** Aus dem persönlichen Hotkey-Profil importiertes Layout (scripts/import-hotkeys.mjs). Eigene Zusätze: Neustart F4, Pause F3. */
 export const MEIN_LAYOUT_PRESET: Bindings = withAll({
   ...(meinLayout.bindings as Partial<Record<ActionId, KeyBinding[]>>),
   'game.restart': [{ code: 'F4' }],
@@ -133,7 +133,7 @@ export interface PresetInfo {
   id: string;
   label: string;
   bindings: Bindings;
-  /** Aktionen, deren Taste nicht aus einer Spieldatei stammt. */
+  /** Aktionen, deren Taste nicht aus dem importierten Profil stammt. */
   unsure: ReadonlySet<ActionId>;
 }
 
@@ -145,9 +145,9 @@ export const PRESETS: readonly PresetInfo[] = [
     unsure: new Set<ActionId>(['game.restart', 'game.pause', ...ACTIONS.map((a) => a.id).filter((id) => !(id in meinLayout.bindings) || (meinLayout.bindings as Record<string, unknown[]>)[id]!.length === 0)]),
   },
   {
-    id: 'aoe4-default',
-    label: 'AoE4-Grid (Vorschlag)',
-    bindings: AOE4_DEFAULT_PRESET,
+    id: 'raster-vorschlag',
+    label: 'Raster-Layout (Vorschlag)',
+    bindings: GRID_DEFAULT_PRESET,
     unsure: new Set<ActionId>(['unit.attackMove', 'unit.stop', 'unit.hold', 'unit.patrol', 'select.allMilitary', 'select.allOfType', 'game.restart', 'game.pause', 'game.settings']),
   },
 ];
@@ -161,7 +161,10 @@ export function presetById(id: string): PresetInfo {
 /** @deprecated Nur noch für Tests/Abwärtskompatibilität. */
 export const PRESET_UNSURE: ReadonlySet<ActionId> = presetById(DEFAULT_PRESET_ID).unsure;
 
-const STORAGE_KEY = 'aoe4micro.hotkeys.v3';
+const STORAGE_KEY = 'kompanie.hotkeys.v3';
+const LEGACY_KEY = 'aoe4micro.hotkeys.v3';
+/** Frühere Preset-Kennungen, damit gespeicherte Einstellungen weiter gelesen werden. */
+const LEGACY_PRESET_IDS: Record<string, string> = { 'aoe4-default': 'raster-vorschlag' };
 
 export function sameBinding(a: KeyBinding, b: KeyBinding): boolean {
   return a.code === b.code && !!a.ctrl === !!b.ctrl && !!a.shift === !!b.shift && !!a.alt === !!b.alt;
@@ -181,14 +184,14 @@ export class HotkeyMap {
   presetId: string;
 
   constructor(presetId: string = DEFAULT_PRESET_ID) {
-    this.presetId = presetById(presetId).id;
+    this.presetId = presetById(LEGACY_PRESET_IDS[presetId] ?? presetId).id;
     this.bindings = structuredClone(presetById(this.presetId).bindings);
   }
 
   static load(): HotkeyMap {
     const map = new HotkeyMap();
     try {
-      const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
+      const raw = globalThis.localStorage?.getItem(STORAGE_KEY) ?? globalThis.localStorage?.getItem(LEGACY_KEY);
       if (raw) {
         const saved = JSON.parse(raw) as { presetId?: string; bindings?: Partial<Record<ActionId, KeyBinding[]>> };
         if (saved.presetId) map.applyPreset(saved.presetId);
@@ -209,7 +212,7 @@ export class HotkeyMap {
   }
 
   applyPreset(id: string): void {
-    const p = presetById(id);
+    const p = presetById(LEGACY_PRESET_IDS[id] ?? id);
     this.presetId = p.id;
     this.bindings = structuredClone(p.bindings);
   }

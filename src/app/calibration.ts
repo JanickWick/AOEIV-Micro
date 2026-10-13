@@ -3,12 +3,13 @@
  * Simulationsregeln sind ohne Codeänderung einstellbar. Überschreibungen liegen in
  * localStorage und werden beim Bau der Einheitenbibliothek angewendet.
  */
-import { UNIT_JSON } from '../data/units/index';
 import { DEFAULT_RULES, type SimRules } from '../sim/types';
-import { listUnverified, UnitDefLibrary, type UnitDef } from '../sim/unitDefs';
+import { DEFAULT_PROFILE, listUnverified, profileUnitJson, UnitDefLibrary, type UnitDef, type ValueProfile } from '../sim/unitDefs';
 
 export interface CalibrationState {
-  /** unitId -> Pfad (z. B. "movement.collisionRadius") -> Wert */
+  /** Werteprofil: eigenes Profil (Standard) oder importiertes Kalibrierprofil. */
+  profile: ValueProfile;
+  /** unitId -> Pfad (z. B. "movement.collisionRadius") -> Wert (nur im Kalibrierprofil wirksam) */
   units: Record<string, Record<string, number>>;
   rules: Partial<Pick<SimRules, RuleKey>>;
 }
@@ -42,13 +43,15 @@ export interface CalibrationEntry {
   note: string;
 }
 
-const STORAGE_KEY = 'aoe4micro.calibration.v1';
+const STORAGE_KEY = 'kompanie.calibration.v1';
+const LEGACY_KEY = 'aoe4micro.calibration.v1';
 
-export function baseUnitDefs(): UnitDef[] {
-  return structuredClone(UNIT_JSON as unknown as UnitDef[]);
+export function baseUnitDefs(profile: ValueProfile = DEFAULT_PROFILE): UnitDef[] {
+  return profileUnitJson(profile);
 }
 
-export function listCalibrationEntries(defs: readonly UnitDef[] = baseUnitDefs()): CalibrationEntry[] {
+/** Alle Platzhalter-Werte eines Profils (im eigenen Profil leer: dort gibt es keine Platzhalter). */
+export function listCalibrationEntries(defs: readonly UnitDef[] = baseUnitDefs('referenz')): CalibrationEntry[] {
   const out: CalibrationEntry[] = [];
   for (const d of defs) {
     for (const e of listUnverified(d)) out.push({ unitId: d.id, unitName: d.name, path: e.path, defaultValue: e.value, note: e.note });
@@ -57,15 +60,19 @@ export function listCalibrationEntries(defs: readonly UnitDef[] = baseUnitDefs()
 }
 
 export function emptyCalibration(): CalibrationState {
-  return { units: {}, rules: {} };
+  return { profile: DEFAULT_PROFILE, units: {}, rules: {} };
+}
+
+function normalizeProfile(p: unknown): ValueProfile {
+  return p === 'referenz' ? 'referenz' : DEFAULT_PROFILE;
 }
 
 export function loadCalibration(): CalibrationState {
   try {
-    const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
+    const raw = globalThis.localStorage?.getItem(STORAGE_KEY) ?? globalThis.localStorage?.getItem(LEGACY_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<CalibrationState>;
-      return { units: parsed.units ?? {}, rules: parsed.rules ?? {} };
+      return { profile: normalizeProfile(parsed.profile), units: parsed.units ?? {}, rules: parsed.rules ?? {} };
     }
   } catch {
     /* ignorieren */
@@ -101,9 +108,11 @@ function setAtPath(obj: Record<string, unknown>, path: string, value: number): b
   return false;
 }
 
-/** Baut die Einheitenbibliothek mit angewendeten Überschreibungen. */
+/** Baut die Einheitenbibliothek des gewählten Profils; Überschreibungen wirken nur im Kalibrierprofil. */
 export function buildUnitDefs(c: CalibrationState): UnitDefLibrary {
-  const defs = baseUnitDefs();
+  const profile = normalizeProfile(c.profile);
+  const defs = baseUnitDefs(profile);
+  if (profile !== 'referenz') return new UnitDefLibrary(defs);
   for (const d of defs) {
     const overrides = c.units[d.id];
     if (!overrides) continue;
@@ -128,8 +137,8 @@ export function ruleDefault(key: RuleKey): number | boolean {
   return DEFAULT_RULES[key];
 }
 
-/** Welche der kalibrierten Pfade aktuell noch auf Platzhaltern stehen (nicht vom Nutzer gesetzt). */
-export function unverifiedPaths(c: CalibrationState, defs: readonly UnitDef[] = baseUnitDefs()): string[] {
+/** Welche der kalibrierten Pfade aktuell noch auf Platzhaltern stehen (nur im Kalibrierprofil; sonst leer). */
+export function unverifiedPaths(c: CalibrationState, defs: readonly UnitDef[] = baseUnitDefs(normalizeProfile(c.profile))): string[] {
   return listCalibrationEntries(defs)
     .filter((e) => c.units[e.unitId]?.[e.path] === undefined)
     .map((e) => `${e.unitId}.${e.path}`);

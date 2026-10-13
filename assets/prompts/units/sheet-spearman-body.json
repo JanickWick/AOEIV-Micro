@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Character reference sheet of a medieval spearman (light infantry) for a 3D model: the same figure shown three times side by side, full body, standing straight, arms hanging slightly away from the body (A-pose, about 25 degrees), legs slightly apart, hands open and EMPTY. Views: front view, left side view, back view. Same painterly style as the attached portrait. Simple kettle helmet (iron hat with brim), padded brown gambeson with a cobalt-blue tabard (team colour #1F5FBF) and a brown belt, grey wool trousers, leather shoes, leather bracers. NO weapon, no shield, nothing in the hands. Painterly-realistic style with crisp detail, warm neutral even lighting, no cast shadows, clean readable silhouette. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00 with absolutely no scenery, no ground, no sky, no gradient. No text.",
+  "aspect_ratio": "16:9",
+  "resolution": "2K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-spearman-red.png"
+  ],
+  "out": "assets/raw/units/sheet-spearman-body.png",
+  "result": {
+    "request_id": "01a13537-602a-7073-9c63-8d9de539d16f",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:23:31.479Z",
+    "files": [
+      "assets/raw/units/sheet-spearman-body.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36aa/wEONKIuXxQHsTyKwZk2P8_mPRWYQvx.png"
+    ],
+    "description": ""
+  }
+}

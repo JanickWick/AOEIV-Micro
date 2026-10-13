@@ -1,9 +1,26 @@
 /**
- * Typen und Lader für die Einheitendaten unter src/data/units/*.json.
- * Werte, die in der Quelle (aoe4world) fehlen, stehen dort als
+ * Typen und Lader für die Einheitendaten.
+ * Auslieferungsstandard ist das eigene Werteprofil (src/data/units/*.json). Daneben gibt es
+ * das importierte Referenzprofil (src/data/units/reference/), das nur als Kalibrierprofil
+ * wählbar ist; Werte, die dessen Quelle nicht liefert, stehen dort als
  * { value, verified: false, note } – `stat()` löst beide Schreibweisen auf.
  */
 import { UNIT_JSON } from '../data/units/index';
+import { UNIT_JSON as REFERENCE_UNIT_JSON } from '../data/units/reference/index';
+
+/** Werteprofil: 'eigen' = Auslieferungsstandard, 'referenz' = importiertes Kalibrierprofil. */
+export type ValueProfile = 'eigen' | 'referenz';
+export const DEFAULT_PROFILE: ValueProfile = 'eigen';
+export const PROFILES: readonly { id: ValueProfile; label: string; note: string }[] = [
+  { id: 'eigen', label: 'Eigenes Werteprofil (Standard)', note: 'Eigene Spielwerte der Kompanie: gerundet und leicht verschoben, gleiche Schadensformel und Konter.' },
+  { id: 'referenz', label: 'Kalibrierprofil (importierte Referenzwerte)', note: 'Importierte Werte zum Abgleich mit dem Vorbild; Platzhalter sind im Kalibrierabschnitt einstellbar. Nicht der Standard.' },
+];
+
+/** Rohdaten eines Profils (tief kopiert, damit Überschreibungen die Vorlage nicht verändern). */
+export function profileUnitJson(profile: ValueProfile = DEFAULT_PROFILE): UnitDef[] {
+  const src = profile === 'referenz' ? REFERENCE_UNIT_JSON : UNIT_JSON;
+  return structuredClone(src as unknown as UnitDef[]);
+}
 
 export interface UnverifiedStat {
   value: number;
@@ -110,7 +127,7 @@ export class UnitDefLibrary {
     return d;
   }
 
-  /** Liefert die Werte einer Einheit für ein Zeitalter; fällt auf das nächstniedrigere vorhandene zurück. */
+  /** Liefert die Werte einer Einheit für eine Ausbildungsstufe; fällt auf das nächstniedrigere vorhandene zurück. */
   ageStats(id: string, age: number): AgeStats {
     const d = this.get(id);
     for (let a = age; a >= 1; a--) {
@@ -118,7 +135,7 @@ export class UnitDefLibrary {
       if (s) return s;
     }
     const first = Object.keys(d.ages).sort()[0];
-    if (!first) throw new Error(`Einheit ${id} hat keine Zeitalter-Werte`);
+    if (!first) throw new Error(`Einheit ${id} hat keine Stufen-Werte`);
     return d.ages[first]!;
   }
 
@@ -139,16 +156,16 @@ export function validateUnitDef(d: UnitDef): void {
   must(Array.isArray(d.tags), 'tags fehlen');
   must(d.ages && Object.keys(d.ages).length > 0, 'ages fehlen');
   for (const [age, s] of Object.entries(d.ages)) {
-    must(s.hp > 0, `hp für Zeitalter ${age} fehlt`);
-    must(typeof s.armor?.melee === 'number' && typeof s.armor?.ranged === 'number', `armor für Zeitalter ${age} fehlt`);
-    must(typeof s.resistance?.melee === 'number' && typeof s.resistance?.ranged === 'number', `resistance für Zeitalter ${age} fehlt`);
+    must(s.hp > 0, `hp für Stufe ${age} fehlt`);
+    must(typeof s.armor?.melee === 'number' && typeof s.armor?.ranged === 'number', `armor für Stufe ${age} fehlt`);
+    must(typeof s.resistance?.melee === 'number' && typeof s.resistance?.ranged === 'number', `resistance für Stufe ${age} fehlt`);
     const w = s.weapon;
-    must(!!w && typeof w.damage === 'number', `weapon für Zeitalter ${age} fehlt`);
-    must(w.range.max >= w.range.min, `range für Zeitalter ${age} ungültig`);
+    must(!!w && typeof w.damage === 'number', `weapon für Stufe ${age} fehlt`);
+    must(w.range.max >= w.range.min, `range für Stufe ${age} ungültig`);
     const t = w.timing;
-    must(t.period > 0 && t.windup >= 0 && t.hit >= 0 && t.recovery >= 0 && t.cooldown >= 0, `timing für Zeitalter ${age} ungültig`);
-    must(Math.abs(t.windup + t.recovery + t.cooldown - t.period) < 1e-6, `timing-Summe für Zeitalter ${age} ≠ period`);
-    if (w.type !== 'melee') must(!!w.projectile, `projectile für Zeitalter ${age} fehlt`);
+    must(t.period > 0 && t.windup >= 0 && t.hit >= 0 && t.recovery >= 0 && t.cooldown >= 0, `timing für Stufe ${age} ungültig`);
+    must(Math.abs(t.windup + t.recovery + t.cooldown - t.period) < 1e-6, `timing-Summe für Stufe ${age} ≠ period`);
+    if (w.type !== 'melee') must(!!w.projectile, `projectile für Stufe ${age} fehlt`);
   }
 }
 
@@ -174,10 +191,19 @@ export function bonusApplies(bonus: WeaponBonus, targetTags: readonly string[]):
   return bonus.targetTags.some((andGroup) => andGroup.every((t) => set.has(t)));
 }
 
-let defaultLib: UnitDefLibrary | null = null;
+const libs = new Map<ValueProfile, UnitDefLibrary>();
 
-/** Die mitgelieferten Einheitendaten (einmalig geladen). */
+/** Die mitgelieferten Einheitendaten des Standardprofils (einmalig geladen). */
 export function defaultUnitDefs(): UnitDefLibrary {
-  if (!defaultLib) defaultLib = new UnitDefLibrary(UNIT_JSON as unknown as readonly UnitDef[]);
-  return defaultLib;
+  return profileUnitDefs(DEFAULT_PROFILE);
+}
+
+/** Die Einheitendaten eines Profils (einmalig geladen). */
+export function profileUnitDefs(profile: ValueProfile): UnitDefLibrary {
+  let lib = libs.get(profile);
+  if (!lib) {
+    lib = new UnitDefLibrary(profileUnitJson(profile));
+    libs.set(profile, lib);
+  }
+  return lib;
 }

@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Square ornate user-interface frame for a medieval strategy game: a border of dark blue-black lacquered wood and burnished dark steel with thin antique gold trim lines, bevelled edges, small riveted corner brackets, the border about 8% of the width thick on all four sides, identical on all sides, straight, symmetric. The entire inside of the frame is one flat uniform pure chroma-key green #00FF00, and the outside of the frame is also pure chroma-key green #00FF00. Flat front view, orthographic, evenly lit, crisp, high detail. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/ui/frame-panel.png",
+  "result": {
+    "request_id": "01a13581-49fa-73d2-92c7-1bcf400823f6",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T13:44:04.809Z",
+    "files": [
+      "assets/raw/ui/frame-panel.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae388e/BfTZYeLosTTb9HUQiZV6E_kQ6I9ors.png"
+    ],
+    "description": ""
+  }
+}

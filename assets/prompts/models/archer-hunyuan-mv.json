@@ -1,0 +1,35 @@
+{
+  "model": "fal-ai/hunyuan3d/v2/multi-view",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "front_image_url": "assets/processed/units/archer-view-front.png",
+    "back_image_url": "assets/processed/units/archer-view-back.png",
+    "left_image_url": "assets/processed/units/archer-view-side.png"
+  },
+  "out": "assets/raw/models/archer-hunyuan-mv.glb",
+  "result": {
+    "request_id": "01a1350f-390f-7273-bbf4-81f4314ffb1d",
+    "at": "2026-10-13T11:39:44.103Z",
+    "seconds": 32,
+    "files": [
+      "assets/raw/models/archer-hunyuan-mv.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae35a5/w2IFmK1rilrZk4bsbco_I_multiview_mesh-1791891561-403958.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae35a5/w2IFmK1rilrZk4bsbco_I_multiview_mesh-1791891561-403958.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "multiview_mesh-1791891561-403958.glb",
+        "file_size": 4459172
+      },
+      "seed": 403958
+    }
+  }
+}

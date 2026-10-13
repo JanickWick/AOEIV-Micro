@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Top-down seamless texture of lush green meadow grass with tiny wildflowers (white and yellow), slightly varied blade colour, viewed exactly from above. Seamless and tileable: the left edge continues the right edge and the top edge continues the bottom edge, no visible border, no vignette, no text, no watermark. Even diffuse daylight, no strong cast shadows, photoreal-painterly like the attached reference.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/processed/style/terrain-grass.png"
+  ],
+  "out": "assets/raw/terrain/terrain-grass-lush.png",
+  "result": {
+    "request_id": "01a13553-29fd-7723-85be-e12feb9983ac",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:53:44.303Z",
+    "files": [
+      "assets/raw/terrain/terrain-grass-lush.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3760/36M8QGtt9AHki0pvw_aFD_A4ZTV9d5.png"
+    ],
+    "description": ""
+  }
+}

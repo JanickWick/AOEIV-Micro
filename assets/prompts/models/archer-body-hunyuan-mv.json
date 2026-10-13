@@ -1,0 +1,35 @@
+{
+  "model": "fal-ai/hunyuan3d/v2/multi-view",
+  "input": {
+    "textured_mesh": true,
+    "num_inference_steps": 50,
+    "octree_resolution": 256,
+    "guidance_scale": 7.5
+  },
+  "refs": {
+    "front_image_url": "assets/processed/units/archer-body-front.png",
+    "back_image_url": "assets/processed/units/archer-body-back.png",
+    "left_image_url": "assets/processed/units/archer-body-side.png"
+  },
+  "out": "assets/raw/models/archer-body-hunyuan-mv.glb",
+  "result": {
+    "request_id": "01a13515-97ab-7150-b6e1-4a8395857012",
+    "at": "2026-10-13T11:48:19.368Z",
+    "seconds": 130,
+    "files": [
+      "assets/raw/models/archer-body-hunyuan-mv.glb"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae35d9/TuZp1YmLfe2Saeik-mjJB_multiview_mesh-1791892072-560884.glb"
+    ],
+    "raw": {
+      "model_mesh": {
+        "url": "https://v3b.fal.media/files/b/0aae35d9/TuZp1YmLfe2Saeik-mjJB_multiview_mesh-1791892072-560884.glb",
+        "content_type": "application/octet-stream",
+        "file_name": "multiview_mesh-1791892072-560884.glb",
+        "file_size": 4053276
+      },
+      "seed": 560884
+    }
+  }
+}

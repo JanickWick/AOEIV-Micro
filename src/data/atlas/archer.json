@@ -1,0 +1,18 @@
+{
+  "size": 1024,
+  "comment": "Regionen des Textur-Atlas in Pixeln [x0, y0, x1, y1]; 'source' ist das Material-Bild unter assets/raw/units bzw. eine Flachfarbe; 'team' markiert Flächen, die im Shader mit der Teamfarbe eingefärbt werden.",
+  "regions": {
+    "tabard":   { "rect": [0, 0, 512, 256],      "source": "mat-tabard",     "team": true,  "desaturate": true },
+    "gambeson": { "rect": [512, 0, 1024, 256],   "source": "mat-gambeson" },
+    "trousers": { "rect": [0, 256, 256, 512],    "source": "mat-wool-brown" },
+    "leather":  { "rect": [256, 256, 512, 512],  "source": "mat-leather" },
+    "face":     { "rect": [512, 256, 768, 512],  "source": "face-archer", "faceWidth": 0.42 },
+    "wood":     { "rect": [768, 256, 1024, 512], "source": "mat-wood" },
+    "skin":     { "rect": [0, 512, 128, 640],    "source": "#d9a97f" },
+    "boot":     { "rect": [128, 512, 256, 640],  "source": "mat-leather", "darken": 0.65 },
+    "steel":    { "rect": [256, 512, 384, 640],  "source": "#9aa3ad" },
+    "feather":  { "rect": [384, 512, 512, 640],  "source": "#d8d2c4" },
+    "cap":      { "rect": [512, 512, 768, 768],  "source": "mat-leather", "darken": 0.85 },
+    "string":   { "rect": [768, 512, 832, 576],  "source": "#e6dcc8" }
+  }
+}

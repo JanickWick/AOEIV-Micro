@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Face texture for a low-poly game character: a weathered medieval soldier, woman around forty, short dark hair pulled back, frontal view, neutral calm expression, eyes open looking straight ahead, perfectly even flat lighting with no shadows, no helmet, no clothing. The face fills the frame; the areas around the face are filled with the same flat skin tone so the texture can be projected onto a sphere. Painted realism matching the reference. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/face-soldier.png",
+  "result": {
+    "request_id": "01a13509-4361-7901-8270-85a3127322bb",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:33:01.297Z",
+    "files": [
+      "assets/raw/units/face-soldier.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae357c/LIZNVX-FY8KJ_sgLOB09N_4YWwoaEZ.png"
+    ],
+    "description": ""
+  }
+}

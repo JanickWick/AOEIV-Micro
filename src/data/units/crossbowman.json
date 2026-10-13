@@ -1,109 +1,34 @@
 {
   "id": "crossbowman",
-  "name": "Crossbowman",
+  "name": "Armbrustschütze",
   "kind": "infantry",
   "shape": "circle",
-  "displayClass": "Light Ranged Infantry",
+  "displayClass": "Leichte Fernkampf-Infanterie",
   "tags": [
-    "annihilation_condition",
-    "crossbow_incendiary_3",
-    "crossbowman",
-    "find_non_siege_land_military",
-    "formational",
-    "human",
-    "included_by_military_hotkeys",
     "infantry",
-    "infantry_light",
-    "land_military",
     "light",
-    "military",
     "ranged",
-    "ranged_infantry"
+    "military"
   ],
   "source": {
-    "provider": "aoe4world",
-    "url": "https://data.aoe4world.com/units/all.json",
-    "version": "0.0.2",
-    "importedAt": "2026-10-12",
-    "variants": {
-      "3": {
-        "id": "crossbowman-3",
-        "attribName": "unit_crossbowman_3_abb",
-        "pbgid": 199711,
-        "civs": [
-          "ab",
-          "ay",
-          "by",
-          "ch",
-          "de",
-          "en",
-          "gol",
-          "hl",
-          "hr",
-          "jin",
-          "kt",
-          "mac",
-          "mo",
-          "ot",
-          "ru",
-          "tug",
-          "zx"
-        ]
-      },
-      "4": {
-        "id": "crossbowman-4",
-        "attribName": "unit_crossbowman_4_abb",
-        "pbgid": 199712,
-        "civs": [
-          "ab",
-          "ay",
-          "by",
-          "ch",
-          "de",
-          "en",
-          "gol",
-          "hl",
-          "hr",
-          "jin",
-          "kt",
-          "mac",
-          "mo",
-          "ot",
-          "ru",
-          "tug",
-          "zx"
-        ]
-      }
-    }
+    "provider": "eigen",
+    "note": "Eigenes Werteprofil der Freien Kompanie, erzeugt von scripts/write-own-units.mjs. Keine Spieldaten."
   },
   "movement": {
-    "speed": 1.125,
-    "collisionRadius": {
-      "value": 0.22,
-      "verified": false,
-      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 5: Auswahlring-Durchmesser 0,45 Tiles, Formationsabstand 0,65 Tiles; Maßstab 55,6 px/Tile ±15 %); nicht aus Spieldatei.",
-      "measured": true
-    },
-    "acceleration": {
-      "value": 10,
-      "verified": false,
-      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
-    },
-    "turnRate": {
-      "value": 720,
-      "verified": false,
-      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
-    }
+    "speed": 1.15,
+    "collisionRadius": 0.22,
+    "acceleration": 10,
+    "turnRate": 720
   },
   "sight": {
-    "line": 40,
-    "base": 25.6
+    "line": 36,
+    "base": 21
   },
   "abilities": {},
   "ages": {
     "3": {
-      "name": "Crossbowman",
-      "hp": 80,
+      "name": "Armbrustschütze (Veteran)",
+      "hp": 85,
       "armor": {
         "melee": 0,
         "ranged": 0
@@ -113,39 +38,33 @@
         "ranged": 0
       },
       "cost": {
-        "food": 80,
-        "wood": 0,
-        "gold": 40,
+        "food": 40,
+        "wood": 40,
+        "gold": 45,
         "stone": 0,
-        "total": 120
+        "total": 125
       },
       "weapon": {
-        "name": "Crossbow",
+        "name": "Armbrust",
         "type": "ranged",
-        "damage": 11,
         "range": {
           "min": 0,
-          "max": 5
+          "max": 5.5
         },
         "timing": {
-          "windup": 0.25,
-          "hit": 0.25,
-          "recovery": 0.125,
-          "cooldown": 1.75,
-          "period": 2.125,
+          "windup": 0.3,
+          "hit": 0.3,
+          "recovery": 0.1,
+          "cooldown": 1.6,
+          "period": 2,
           "setup": 0,
           "teardown": 0
         },
-        "sourceDurations": {
-          "aim": 0.25,
-          "windup": 0,
-          "attack": 0.125,
-          "winddown": 0,
-          "reload": 1.75,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0
+        "projectile": {
+          "speed": 13,
+          "homing": true
         },
+        "damage": 12,
         "bonus": [
           {
             "targetTags": [
@@ -153,23 +72,14 @@
                 "heavy"
               ]
             ],
-            "damage": 10
+            "damage": 11
           }
-        ],
-        "projectile": {
-          "speed": {
-            "value": 12,
-            "verified": false,
-            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in aoe4world; im Spiel nachmessen."
-          },
-          "homing": true
-        }
-      },
-      "otherWeapons": []
+        ]
+      }
     },
     "4": {
-      "name": "Elite Crossbowman",
-      "hp": 95,
+      "name": "Armbrustschütze (Garde)",
+      "hp": 100,
       "armor": {
         "melee": 0,
         "ranged": 0
@@ -179,39 +89,33 @@
         "ranged": 0
       },
       "cost": {
-        "food": 80,
-        "wood": 0,
-        "gold": 40,
+        "food": 40,
+        "wood": 40,
+        "gold": 45,
         "stone": 0,
-        "total": 120
+        "total": 125
       },
       "weapon": {
-        "name": "Crossbow",
+        "name": "Armbrust",
         "type": "ranged",
-        "damage": 14,
         "range": {
           "min": 0,
-          "max": 5
+          "max": 5.5
         },
         "timing": {
-          "windup": 0.25,
-          "hit": 0.25,
-          "recovery": 0.125,
-          "cooldown": 1.75,
-          "period": 2.125,
+          "windup": 0.3,
+          "hit": 0.3,
+          "recovery": 0.1,
+          "cooldown": 1.6,
+          "period": 2,
           "setup": 0,
           "teardown": 0
         },
-        "sourceDurations": {
-          "aim": 0.25,
-          "windup": 0,
-          "attack": 0.125,
-          "winddown": 0,
-          "reload": 1.75,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0
+        "projectile": {
+          "speed": 13,
+          "homing": true
         },
+        "damage": 15,
         "bonus": [
           {
             "targetTags": [
@@ -219,19 +123,10 @@
                 "heavy"
               ]
             ],
-            "damage": 12
+            "damage": 13
           }
-        ],
-        "projectile": {
-          "speed": {
-            "value": 12,
-            "verified": false,
-            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in aoe4world; im Spiel nachmessen."
-          },
-          "homing": true
-        }
-      },
-      "otherWeapons": []
+        ]
+      }
     }
   }
 }

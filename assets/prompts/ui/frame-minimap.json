@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Circular ornamental ring for a strategy-game user interface, like an antique brass astrolabe rim: a ring of burnished dark steel and dark blue-black lacquered wood with thin antique gold trim, small gold compass points at the top, bottom, left and right, rivets, bevelled edges; the ring thickness about 6% of the image width, centred, nearly filling the square. Everything inside the ring and everything outside it is one flat uniform pure chroma-key green #00FF00. Flat front view, orthographic, evenly lit, crisp, high detail. Style: realistic medieval strategy-game art, painterly realism with crisp detail, warm late-afternoon sunlight from the upper left, golden-ochre and olive tones, muted dusty greens, soft long shadows, slight atmospheric haze. Match the attached reference image exactly in palette, lighting and brushwork. No text, no watermark, no logos.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/style/ref-battlefield.jpg"
+  ],
+  "out": "assets/raw/ui/frame-minimap.png",
+  "result": {
+    "request_id": "01a13582-5db8-7850-93ef-63eaff3d05cb",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T13:45:17.498Z",
+    "files": [
+      "assets/raw/ui/frame-minimap.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae3895/j1qcJkSODddEYINbrwdMx_f4oDez6D.png"
+    ],
+    "description": ""
+  }
+}

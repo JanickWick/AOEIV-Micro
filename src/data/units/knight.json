@@ -1,170 +1,44 @@
 {
   "id": "knight",
-  "name": "Knight",
+  "name": "Ritter",
   "kind": "cavalry",
   "shape": "diamond",
-  "displayClass": "Heavy Melee Cavalry",
+  "displayClass": "Schwere Kavallerie",
   "tags": [
-    "annihilation_condition",
-    "armored",
     "cavalry",
-    "cavalry_armored",
-    "find_non_siege_land_military",
-    "formational",
     "heavy",
-    "horse",
-    "human",
-    "included_by_military_hotkeys",
-    "knight",
-    "land_military",
     "melee",
-    "military",
-    "torch_thrower"
+    "military"
   ],
   "source": {
-    "provider": "aoe4world",
-    "url": "https://data.aoe4world.com/units/all.json",
-    "version": "0.0.2",
-    "importedAt": "2026-10-12",
-    "variants": {
-      "2": {
-        "id": "knight-2",
-        "attribName": "unit_knight_2_rus",
-        "pbgid": 133509,
-        "civs": [
-          "ru"
-        ]
-      },
-      "3": {
-        "id": "knight-3",
-        "attribName": "unit_knight_3_eng",
-        "pbgid": 166401,
-        "civs": [
-          "en",
-          "hl",
-          "hr",
-          "ru"
-        ]
-      },
-      "4": {
-        "id": "knight-4",
-        "attribName": "unit_knight_4_eng",
-        "pbgid": 166402,
-        "civs": [
-          "en",
-          "hl",
-          "hr",
-          "ru"
-        ]
-      }
-    }
+    "provider": "eigen",
+    "note": "Eigenes Werteprofil der Freien Kompanie, erzeugt von scripts/write-own-units.mjs. Keine Spieldaten."
   },
   "movement": {
-    "speed": 1.625,
-    "collisionRadius": {
-      "value": 0.4,
-      "verified": false,
-      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 2: Auswahlring-Durchmesser 0,99 Tiles, Formationsabstand 0,93 Tiles; ±15 %); nicht aus Spieldatei.",
-      "measured": true
-    },
-    "acceleration": {
-      "value": 5,
-      "verified": false,
-      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
-    },
-    "turnRate": {
-      "value": 360,
-      "verified": false,
-      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
-    }
+    "speed": 1.7,
+    "collisionRadius": 0.4,
+    "acceleration": 5,
+    "turnRate": 360
   },
   "sight": {
-    "line": 28,
-    "base": 13.6
+    "line": 40,
+    "base": 24
   },
   "abilities": {
     "charge": {
       "enabled": true,
-      "bonusDamage": {
-        "value": 10,
-        "verified": false,
-        "note": "Zusatzschaden beim Ansturm-Treffer – nicht in aoe4world; im Spiel nachmessen."
-      },
-      "minRunUp": {
-        "value": 3,
-        "verified": false,
-        "note": "Mindest-Anlaufstrecke in Tiles, bevor der Ansturm zählt."
-      },
-      "speedMultiplier": {
-        "value": 1.4,
-        "verified": false,
-        "note": "Tempo-Multiplikator während des Ansturms."
-      },
-      "cooldown": {
-        "value": 10,
-        "verified": false,
-        "note": "Abklingzeit des Ansturms in Sekunden."
-      }
+      "bonusDamage": 12,
+      "minRunUp": 3,
+      "speedMultiplier": 1.4,
+      "cooldown": 9
     }
   },
   "ages": {
     "2": {
-      "name": "Early Knight",
-      "hp": 190,
+      "name": "Ritter (Söldner)",
+      "hp": 200,
       "armor": {
         "melee": 3,
-        "ranged": 3
-      },
-      "resistance": {
-        "melee": 0,
-        "ranged": 0
-      },
-      "cost": {
-        "food": 140,
-        "wood": 0,
-        "gold": 100,
-        "stone": 0,
-        "total": 240
-      },
-      "weapon": {
-        "name": "Sword",
-        "type": "melee",
-        "damage": 19,
-        "range": {
-          "min": 0,
-          "max": 0.2875
-        },
-        "timing": {
-          "windup": 0.5,
-          "hit": 0.5,
-          "recovery": 0.125,
-          "cooldown": 0.875,
-          "period": 1.5,
-          "setup": 0,
-          "teardown": 0
-        },
-        "sourceDurations": {
-          "aim": 0,
-          "windup": 0.5,
-          "attack": 0.125,
-          "winddown": 0,
-          "reload": 0,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0.875
-        },
-        "bonus": []
-      },
-      "otherWeapons": [
-        "Poleax",
-        "Torch"
-      ]
-    },
-    "3": {
-      "name": "Knight",
-      "hp": 230,
-      "armor": {
-        "melee": 4,
         "ranged": 4
       },
       "resistance": {
@@ -174,48 +48,35 @@
       "cost": {
         "food": 140,
         "wood": 0,
-        "gold": 100,
+        "gold": 110,
         "stone": 0,
-        "total": 240
+        "total": 250
       },
       "weapon": {
-        "name": "Sword",
+        "name": "Lanze",
         "type": "melee",
-        "damage": 24,
         "range": {
           "min": 0,
-          "max": 0.2875
+          "max": 0.3
         },
         "timing": {
           "windup": 0.5,
           "hit": 0.5,
-          "recovery": 0.125,
-          "cooldown": 0.875,
-          "period": 1.5,
+          "recovery": 0.15,
+          "cooldown": 0.95,
+          "period": 1.6,
           "setup": 0,
           "teardown": 0
         },
-        "sourceDurations": {
-          "aim": 0,
-          "windup": 0.5,
-          "attack": 0.125,
-          "winddown": 0,
-          "reload": 0,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0.875
-        },
+        "damage": 20,
         "bonus": []
-      },
-      "otherWeapons": [
-        "Torch"
-      ]
+      }
     },
-    "4": {
-      "name": "Elite Knight",
-      "hp": 270,
+    "3": {
+      "name": "Ritter (Veteran)",
+      "hp": 240,
       "armor": {
-        "melee": 5,
+        "melee": 4,
         "ranged": 5
       },
       "resistance": {
@@ -225,42 +86,67 @@
       "cost": {
         "food": 140,
         "wood": 0,
-        "gold": 100,
+        "gold": 110,
         "stone": 0,
-        "total": 240
+        "total": 250
       },
       "weapon": {
-        "name": "Sword",
+        "name": "Lanze",
         "type": "melee",
-        "damage": 29,
         "range": {
           "min": 0,
-          "max": 0.2875
+          "max": 0.3
         },
         "timing": {
           "windup": 0.5,
           "hit": 0.5,
-          "recovery": 0.125,
-          "cooldown": 0.875,
-          "period": 1.5,
+          "recovery": 0.15,
+          "cooldown": 0.95,
+          "period": 1.6,
           "setup": 0,
           "teardown": 0
         },
-        "sourceDurations": {
-          "aim": 0,
-          "windup": 0.5,
-          "attack": 0.125,
-          "winddown": 0,
-          "reload": 0,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0.875
-        },
+        "damage": 25,
         "bonus": []
+      }
+    },
+    "4": {
+      "name": "Ritter (Garde)",
+      "hp": 280,
+      "armor": {
+        "melee": 5,
+        "ranged": 6
       },
-      "otherWeapons": [
-        "Torch"
-      ]
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 140,
+        "wood": 0,
+        "gold": 110,
+        "stone": 0,
+        "total": 250
+      },
+      "weapon": {
+        "name": "Lanze",
+        "type": "melee",
+        "range": {
+          "min": 0,
+          "max": 0.3
+        },
+        "timing": {
+          "windup": 0.5,
+          "hit": 0.5,
+          "recovery": 0.15,
+          "cooldown": 0.95,
+          "period": 1.6,
+          "setup": 0,
+          "teardown": 0
+        },
+        "damage": 30,
+        "bonus": []
+      }
     }
   }
 }

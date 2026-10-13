@@ -7,8 +7,11 @@ import { createAi, type AiController } from '../sim/ai';
 import { normalize, type Vec2 } from '../sim/math';
 import { buildWorldFromScenario, evaluateOutcome, type Outcome, type ScenarioDef } from '../sim/scenario';
 import { stepWorld } from '../sim/step';
+import { hashWorld } from '../sim/hash';
+import { buildReplayWorld, ReplayPlayer, ReplayRecorder, replayScenario, type Replay } from '../sim/replay';
 import type { Command, Formation, SimRules, UnitId, World } from '../sim/types';
-import type { UnitDefLibrary } from '../sim/unitDefs';
+import type { UnitDefLibrary, ValueProfile } from '../sim/unitDefs';
+import { APP_VERSION } from '../version';
 import { Camera2D } from './camera';
 import { Camera3D } from './camera3d';
 import { ControlGroups } from './groups';
@@ -20,7 +23,7 @@ import { computeMinimapLayout, minimapContains, minimapScreenToWorld, type Minim
 import { render, type Marker } from './renderer';
 import { commandTargets, cycleSubgroup, onlyType, removeType, resolveActive, subgroupsOf, unitName } from './subgroups';
 import { normalizeRect, pruneSelection, toggleSelection, unitAtPoint, unitAtScreenPoint, unitsInScreenRect, unitsOfTypeInRect, type Rect } from './selection';
-import type { DisplaySettings } from './settings';
+import type { DisplaySettings, QualityLevel } from './settings';
 import { RoundStats, type InputAction, type RoundSummary } from '../sim/stats';
 import { Drill, type DrillSummary } from './drill';
 
@@ -35,6 +38,24 @@ const MAX_TICKS_PER_FRAME = 10;
 const MY_PLAYER = 0;
 
 export type TargetingMode = 'attackMove' | 'patrol' | null;
+
+/** Optionen für einen Neustart: fester Seed (Daily), Replay-Wiedergabe. */
+export interface RestartOptions {
+  seed?: number;
+  randomStart?: boolean;
+  /** Daily-Tag, zu dem die Runde gehört (für Geist und Auswertung). */
+  dailyKey?: string | null;
+  /** Replay abspielen statt selbst zu steuern. */
+  replay?: Replay;
+}
+
+/** Laufender Geisterlauf: eigene Welt, die mit den Befehlen des Bestlaufs mitläuft. */
+interface GhostRun {
+  world: World;
+  player: ReplayPlayer;
+  ai: AiController | null;
+  replay: Replay;
+}
 
 interface DragState {
   button: number;
@@ -74,6 +95,22 @@ export class Game {
   /** Seed und Zufallsstart der laufenden Runde (für den Vergleichslauf). */
   roundSeed = 1;
   roundRandomStart = false;
+  /** Daily-Tag der laufenden Runde oder null. */
+  dailyKey: string | null = null;
+  /** Werteprofil der Einheitendaten (steht im Replay). */
+  profile: ValueProfile = 'eigen';
+  /** Befehlsaufzeichnung der laufenden Runde und das Replay der letzten beendeten Runde. */
+  private recorder = new ReplayRecorder();
+  lastReplay: Replay | null = null;
+  /** Replay-Wiedergabe (Eingaben steuern nur noch Kamera und Auswahl). */
+  private playback: ReplayPlayer | null = null;
+  /** Ergebnis der Hash-Prüfung am Ende der Wiedergabe (null = noch offen). */
+  playbackMatches: boolean | null = null;
+  private ghost: GhostRun | null = null;
+  /** Geisterlauf anzeigen (Einstellung). */
+  showGhost = true;
+  /** Liefert den Bestlauf für Szenario, Seed und Zufallsstart (vom Hauptprogramm gesetzt). */
+  ghostProvider: ((scenarioId: string, seed: number, randomStart: boolean, dailyKey: string | null) => Replay | null) | null = null;
 
   private accumulator = 0;
   private lastFrame = 0;
@@ -143,7 +180,7 @@ export class Game {
     if (view === '3d') {
       if (!this.scene3d) {
         try {
-          this.scene3d = new Scene3D(this.glCanvas, { shadows: this.settings.shadows });
+          this.scene3d = new Scene3D(this.glCanvas, { quality: this.settings.quality });
         } catch (e) {
           console.error('3D-Ansicht nicht verfügbar (WebGL?):', e);
           this.view = '2d';
@@ -161,22 +198,61 @@ export class Game {
     this.scene3d?.setShadows(on);
   }
 
+  setQuality(level: QualityLevel): void {
+    this.scene3d?.setQuality(level);
+  }
+
   // ---------------------------------------------------------------- Szenario
 
   /** Neue Einheitendaten/Regeln (Kalibrierung) übernehmen; wirkt ab dem nächsten Neustart. */
-  setDefs(defs: UnitDefLibrary, rules: Partial<SimRules>): void {
+  setDefs(defs: UnitDefLibrary, rules: Partial<SimRules>, profile: ValueProfile = this.profile): void {
     this.defs = defs;
     this.ruleOverrides = rules;
+    this.profile = profile;
   }
 
-  restart(scenario?: ScenarioDef): void {
-    if (scenario) this.scenario = scenario;
+  get isPlayback(): boolean {
+    return this.playback !== null;
+  }
+
+  /** Welt des mitlaufenden Geisterlaufs (null ohne Geist). */
+  get ghostWorld(): World | null {
+    return this.ghost?.world ?? null;
+  }
+
+  restart(scenario?: ScenarioDef, opts: RestartOptions = {}): void {
+    if (opts.replay) {
+      this.scenario = replayScenario(opts.replay);
+      this.playback = new ReplayPlayer(opts.replay);
+    } else {
+      this.playback = null;
+      if (scenario) this.scenario = scenario;
+    }
+    this.playbackMatches = null;
     const sc = this.scenario;
-    const seed = (sc.seed ?? 1) + (this.settings.randomStart ? this.seedOffset++ : 0);
-    const merged: ScenarioDef = { ...sc, rules: { ...(sc.rules ?? {}), ...this.ruleOverrides } };
-    this.world = buildWorldFromScenario(this.defs, merged, { seed, randomStart: this.settings.randomStart });
+    const randomStart = opts.replay ? opts.replay.randomStart : (opts.randomStart ?? this.settings.randomStart);
+    const seed = opts.replay ? opts.replay.seed : (opts.seed ?? (sc.seed ?? 1) + (randomStart ? this.seedOffset++ : 0));
+    // Beim Abspielen gelten die Regeln des Replays (stehen schon im Szenario), sonst die Kalibrierung.
+    const merged: ScenarioDef = opts.replay ? sc : { ...sc, rules: { ...(sc.rules ?? {}), ...this.ruleOverrides } };
+    this.world = buildWorldFromScenario(this.defs, merged, { seed, randomStart });
     this.roundSeed = seed;
-    this.roundRandomStart = this.settings.randomStart;
+    this.roundRandomStart = randomStart;
+    this.dailyKey = opts.dailyKey ?? null;
+    this.recorder = new ReplayRecorder();
+    this.lastReplay = null;
+    this.ghost = null;
+    if (!this.playback && this.showGhost && sc.kind !== 'drill' && this.ghostProvider) {
+      const g = this.ghostProvider(sc.id, seed, randomStart, this.dailyKey);
+      if (g && g.seed === seed && g.randomStart === randomStart && g.scenarioId === sc.id) {
+        try {
+          const gw = buildReplayWorld(this.defs, g, false);
+          const gsc = replayScenario(g);
+          this.ghost = { world: gw, player: new ReplayPlayer(g), ai: gsc.ai && gsc.ai.level !== 'none' ? createAi(1, gsc.ai) : null, replay: g };
+        } catch (e) {
+          console.warn('Geisterlauf nicht ladbar:', e);
+        }
+      }
+    }
     this.ai = sc.ai && sc.ai.level !== 'none' ? createAi(1, sc.ai) : null;
     this.tracker = new RoundStats(MY_PLAYER);
     this.outcome = 'running';
@@ -247,6 +323,11 @@ export class Game {
     this.layoutMinimap();
   }
 
+  /** Minimap-Lage neu berechnen (nach Zuweisung von minimapBox oder Änderung der HUD-Größe). */
+  relayoutMinimap(): void {
+    this.layoutMinimap();
+  }
+
   private layoutMinimap(): void {
     const { box, margin } = this.minimapBox();
     this.minimap = computeMinimapLayout(this.camera.viewportW, this.camera.viewportH, this.world.map.width, this.world.map.height, this.view === '3d', box, margin);
@@ -275,7 +356,14 @@ export class Game {
       this.accumulator += dtReal * this.settings.speed;
       let ticks = 0;
       while (this.accumulator >= this.world.dt && ticks < MAX_TICKS_PER_FRAME && this.outcome === 'running') {
-        const cmds = this.ai ? [...this.pending, ...this.ai.think(this.world)] : this.pending;
+        if (this.playback && this.world.tick >= this.playback.replay.ticks) {
+          // Ende der Wiedergabe ohne Rundenende (z. B. unentschieden abgebrochen): anhalten und prüfen
+          this.finishPlayback();
+          break;
+        }
+        const mine = this.playback ? this.playback.next(this.world.tick) : this.pending;
+        if (!this.playback) this.recorder.record(this.world.tick, mine);
+        const cmds = this.ai ? [...mine, ...this.ai.think(this.world)] : mine;
         const projectilesBefore = this.world.projectiles.filter((p) => p.splashRadius > 0).map((p) => ({ id: p.id, targetPos: { ...p.targetPos }, splashRadius: p.splashRadius }));
         stepWorld(this.world, cmds);
         this.pending = [];
@@ -283,11 +371,24 @@ export class Game {
         this.tracker.sample(this.world);
         this.frameEvents.push(...this.world.events);
         if (projectilesBefore.length && this.scene3d) this.scene3d.noteImpacts(this.world, projectilesBefore);
+        this.stepGhost();
         this.accumulator -= this.world.dt;
         ticks++;
         this.outcome = evaluateOutcome(this.world, this.scenario, MY_PLAYER);
         if (this.outcome !== 'running') {
           this.summary = this.tracker.finish(this.world, this.outcome);
+          if (this.playback) {
+            this.playbackMatches = hashWorld(this.world) === this.playback.replay.hash;
+          } else if (this.scenario.kind !== 'drill') {
+            this.lastReplay = this.recorder.finish(this.world, this.outcome, {
+              app: APP_VERSION,
+              scenario: this.scenario,
+              seed: this.roundSeed,
+              randomStart: this.roundRandomStart,
+              profile: this.profile,
+              rules: { ...this.ruleOverrides },
+            });
+          }
           this.onRoundFinished?.(this.summary);
         }
       }
@@ -317,10 +418,11 @@ export class Game {
       this.frameEvents = [];
     }
     const renderStart = performance.now();
-    if (this.view === '3d' && this.scene3d) this.scene3d.render(this.world, this.cam3d, alpha, this.selection, hoverEnemyId, nowMs);
+    if (this.view === '3d' && this.scene3d) this.scene3d.render(this.world, this.cam3d, alpha, this.selection, hoverEnemyId, nowMs, this.ghost?.world ?? null);
     render(this.ctx, {
       mode: this.view,
       world: this.world,
+      ghost: this.ghost?.world ?? null,
       camera: this.camera,
       selection: this.selection,
       dragRect: d && d.button === 0 && d.moved && !d.onMinimap && !this.targeting ? normalizeRect(d.startScreen, d.lastScreen) : null,
@@ -344,11 +446,12 @@ export class Game {
     this.renderAcc += performance.now() - renderStart;
   }
 
-  get stats(): { tick: number; fps: number; simMs: number; renderMs: number; simTime: number; mine: number; theirs: number } {
+  get stats(): { tick: number; fps: number; simMs: number; renderMs: number; simTime: number; mine: number; theirs: number; calls: number; triangles: number } {
     let mine = 0;
     let theirs = 0;
     for (const u of this.world.units) if (u.alive) u.player === MY_PLAYER ? mine++ : theirs++;
-    return { tick: this.world.tick, fps: this.fps, simMs: this.simMs, renderMs: this.renderMs, simTime: this.world.tick * this.world.dt, mine, theirs };
+    const info = this.scene3d?.renderInfo ?? { calls: 0, triangles: 0 };
+    return { tick: this.world.tick, fps: this.fps, simMs: this.simMs, renderMs: this.renderMs, simTime: this.world.tick * this.world.dt, mine, theirs, calls: info.calls, triangles: info.triangles };
   }
 
   get pointerLockActive(): boolean {
@@ -376,9 +479,27 @@ export class Game {
     }
   }
 
+  /** Geisterwelt einen Tick weiter (bis zum Ende des Bestlaufs). */
+  private stepGhost(): void {
+    const g = this.ghost;
+    if (!g || g.world.tick >= g.replay.ticks) return;
+    const cmds = g.player.next(g.world.tick);
+    stepWorld(g.world, g.ai ? [...cmds, ...g.ai.think(g.world)] : cmds);
+  }
+
+  /** Wiedergabe am aufgezeichneten Ende anhalten und den Zustands-Hash prüfen. */
+  private finishPlayback(): void {
+    if (!this.playback) return;
+    this.playbackMatches = hashWorld(this.world) === this.playback.replay.hash;
+    this.paused = true;
+    this.accumulator = 0;
+    this.onStateChanged?.();
+  }
+
   // ---------------------------------------------------------------- Befehle
 
   private issue(cmd: Command): void {
+    if (this.playback) return; // Wiedergabe: nur Kamera und Auswahl
     this.pending.push(cmd);
     this.recordInput({ kind: 'command', command: cmd });
   }
@@ -476,6 +597,11 @@ export class Game {
     if (mode && this.commandIds().length === 0) mode = null;
     this.targeting = mode;
     this.onStateChanged?.();
+  }
+
+  /** Erfüllt, sobald die 3D-Modelle geladen sind (2D-Ansicht: sofort). */
+  whenReady(): Promise<void> {
+    return this.scene3d ? this.scene3d.skinned.ready : Promise.resolve();
   }
 
   togglePause(): void {
@@ -633,7 +759,7 @@ export class Game {
     this.onStateChanged?.();
   }
 
-  /** Ausgewählte eigene Einheiten löschen (wie ENTF im Spiel). */
+  /** Ausgewählte eigene Einheiten löschen (ENTF). */
   commandDelete(): void {
     const ids = this.commandIds();
     if (ids.length === 0) return;

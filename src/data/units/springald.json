@@ -3,123 +3,66 @@
   "name": "Springald",
   "kind": "siege",
   "shape": "square",
-  "displayClass": "Siege",
+  "displayClass": "Belagerung",
   "tags": [
-    "annihilation_condition",
-    "formational",
-    "included_by_military_hotkeys",
-    "land_military",
-    "military",
     "siege",
-    "siege_range",
-    "springald"
+    "military"
   ],
   "source": {
-    "provider": "aoe4world",
-    "url": "https://data.aoe4world.com/units/all.json",
-    "version": "0.0.2",
-    "importedAt": "2026-10-12",
-    "variants": {
-      "3": {
-        "id": "springald-3",
-        "attribName": "unit_springald_3_abb",
-        "pbgid": 199743,
-        "civs": [
-          "ab",
-          "ay",
-          "by",
-          "ch",
-          "de",
-          "en",
-          "fr",
-          "gol",
-          "hl",
-          "hr",
-          "ja",
-          "je",
-          "kt",
-          "ma",
-          "mac",
-          "mo",
-          "od",
-          "ot",
-          "ru",
-          "sen",
-          "zx"
-        ]
-      }
-    }
+    "provider": "eigen",
+    "note": "Eigenes Werteprofil der Freien Kompanie, erzeugt von scripts/write-own-units.mjs. Keine Spieldaten."
   },
   "movement": {
-    "speed": 0.875,
-    "collisionRadius": {
-      "value": 0.6,
-      "verified": false,
-      "note": "Kollisionsradius in Tiles – nicht in aoe4world, nicht im Video; Schätzung nach Klasse.",
-      "measured": false
-    },
-    "acceleration": {
-      "value": 2,
-      "verified": false,
-      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
-    },
-    "turnRate": {
-      "value": 120,
-      "verified": false,
-      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
-    }
+    "speed": 0.9,
+    "collisionRadius": 0.6,
+    "acceleration": 2,
+    "turnRate": 120
   },
   "sight": {
-    "line": 56,
-    "base": 41.6
+    "line": 40,
+    "base": 24
   },
   "abilities": {},
   "ages": {
     "3": {
-      "name": "Springald",
-      "hp": 85,
+      "name": "Springald (Veteran)",
+      "hp": 90,
       "armor": {
         "melee": 3,
         "ranged": 0
       },
       "resistance": {
         "melee": 0,
-        "ranged": 55
+        "ranged": 50
       },
       "cost": {
         "food": 0,
-        "wood": 150,
+        "wood": 160,
         "gold": 100,
         "stone": 0,
-        "total": 250
+        "total": 260
       },
       "weapon": {
-        "name": "Springald",
-        "type": "ranged",
-        "damage": 15,
+        "name": "Bolzen",
+        "type": "siege",
         "range": {
           "min": 0,
-          "max": 7.5
+          "max": 8
         },
         "timing": {
-          "windup": 0.375,
-          "hit": 0.375,
-          "recovery": 0.625,
-          "cooldown": 2.125,
-          "period": 3.125,
+          "windup": 0.4,
+          "hit": 0.4,
+          "recovery": 0.6,
+          "cooldown": 2,
+          "period": 3,
           "setup": 0,
           "teardown": 0.25
         },
-        "sourceDurations": {
-          "aim": 0.125,
-          "windup": 0.25,
-          "attack": 0.125,
-          "winddown": 0.5,
-          "reload": 2.125,
-          "setup": 0,
-          "teardown": 0.25,
-          "cooldown": 0
+        "projectile": {
+          "speed": 13,
+          "homing": true
         },
+        "damage": 16,
         "bonus": [
           {
             "targetTags": [
@@ -128,28 +71,10 @@
                 "infantry"
               ]
             ],
-            "damage": 12
-          },
-          {
-            "targetTags": [
-              [
-                "naval",
-                "unit"
-              ]
-            ],
-            "damage": 65
+            "damage": 13
           }
-        ],
-        "projectile": {
-          "speed": {
-            "value": 12,
-            "verified": false,
-            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in aoe4world; im Spiel nachmessen."
-          },
-          "homing": true
-        }
-      },
-      "otherWeapons": []
+        ]
+      }
     }
   }
 }

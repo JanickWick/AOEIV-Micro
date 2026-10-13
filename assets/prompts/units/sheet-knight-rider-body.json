@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Character reference sheet of a medieval knight (heavy cavalry rider, shown standing on foot for the model) for a 3D model: the same figure shown three times side by side, full body, standing straight, arms hanging slightly away from the body (A-pose, about 25 degrees), legs slightly apart, hands open and EMPTY. Views: front view, left side view, back view. Same painterly style as the attached portrait. Full steel plate armour with a closed great helm, cobalt-blue surcoat (team colour #1F5FBF) over the breastplate, brown leather belt, steel gauntlets and sabatons. NO weapon, no shield, nothing in the hands. Painterly-realistic style with crisp detail, warm neutral even lighting, no cast shadows, clean readable silhouette. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00 with absolutely no scenery, no ground, no sky, no gradient. No text.",
+  "aspect_ratio": "16:9",
+  "resolution": "2K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/sheet-knight-rider-body.png",
+  "result": {
+    "request_id": "01a13537-5fa6-7672-afc1-7d9ba7a117e2",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T12:23:31.249Z",
+    "files": [
+      "assets/raw/units/sheet-knight-rider-body.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae36aa/mU7YoBsNlv2LGzSLSRNk4_ZOOPkYQU.png"
+    ],
+    "description": ""
+  }
+}

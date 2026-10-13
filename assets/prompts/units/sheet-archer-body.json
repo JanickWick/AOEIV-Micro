@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Character reference sheet of a medieval archer for a 3D model: the same figure shown three times side by side, full body, standing straight, arms hanging slightly away from the body (A-pose), legs slightly apart, hands open and EMPTY. Views: front view, left side view, back view. The character is the man from the attached portrait: leather cap, padded olive gambeson with a cobalt-blue tabard (team colour #1F5FBF) and a brown belt, brown wool trousers, leather boots, a leather quiver with arrows on the back. NO bow, no weapon in the hands. Painterly-realistic style with crisp detail, warm neutral even lighting, no cast shadows, clean readable silhouette. IMPORTANT: the entire background is one flat, uniform, pure chroma-key green #00FF00 with absolutely no scenery, no ground, no sky, no gradient. No text.",
+  "aspect_ratio": "16:9",
+  "resolution": "2K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/sheet-archer-body.png",
+  "result": {
+    "request_id": "01a13512-63ca-7af2-82b4-c1c66002ab67",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:43:05.006Z",
+    "files": [
+      "assets/raw/units/sheet-archer-body.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae35b8/JMsXUPeC3KwX-O1FcQPa8_AxYljfUJ.png"
+    ],
+    "description": ""
+  }
+}

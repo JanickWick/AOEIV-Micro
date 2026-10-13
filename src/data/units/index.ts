@@ -1,4 +1,5 @@
-// Automatisch erzeugt von scripts/import-units.mjs – nicht von Hand bearbeiten.
+// Eigenes Werteprofil (Auslieferungsstandard), erzeugt von scripts/write-own-units.mjs.
+// Das importierte Referenzprofil liegt unter ./reference/ und ist nur als Kalibrierprofil wählbar.
 import u0 from './archer.json';
 import u1 from './crossbowman.json';
 import u2 from './horseman.json';

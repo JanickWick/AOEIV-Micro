@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ControlGroups } from '../src/app/groups';
-import { AOE4_DEFAULT_PRESET, ACTIONS, bindingFromEvent, HotkeyMap, MEIN_LAYOUT_PRESET, PRESETS, sameBinding } from '../src/app/hotkeys';
+import { GRID_DEFAULT_PRESET, ACTIONS, bindingFromEvent, HotkeyMap, MEIN_LAYOUT_PRESET, PRESETS, sameBinding } from '../src/app/hotkeys';
 import { dist } from '../src/sim/math';
 import { runTicks, stepWorld } from '../src/sim/step';
 import type { SimEvent } from '../src/sim/types';
@@ -72,13 +72,13 @@ describe('Position halten einreihen', () => {
 describe('Hotkeys', () => {
   it('Presets decken alle Aktionen ab und Modifier werden exakt verglichen', () => {
     for (const p of PRESETS) for (const a of ACTIONS) expect(Array.isArray(p.bindings[a.id]), `${p.id} ${a.id}`).toBe(true);
-    const m = new HotkeyMap('aoe4-default');
+    const m = new HotkeyMap('raster-vorschlag');
     expect(m.match({ code: 'Digit1', ctrlKey: false, shiftKey: false, altKey: false })).toBe('group.select.1');
     expect(m.match({ code: 'Digit1', ctrlKey: true, shiftKey: false, altKey: false })).toBe('group.set.1');
     expect(m.match({ code: 'Digit1', ctrlKey: false, shiftKey: true, altKey: false })).toBe('group.add.1');
     expect(m.match({ code: 'KeyA', ctrlKey: false, shiftKey: false, altKey: false })).toBe('unit.attackMove');
     expect(m.match({ code: 'KeyA', ctrlKey: true, shiftKey: false, altKey: false })).toBeNull();
-    void AOE4_DEFAULT_PRESET;
+    void GRID_DEFAULT_PRESET;
   });
 
   it('"Mein Layout" ist Standard und entspricht der Spieldatei', () => {
@@ -99,7 +99,7 @@ describe('Hotkeys', () => {
   });
 
   it('Umbelegen, Konflikte und Reset', () => {
-    const m = new HotkeyMap('aoe4-default');
+    const m = new HotkeyMap('raster-vorschlag');
     const b = bindingFromEvent({ code: 'KeyQ', ctrlKey: false, shiftKey: false, altKey: false })!;
     expect(m.conflicts(b)).toEqual([]);
     m.set('unit.attackMove', [b]);

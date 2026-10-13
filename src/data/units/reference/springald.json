@@ -1,0 +1,124 @@
+{
+  "id": "springald",
+  "name": "Springald",
+  "kind": "siege",
+  "shape": "square",
+  "displayClass": "Siege",
+  "tags": [
+    "annihilation_condition",
+    "formational",
+    "included_by_military_hotkeys",
+    "land_military",
+    "military",
+    "siege",
+    "siege_range",
+    "springald"
+  ],
+  "source": {
+    "provider": "Referenzprofil, importiert mit scripts/import-units.mjs (Quelle in CREDITS.md)",
+    "version": "0.0.2",
+    "importedAt": "2026-10-12"
+  },
+  "movement": {
+    "speed": 0.875,
+    "collisionRadius": {
+      "value": 0.6,
+      "verified": false,
+      "note": "Kollisionsradius in Tiles – nicht in der Quelle, nicht im Video; Schätzung nach Klasse.",
+      "measured": false
+    },
+    "acceleration": {
+      "value": 2,
+      "verified": false,
+      "note": "Beschleunigung in Tiles/s² – nicht in der Quelle; Schätzung."
+    },
+    "turnRate": {
+      "value": 120,
+      "verified": false,
+      "note": "Drehrate in Grad/s – nicht in der Quelle; Schätzung."
+    }
+  },
+  "sight": {
+    "line": 56,
+    "base": 41.6
+  },
+  "abilities": {},
+  "ages": {
+    "3": {
+      "name": "Springald",
+      "hp": 85,
+      "armor": {
+        "melee": 3,
+        "ranged": 0
+      },
+      "resistance": {
+        "melee": 0,
+        "ranged": 55
+      },
+      "cost": {
+        "food": 0,
+        "wood": 150,
+        "gold": 100,
+        "stone": 0,
+        "total": 250
+      },
+      "weapon": {
+        "name": "Springald",
+        "type": "ranged",
+        "damage": 15,
+        "range": {
+          "min": 0,
+          "max": 7.5
+        },
+        "timing": {
+          "windup": 0.375,
+          "hit": 0.375,
+          "recovery": 0.625,
+          "cooldown": 2.125,
+          "period": 3.125,
+          "setup": 0,
+          "teardown": 0.25
+        },
+        "sourceDurations": {
+          "aim": 0.125,
+          "windup": 0.25,
+          "attack": 0.125,
+          "winddown": 0.5,
+          "reload": 2.125,
+          "setup": 0,
+          "teardown": 0.25,
+          "cooldown": 0
+        },
+        "bonus": [
+          {
+            "targetTags": [
+              [
+                "melee",
+                "infantry"
+              ]
+            ],
+            "damage": 12
+          },
+          {
+            "targetTags": [
+              [
+                "naval",
+                "unit"
+              ]
+            ],
+            "damage": 65
+          }
+        ],
+        "projectile": {
+          "speed": {
+            "value": 12,
+            "verified": false,
+            "note": "Pfeil-/Bolzen-Fluggeschwindigkeit in Tiles/s – nicht in der Quelle; nachmessen."
+          },
+          "homing": true
+        }
+      },
+      "otherWeapons": []
+    }
+  }
+}

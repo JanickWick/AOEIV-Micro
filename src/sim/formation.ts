@@ -1,5 +1,5 @@
 /**
- * Formationen für Gruppenbefehle, nach den Clips 8–10 (reference/videos):
+ * Formationen für Gruppenbefehle:
  * - Linie (Z): Block in Reihen nach Klasse, Nahkampf-Infanterie vorn, Schützen/Belagerung dahinter,
  *   Kavallerie hinten (Clip 8: 15 Einheiten = 3 Reihen zu 5; Vorn = Bewegungsrichtung).
  * - Keil (X): Reihenbreiten 1, 3, 5, … von hinten (Spitze, Kavallerie) nach vorn, letzte Reihe

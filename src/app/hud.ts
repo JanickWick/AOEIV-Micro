@@ -1,5 +1,5 @@
 /**
- * HUD nach AoE4-Vorbild als HTML/CSS-Ebene: dunkelblaue Paneele mit feinem Rahmen und goldenen
+ * HUD im klassischen Echtzeitstrategie-Aufbau als HTML/CSS-Ebene: dunkelblaue Paneele mit feinem Rahmen und goldenen
  * Akzenten. Oben links Szenario und Menü, oben Mitte Spielzeit, links Kontrollgruppen-Marken,
  * unten links Zähler, unten Mitte Auswahl-Leiste und Befehlsraster mit Tastenbeschriftung,
  * unten rechts der Rahmen der Minimap (die Karte selbst zeichnet der Overlay-Canvas).
@@ -7,7 +7,7 @@
 import type { Formation } from '../sim/types';
 import { describeBinding, type ActionId, type HotkeyMap } from './hotkeys';
 
-export type MenuItem = 'settings' | 'restart' | 'pause' | 'editor' | 'view' | 'fullscreen';
+export type MenuItem = 'settings' | 'restart' | 'pause' | 'editor' | 'view' | 'fullscreen' | 'daily';
 
 export interface HudCallbacks {
   onAction(action: ActionId): void;
@@ -85,12 +85,31 @@ const ICONS: Record<string, string> = {
   editor: '<path d="M4 20 L8 19 L19 8 L16 5 L5 16 Z"/><path d="M14 7 L17 10"/>',
   view: '<path d="M12 3 L21 8 V16 L12 21 L3 16 V8 Z"/><path d="M12 12 L21 8 M12 12 V21 M12 12 L3 8"/>',
   fullscreen: '<path d="M4 9 V4 H9 M15 4 H20 V9 M20 15 V20 H15 M9 20 H4 V15"/>',
+  calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10 H20 M8 3 V7 M16 3 V7"/><path d="M9 14 L11 16 L15 12"/>',
   hp: '<path d="M12 20 C5 14 3 10 5 7 C7 4 11 5 12 8 C13 5 17 4 19 7 C21 10 19 14 12 20 Z"/>',
   attack: '<path d="M5 19 L16 8"/><path d="M13 5 L19 11"/><path d="M4 16 L8 20"/><path d="M15 7 L17 9"/>',
   armor: '<path d="M12 3 L19 6 V12 C19 16 16 19 12 21 C8 19 5 16 5 12 V6 Z"/>',
   range: '<path d="M6 4 C12 8 12 16 6 20"/><path d="M6 4 L6 20"/><path d="M8 12 H20"/><path d="M17 9 L20 12 L17 15"/>',
   speed: '<path d="M4 12 H14"/><path d="M6 8 H16"/><path d="M6 16 H16"/><path d="M15 6 L20 12 L15 18"/>',
 };
+
+/** Gemalte Befehlssymbole (public/ui/icon-*.png) für Rasterzellen; ohne Eintrag bleibt das Strichsymbol. */
+export const PAINTED_ICONS: Readonly<Record<string, string>> = {
+  attackMove: 'ui/icon-attack-move.png',
+  stop: 'ui/icon-stop.png',
+  patrol: 'ui/icon-patrol.png',
+  garrison: 'ui/icon-garrison.png',
+  line: 'ui/icon-line.png',
+  wedge: 'ui/icon-wedge.png',
+  spread: 'ui/icon-spread.png',
+  hold: 'ui/icon-hold.png',
+  delete: 'ui/icon-delete.png',
+};
+
+/** Porträt je Einheitentyp (public/ui/portrait-*.jpg). */
+export function portraitUrl(defId: string): string {
+  return `ui/portrait-${defId}.jpg`;
+}
 
 function svg(name: string, size = 24): string {
   return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] ?? ''}</svg>`;
@@ -101,18 +120,18 @@ interface GridCell {
   icon: string;
   label: string;
   disabled?: boolean;
-  /** Fester Platz im Spiel ohne Funktion hier. */
+  /** Fester Platz im Raster ohne Funktion hier. */
   note?: string;
 }
 
-/** Befehlsraster 5×3 wie das Command-Card des Spiels (Reihe 1 leer, Reihe 2 A S D F, Reihe 3 Z X C V ENTF). */
+/** Befehlsraster 5×3 (Reihe 1 leer, Reihe 2 A S D F, Reihe 3 Z X C V ENTF). */
 const GRID: GridCell[][] = [
   [null, null, null, null, null].map(() => ({ action: null, icon: '', label: '' })),
   [
     { action: 'unit.attackMove', icon: 'attackMove', label: 'Angriffsbewegung' },
     { action: 'unit.stop', icon: 'stop', label: 'Stopp' },
     { action: 'unit.patrol', icon: 'patrol', label: 'Patrouille' },
-    { action: null, icon: 'garrison', label: 'Verschanzen', disabled: true, note: 'im Trainer ohne Gebäude ohne Funktion' },
+    { action: null, icon: 'garrison', label: 'Verschanzen', disabled: true, note: 'ohne Gebäude ohne Funktion' },
     { action: null, icon: '', label: '' },
   ],
   [
@@ -181,6 +200,7 @@ export class Hud {
     mk('settings', 'gear', 'Einstellungen (F10)');
     mk('restart', 'restart', 'Neustart (F4)');
     this.pauseBtn = mk('pause', 'pause', 'Pause (F3)');
+    mk('daily', 'calendar', 'Daily Challenge');
     mk('editor', 'editor', 'Szenario-Editor');
     this.viewBtn = mk('view', 'view', 'Ansicht 3D / 2D-Debug');
     mk('fullscreen', 'fullscreen', 'Vollbild');
@@ -209,7 +229,7 @@ export class Hud {
     // Oben Mitte: Zeitalter-Ornament und Spielzeit
     const tc = el('div', 'hud-tc');
     this.age = el('div', 'hud-age', 'II');
-    this.age.title = 'Zeitalter';
+    this.age.title = 'Ausbildungsstufe der Kompanie';
     this.time = el('div', 'hud-time', '00:00');
     tc.append(this.age, this.time);
     root.append(tc);
@@ -253,7 +273,10 @@ export class Hud {
           b.classList.add('empty');
           b.disabled = true;
         } else {
-          b.innerHTML = `<span class="gi">${svg(cell.icon)}</span><span class="key"></span>`;
+          const painted = PAINTED_ICONS[cell.icon];
+          b.innerHTML = painted
+            ? `<span class="gi img" style="background-image:url('${painted}')"></span><span class="key"></span>`
+            : `<span class="gi">${svg(cell.icon)}</span><span class="key"></span>`;
           if (cell.disabled) {
             b.classList.add('disabled');
             b.title = `${cell.label} – ${cell.note ?? ''}`;
@@ -294,12 +317,12 @@ export class Hud {
     this.hint.textContent = hint;
   }
 
-  fillScenarios(items: { id: string; name: string }[], current: string): void {
+  fillScenarios(items: { id: string; name: string; stars?: string }[], current: string): void {
     this.scenarioSelect.replaceChildren();
     for (const it of items) {
       const o = el('option');
       o.value = it.id;
-      o.textContent = it.name;
+      o.textContent = it.stars ? `${it.stars} ${it.name}` : it.name;
       this.scenarioSelect.append(o);
     }
     const edit = el('option');
@@ -372,7 +395,8 @@ export class Hud {
         all.addEventListener('click', () => this.cb.onAllClick());
         this.selectionCards.append(all);
         for (const c of cards) {
-          const card = el('button', `sel-card${active === c.defId ? ' active' : ''}`);
+          const card = el('button', `sel-card img${active === c.defId ? ' active' : ''}`);
+          card.style.backgroundImage = `url('${portraitUrl(c.defId)}')`;
           card.innerHTML = `<span class="cnt">${c.count}</span><span class="code">${c.code}</span>`;
           card.title = `${c.count}× ${c.name} – Klick: Untergruppe, Shift+Klick: Typ entfernen, Strg+Klick: nur diesen Typ`;
           card.addEventListener('click', (e) => this.cb.onCardClick(c.defId, { shift: e.shiftKey, ctrl: e.ctrlKey || e.metaKey }));
@@ -387,8 +411,8 @@ export class Hud {
     if (sig2 !== this.detailSig) {
       this.detailSig = sig2;
       this.selectionDetail.innerHTML = `
-        <div class="portrait"><span class="code">${d.code}</span></div>
-        <div class="dname"><span class="n"></span><span class="age">Zeitalter ${['', 'I', 'II', 'III', 'IV'][d.age] ?? d.age}</span></div>
+        <div class="portrait img" style="background-image:url('${portraitUrl(d.defId)}')"><span class="code">${d.code}</span></div>
+        <div class="dname"><span class="n"></span><span class="age">Stufe ${['', 'I', 'II', 'III', 'IV'][d.age] ?? d.age}</span></div>
         <div class="dstats">
           <span class="st hp" title="Lebenspunkte (Summe der Auswahl / Maximum)">${svg('hp', 14)}<b class="hp"></b></span>
           <span class="st" title="Angriff (${d.weaponType === 'melee' ? 'Nahkampf' : d.weaponType === 'ranged' ? 'Fernkampf' : 'Belagerung'})">${svg('attack', 14)}<b>${d.damage}</b></span>
@@ -440,7 +464,9 @@ export class Hud {
   minimapBox(): { box: number; margin: number } {
     const r = this.minimapFrame.getBoundingClientRect();
     const rootR = this.root.getBoundingClientRect();
-    const size = Math.min(r.width, r.height) - 16;
-    return { box: Math.max(60, size), margin: Math.max(0, rootR.right - r.right) + 8 };
+    // Scheibe kleiner als das Feld, damit der erzeugte Zierring (1,48× Scheibe) hineinpasst; Scheibe im Feld zentriert
+    const frame = Math.min(r.width, r.height) - 16;
+    const box = Math.max(60, frame * 0.62);
+    return { box, margin: Math.max(0, rootR.right - r.right) + 8 + (frame - box) / 2 };
   }
 }

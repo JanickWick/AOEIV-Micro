@@ -32,7 +32,7 @@ export function buildEditorPanel(root: HTMLElement, state: EditorState, defs: Un
     box.append(el('h3', { text: title }));
     const table = el('table');
     const render = () => {
-      table.replaceChildren(el('tr', {}, [el('th', { text: 'Einheit' }), el('th', { text: 'Zeitalter' }), el('th', { text: 'Anzahl' }), el('th', { text: '' })]));
+      table.replaceChildren(el('tr', {}, [el('th', { text: 'Einheit' }), el('th', { text: 'Stufe' }), el('th', { text: 'Anzahl' }), el('th', { text: '' })]));
       rows.forEach((r, i) => {
         const unit = el('select');
         for (const id of defs.ids()) unit.append(el('option', { value: id, text: defs.get(id).name }));
@@ -40,7 +40,7 @@ export function buildEditorPanel(root: HTMLElement, state: EditorState, defs: Un
         const age = el('select');
         const fillAges = () => {
           age.replaceChildren();
-          for (const a of defs.availableAges(unit.value)) age.append(el('option', { value: String(a), text: `Zeitalter ${a}` }));
+          for (const a of defs.availableAges(unit.value)) age.append(el('option', { value: String(a), text: `Stufe ${a}` }));
           if (!defs.availableAges(unit.value).includes(r.age)) r.age = defs.availableAges(unit.value)[0]!;
           age.value = String(r.age);
         };

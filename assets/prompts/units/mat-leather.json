@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/nano-banana-pro",
+  "prompt": "Seamless tileable texture of worn brown leather, scuffed and creased, matte, medieval equipment. Perfectly flat, even lighting, no directional shadows, no objects, no stitched edges, uniform across the whole image, edges wrap seamlessly. Style: realistic medieval strategy-game art, painterly realism with crisp detail, muted dusty palette matching the attached reference. No text, no watermark.",
+  "aspect_ratio": "1:1",
+  "resolution": "1K",
+  "output_format": "png",
+  "refs": [
+    "assets/raw/style/portrait-archer-blue.png"
+  ],
+  "out": "assets/raw/units/mat-leather.png",
+  "result": {
+    "request_id": "01a134ee-b296-7aa2-ac49-b59511ddfac3",
+    "endpoint": "fal-ai/nano-banana-pro/edit",
+    "at": "2026-10-13T11:03:57.421Z",
+    "files": [
+      "assets/raw/units/mat-leather.png"
+    ],
+    "remote": [
+      "https://v3b.fal.media/files/b/0aae34ce/8YoIA6ayJu5lh1VKCwmUW_zJQLEfY7.png"
+    ],
+    "description": ""
+  }
+}

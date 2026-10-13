@@ -1,116 +1,34 @@
 {
   "id": "man-at-arms",
-  "name": "Man-at-Arms",
+  "name": "Schwertkämpfer",
   "kind": "infantry",
   "shape": "circle",
-  "displayClass": "Heavy Melee Infantry",
+  "displayClass": "Schwere Nahkampf-Infanterie",
   "tags": [
-    "annihilation_condition",
-    "armored",
-    "find_non_siege_land_military",
-    "formational",
-    "heavy",
-    "human",
-    "included_by_military_hotkeys",
     "infantry",
-    "land_military",
-    "manatarms",
+    "heavy",
     "melee",
-    "melee_infantry",
-    "military",
-    "torch_thrower"
+    "military"
   ],
   "source": {
-    "provider": "aoe4world",
-    "url": "https://data.aoe4world.com/units/all.json",
-    "version": "0.0.2",
-    "importedAt": "2026-10-12",
-    "variants": {
-      "1": {
-        "id": "man-at-arms-1",
-        "attribName": "unit_manatarms_1_eng",
-        "pbgid": 166403,
-        "civs": [
-          "en"
-        ]
-      },
-      "2": {
-        "id": "man-at-arms-2",
-        "attribName": "unit_manatarms_2_eng",
-        "pbgid": 166404,
-        "civs": [
-          "en",
-          "hr"
-        ]
-      },
-      "3": {
-        "id": "man-at-arms-3",
-        "attribName": "unit_manatarms_3_sul",
-        "pbgid": 136052,
-        "civs": [
-          "de",
-          "en",
-          "fr",
-          "gol",
-          "hr",
-          "je",
-          "jin",
-          "kt",
-          "mo",
-          "ot",
-          "ru",
-          "tug"
-        ]
-      },
-      "4": {
-        "id": "man-at-arms-4",
-        "attribName": "unit_manatarms_4_sul",
-        "pbgid": 136053,
-        "civs": [
-          "de",
-          "en",
-          "fr",
-          "gol",
-          "hr",
-          "je",
-          "jin",
-          "kt",
-          "mo",
-          "ot",
-          "ru",
-          "tug"
-        ]
-      }
-    }
+    "provider": "eigen",
+    "note": "Eigenes Werteprofil der Freien Kompanie, erzeugt von scripts/write-own-units.mjs. Keine Spieldaten."
   },
   "movement": {
-    "speed": 1.125,
-    "collisionRadius": {
-      "value": 0.22,
-      "verified": false,
-      "note": "Kollisionsradius in Tiles – aus Video gemessen (Clip 5: Auswahlring-Durchmesser 0,45 Tiles, Formationsabstand 0,65 Tiles; Maßstab 55,6 px/Tile ±15 %); nicht aus Spieldatei.",
-      "measured": true
-    },
-    "acceleration": {
-      "value": 10,
-      "verified": false,
-      "note": "Beschleunigung in Tiles/s² – nicht in aoe4world; Schätzung."
-    },
-    "turnRate": {
-      "value": 720,
-      "verified": false,
-      "note": "Drehrate in Grad/s – nicht in aoe4world; Schätzung."
-    }
+    "speed": 1.15,
+    "collisionRadius": 0.22,
+    "acceleration": 10,
+    "turnRate": 720
   },
   "sight": {
     "line": 36,
-    "base": 21.6
+    "base": 21
   },
   "abilities": {},
   "ages": {
     "1": {
-      "name": "Vanguard Man-at-Arms",
-      "hp": 100,
+      "name": "Schwertkämpfer (Rekrut)",
+      "hp": 105,
       "armor": {
         "melee": 2,
         "ranged": 3
@@ -120,101 +38,37 @@
         "ranged": 0
       },
       "cost": {
-        "food": 90,
+        "food": 65,
         "wood": 0,
-        "gold": 20,
+        "gold": 50,
         "stone": 0,
-        "total": 110
+        "total": 115
       },
       "weapon": {
-        "name": "Sword",
+        "name": "Schwert",
         "type": "melee",
-        "damage": 8,
         "range": {
           "min": 0,
-          "max": 0.295
+          "max": 0.3
         },
         "timing": {
           "windup": 0.5,
           "hit": 0.5,
-          "recovery": 0.875,
+          "recovery": 0.9,
           "cooldown": 0,
-          "period": 1.375,
+          "period": 1.4,
           "setup": 0,
           "teardown": 0
         },
-        "sourceDurations": {
-          "aim": 0,
-          "windup": 0.5,
-          "attack": 0.125,
-          "winddown": 0.75,
-          "reload": 0,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0
-        },
+        "damage": 9,
         "bonus": []
-      },
-      "otherWeapons": [
-        "Torch"
-      ]
+      }
     },
     "2": {
-      "name": "Early Man-at-Arms",
-      "hp": 120,
+      "name": "Schwertkämpfer (Söldner)",
+      "hp": 125,
       "armor": {
         "melee": 3,
-        "ranged": 3
-      },
-      "resistance": {
-        "melee": 0,
-        "ranged": 0
-      },
-      "cost": {
-        "food": 90,
-        "wood": 0,
-        "gold": 20,
-        "stone": 0,
-        "total": 110
-      },
-      "weapon": {
-        "name": "Sword",
-        "type": "melee",
-        "damage": 10,
-        "range": {
-          "min": 0,
-          "max": 0.295
-        },
-        "timing": {
-          "windup": 0.5,
-          "hit": 0.5,
-          "recovery": 0.875,
-          "cooldown": 0,
-          "period": 1.375,
-          "setup": 0,
-          "teardown": 0
-        },
-        "sourceDurations": {
-          "aim": 0,
-          "windup": 0.5,
-          "attack": 0.125,
-          "winddown": 0.75,
-          "reload": 0,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0
-        },
-        "bonus": []
-      },
-      "otherWeapons": [
-        "Torch"
-      ]
-    },
-    "3": {
-      "name": "Man-at-Arms",
-      "hp": 155,
-      "armor": {
-        "melee": 4,
         "ranged": 4
       },
       "resistance": {
@@ -222,49 +76,73 @@
         "ranged": 0
       },
       "cost": {
-        "food": 90,
+        "food": 65,
         "wood": 0,
-        "gold": 20,
+        "gold": 50,
         "stone": 0,
-        "total": 110
+        "total": 115
       },
       "weapon": {
-        "name": "Khanda",
+        "name": "Schwert",
         "type": "melee",
-        "damage": 12,
         "range": {
           "min": 0,
-          "max": 0.295
+          "max": 0.3
         },
         "timing": {
           "windup": 0.5,
           "hit": 0.5,
-          "recovery": 0.875,
+          "recovery": 0.9,
           "cooldown": 0,
-          "period": 1.375,
+          "period": 1.4,
           "setup": 0,
           "teardown": 0
         },
-        "sourceDurations": {
-          "aim": 0,
-          "windup": 0.5,
-          "attack": 0.125,
-          "winddown": 0.75,
-          "reload": 0,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0
-        },
+        "damage": 11,
         "bonus": []
+      }
+    },
+    "3": {
+      "name": "Schwertkämpfer (Veteran)",
+      "hp": 160,
+      "armor": {
+        "melee": 4,
+        "ranged": 5
       },
-      "otherWeapons": [
-        "Kilij",
-        "Torch"
-      ]
+      "resistance": {
+        "melee": 0,
+        "ranged": 0
+      },
+      "cost": {
+        "food": 65,
+        "wood": 0,
+        "gold": 50,
+        "stone": 0,
+        "total": 115
+      },
+      "weapon": {
+        "name": "Schwert",
+        "type": "melee",
+        "range": {
+          "min": 0,
+          "max": 0.3
+        },
+        "timing": {
+          "windup": 0.5,
+          "hit": 0.5,
+          "recovery": 0.9,
+          "cooldown": 0,
+          "period": 1.4,
+          "setup": 0,
+          "teardown": 0
+        },
+        "damage": 13,
+        "bonus": []
+      }
     },
     "4": {
-      "name": "Elite Man-at-Arms",
-      "hp": 180,
+      "name": "Schwertkämpfer (Garde)",
+      "hp": 190,
       "armor": {
         "melee": 5,
         "ranged": 6
@@ -274,45 +152,31 @@
         "ranged": 0
       },
       "cost": {
-        "food": 90,
+        "food": 65,
         "wood": 0,
-        "gold": 20,
+        "gold": 50,
         "stone": 0,
-        "total": 110
+        "total": 115
       },
       "weapon": {
-        "name": "Khanda",
+        "name": "Schwert",
         "type": "melee",
-        "damage": 14,
         "range": {
           "min": 0,
-          "max": 0.295
+          "max": 0.3
         },
         "timing": {
           "windup": 0.5,
           "hit": 0.5,
-          "recovery": 0.875,
+          "recovery": 0.9,
           "cooldown": 0,
-          "period": 1.375,
+          "period": 1.4,
           "setup": 0,
           "teardown": 0
         },
-        "sourceDurations": {
-          "aim": 0,
-          "windup": 0.5,
-          "attack": 0.125,
-          "winddown": 0.75,
-          "reload": 0,
-          "setup": 0,
-          "teardown": 0,
-          "cooldown": 0
-        },
+        "damage": 15,
         "bonus": []
-      },
-      "otherWeapons": [
-        "Kilij",
-        "Torch"
-      ]
+      }
     }
   }
 }
