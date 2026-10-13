@@ -1,8 +1,9 @@
-# AoE4 Micro Trainer
+# Freie Kompanie
 
-Browser-Tool, um Micro-Mechaniken aus Age of Empires IV (1v1) isoliert und wiederholbar
-zu üben: Kiten, Focus-Fire, Zurückziehen, Mangonel-Ausweichen, Kontrollgruppen.
-Kein Spiel-Klon – es geht um Steuerung, Timing und Einheitenverhalten.
+Micro-Arena im Browser: Truppenführung in kurzen Gefechten üben und messen. Kiten, Focus-Fire,
+Zurückziehen, Steinsalven ausweichen, Kontrollgruppen, dazu Sterne pro Szenario, eine tägliche
+Herausforderung, Geisterläufe und Replays. Die Welt ist eine spätmittelalterliche Söldnerkompanie
+im Grenzland (`docs/WELT.md`); alle Grafiken, Werte und Texte sind eigene (`CREDITS.md`).
 
 ## Starten
 
@@ -20,8 +21,9 @@ npm test               # Unit-Tests der Simulation (Vitest, ohne Browser)
 npm run typecheck      # TypeScript prüfen
 npm run build          # Produktions-Build nach dist/ (statisch, keine Server-Komponente)
 npm run preview        # Build lokal ansehen
-npm run data:import    # Einheitendaten neu von aoe4world importieren
-npm run data:unverified# Alle Werte mit "verified": false auflisten
+npm run data:import    # Referenzprofil (Kalibrierprofil) neu importieren, siehe CREDITS.md
+npm run data:unverified# Platzhalter des Referenzprofils auflisten
+node scripts/write-own-units.mjs   # eigenes Werteprofil (Standard) aus der Tabelle im Skript schreiben
 npm run assets:gen -- assets/prompts/<kategorie>/<name>.json   # Bild mit Nano Banana erzeugen (Schlüssel vom Proxy)
 npm run assets:manifest                                         # assets/manifest.json für die Vorschauseite
 ```
@@ -72,7 +74,7 @@ Waffen bleiben handgebaut. Ablauf am Beispiel des Bogenschützen:
 4. Beim Laden wird das Modell automatisch auf das gemeinsame Skelett geskinnt (`autoSkin.ts`: Gewichte
    nach Abstand zu den Knochensegmenten in der A-Pose, dann Umrechnung in die Ruhepose) und mit denselben
    gebackenen Clips animiert; Einträge in `generatedModels.ts`. Bis das Modell geladen ist (oder falls es
-   fehlt), zeigt das Spiel den prozeduralen Körper. `figure-preview.html?gen=0` zeigt den Rückfall.
+   fehlt), zeigt die Anwendung den prozeduralen Körper. `figure-preview.html?gen=0` zeigt den Rückfall.
 
 Qualitätsstufen (Einstellungen → Qualität): Niedrig ohne Schatten und mit Pixelverhältnis 1, Mittel mit
 2048er-Schattenkarte, Hoch mit 4096er-Karte, weichen Schatten und voller Auflösung.
@@ -80,11 +82,11 @@ Qualitätsstufen (Einstellungen → Qualität): Niedrig ohne Schatten und mit Pi
 ## Darstellung
 
 Standard ist die 3D-Ansicht (Three.js): perspektivische Kamera schräg von oben (Neigung 45°,
-Sichtfeld 35°, aus dem Minimap-Trapez des Spiel-Screenshots berechnet), um 45° gedreht, sodass die
+Sichtfeld 35°), um 45° gedreht, sodass die
 Karte als Raute erscheint. Der Standardabstand ergibt in Bildmitte etwa 74 px pro Tile bei
 2560×1440; dieser Maßstab, die Kollisionsradien (Infanterie 0,22, Kavallerie 0,40 Tiles) und der
-Formationsabstand (2·Radius + 0,2 Tiles) stammen aus den Videoclips unter `reference/videos/`
-(Messung in `docs/G0-INVENTUR.md`, Abschnitt 4b). Die Lage von Bäumen, Felsen, Büschen und
+Formationsabstand (2·Radius + 0,2 Tiles) wurden in der Entwicklung an Videomaterial gemessen
+(`docs/G0-INVENTUR.md`, Abschnitt 4b; das Material wird nicht ausgeliefert). Die Lage von Bäumen, Felsen, Büschen und
 Gebäude-Kulisse ist prozedural (deterministisch aus dem Karten-Seed); Bäume und Felsen haben
 Kollision (Einheiten laufen um sie herum), die Kampfzone in der Kartenmitte bleibt frei.
 
@@ -111,11 +113,11 @@ nichts davon beeinflusst die Simulation.
 
 Bildqualität: »Mittel« und »Hoch« zeichnen über eine Nachbearbeitungskette mit MSAA-Ziel
 (Kantenglättung), »Hoch« zusätzlich mit Umgebungsverdunklung (GTAO) und weicheren Schatten;
-»Niedrig« zeichnet direkt ohne Schatten. `?scenario=<id>` und `?cam=x,y` in der Spiel-URL
+»Niedrig« zeichnet direkt ohne Schatten. `?scenario=<id>` und `?cam=x,y` in der URL
 stellen Szenario und Kamerablick für Screenshots ein.
 
 Figuren (G2) sind prozedural aus Grundkörpern mit Gelenken gebaut und pro Körperteil instanziert
-(ein Draw-Call je Teil für alle Einheiten): Speerkämpfer mit Speer, Bogenschütze mit Bogen, Soldat
+(ein Draw-Call je Teil für alle Einheiten): Speerkämpfer mit Speer, Bogenschütze mit Bogen, Schwertkämpfer
 mit Schwert und Schild, Reiter mit Speer, Ritter mit Lanze und Schild auf Pferden, Armbrustschütze,
 Mangonel mit Wurfarm, Springald mit Bogenarmen. Teamfarbe auf Rumpf und Schild. Animationen kommen
 strikt aus dem Simulationszustand: Laufen mit Schrittfrequenz aus der zurückgelegten Strecke,
@@ -177,7 +179,7 @@ Verbleibende Schwächen:
 
 ### HUD (G3)
 
-Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spiel-Icons):
+Das Interface folgt dem klassischen Aufbau von Echtzeitstrategie-Spielen (eigene Grafik, keine fremden Icons):
 
 - Oben links Szenario-Name, Ziel, Szenario-Auswahl, Tempo, Zufallsstart und runde Menü-Knöpfe
   (Einstellungen, Neustart, Pause, Editor, Ansicht 3D/2D, Vollbild). Oben Mitte Zeitalter und
@@ -192,17 +194,16 @@ Das Interface folgt dem Vollbild-Screenshot des Spiels (eigene Grafik, keine Spi
   klickbar, blitzen bei Taste oder Klick auf und zeigen beim Überfahren Name und Taste. Aktive
   Formation und Halten werden hervorgehoben.
 - Unten rechts die Minimap als Raute (3D) mit Kamera-Trapez, als Rechteck in der 2D-Ansicht.
-- UI-Größe in Prozent in den Einstellungen (60 bis 160 %), wie die UI-Skalierung im Spiel.
+- UI-Größe in Prozent in den Einstellungen (60 bis 160 %).
 
-Formationen (nach den Clips 8–10): Linie = Block in Reihen nach Klasse (Nahkampf vorn, Schützen
+Formationen: Linie = Block in Reihen nach Klasse (Nahkampf vorn, Schützen
 dahinter, Kavallerie hinten), Keil = Reihen 1/3/5/… mit der Kavallerie an der Spitze, aufgelockert
 = gleiche Ordnung mit doppeltem Abstand. Sie wirken beim nächsten Bewegungsbefehl; Löschen tötet
 die Auswahl sofort und zählt als Verlust.
 
-### Vergleich mit dem Spiel und Leistung (G5)
+### Leistung (G5)
 
-`docs/G5-VERGLEICH.md` stellt Trainer und Spiel (Clip 6, 1920×1080) nebeneinander
-(`docs/vergleich/`) und listet die verbleibenden sichtbaren Abweichungen. Szenario 11 ist der
+Szenario 11 ist der
 Lasttest mit 200 Einheiten; die FPS-Anzeige oben rechts zeigt Bilder pro Sekunde, Simulationszeit
 und Darstellungszeit (JS-Anteil) je Bild. Figuren sind pro Körperteil instanziert, die Simulation
 braucht mit 200 Einheiten etwa 1 ms je Tick.
@@ -213,8 +214,8 @@ Die Leiste zeigt "ALLE (n)" und eine Karte je Einheitentyp in fester Reihenfolge
 Soldat, Bogenschütze, Armbrustschütze, Reiter, Ritter, Mangonel, Springald). Tab wählt die nächste
 Untergruppe, Strg+Tab die vorige (Zyklus über "Alle"); die aktive Karte ist gold umrandet und alle
 Befehle (Raster, Tasten, Rechtsklick) gehen nur an diese Einheiten. Klick auf eine Karte aktiviert
-die Untergruppe, Shift-Klick entfernt den Typ aus der Auswahl, Strg-Klick behält nur ihn (wie im
-Spiel; in den Einstellungen vertauschbar), Klick auf "ALLE" hebt die Untergruppe auf. Bei einem Typ oder aktiver Untergruppe erscheint die Einzelansicht
+die Untergruppe, Shift-Klick entfernt den Typ aus der Auswahl, Strg-Klick behält nur ihn (in den
+Einstellungen vertauschbar), Klick auf "ALLE" hebt die Untergruppe auf. Bei einem Typ oder aktiver Untergruppe erscheint die Einzelansicht
 mit Porträt-Kachel, Name, Zeitalter, Lebenspunkten (Summe / Maximum), Angriff, Rüstung
 Nahkampf/Fernkampf, Reichweite und Tempo; sie wird laufend aktualisiert. Stirbt der aktive Typ
 vollständig, fällt die Auswahl auf "Alle" zurück; Kontrollgruppen behalten ihre Zusammensetzung.
@@ -258,13 +259,13 @@ Untergruppe, Kontrollgruppen-Zusammensetzung, Drill-Schritte).
 | F4 | Szenario sofort neu starten |
 | F3 | Pause |
 
-Standard-Preset ist "Mein Layout", erzeugt aus der Spieldatei `reference/hotkeys/Dorfzenter.rkp`
-mit `node scripts/import-hotkeys.mjs reference/hotkeys/Dorfzenter.rkp` (Zuordnung in
-`docs/G0-INVENTUR.md`). Alle Tasten sind im Einstellungsmenü frei belegbar (Belegen, Entfernen,
+Standard-Preset ist "Mein Layout", ein importiertes persönliches Hotkey-Profil
+(`src/data/hotkeys/mein-layout.json`, Import mit `scripts/import-hotkeys.mjs`; die Quelldatei
+liegt unter `reference/` und wird nicht ausgeliefert). Alle Tasten sind im Einstellungsmenü frei belegbar (Belegen, Entfernen,
 Konflikte werden aufgelöst, Reset auf das Preset, Preset wechselbar). Tasten werden als physische Taste gespeichert, deutsche
-Layouts funktionieren. Preset-Tasten, deren Standard im Spiel nicht sicher bekannt ist, sind im
+Layouts funktionieren. Preset-Tasten, die nicht aus dem importierten Profil stammen, sind im
 Menü orange markiert. Browser-Standardaktionen (Kontextmenü, Strg+Zahl, Leertaste, F-Tasten außer
-F11/F12, Tab, Alt) werden im Spiel unterdrückt. Vollbild über den Button (mit Keyboard-Lock in
+F11/F12, Tab, Alt) werden im Spielfeld unterdrückt. Vollbild über den Button (mit Keyboard-Lock in
 Chrome/Edge). Optional Pointer-Lock: der Mauszeiger bleibt im Spielfeld (eigener Zeiger), damit
 Rand-Scrolling auch im Fenster funktioniert; Esc gibt ihn frei.
 
@@ -277,7 +278,8 @@ Der Button **Einstellungen** (pausiert das Spiel) öffnet:
   Nachlauf, grau = Abklingzeit). Der Zoom wird gespeichert.
 - Simulationsregeln: Abklingzeit beim Laufen, Auto-Angriffsreichweite, Verfolgungsgrenze,
   Nahkampf-Treffertoleranz, Belagerungsschaden vs. Rüstung, Blickwinkel-Toleranz, Gruppen-Tempo.
-- Kalibrierung: jeder Wert mit `"verified": false` aus den Einheitendaten ist editierbar
+- Werteprofil: eigenes Profil (Standard) oder Kalibrierprofil mit den importierten Referenzwerten.
+- Kalibrierung (nur im Kalibrierprofil): jeder Wert mit `"verified": false` ist editierbar
   (Kollisionsradius, Beschleunigung, Drehrate, Projektiltempo, Mangonel-Radius, Ansturm,
   Abwehrstellung). Ein gesetzter Wert gilt als nachgemessen; leeres Feld stellt den Platzhalter
   wieder her. Werte pro Zeitalter werden gemeinsam gesetzt.
@@ -306,12 +308,12 @@ src/sim/            Simulation, reine Logik ohne Browser (fester Takt 60 Ticks/s
   hash.ts           Zustands-Hash für Determinismus-Tests
 src/app/            Browser-Seite: Kamera, Eingabe, Darstellung (Canvas 2D), Hotkeys,
                     Einstellungen/Kalibrierung, Rundenauswertung
-src/data/units/     Einheitendaten (JSON), erzeugt von scripts/import-units.mjs
+src/data/units/     Eigenes Werteprofil (JSON, scripts/write-own-units.mjs); reference/ = Kalibrierprofil
 src/data/scenarios/ Szenarien (JSON)
 scripts/            Datenimport und Prüfskripte
 tests/              Vitest-Tests
 docs/PLAN.md        Meilensteinplan und offene Rückfragen
-ASSUMPTIONS.md      Alle Annahmen, bei denen das Tool vom echten Spiel abweicht oder unsicher ist
+ASSUMPTIONS.md      Alle Annahmen der Simulation, die unsicher sind
 ```
 
 Die Darstellung interpoliert zwischen zwei Simulationsticks; Befehle werden im nächsten Tick
@@ -377,12 +379,19 @@ als "Editor: …" in der Liste.
 
 ## Einheitendaten
 
-Alle Werte stammen aus den offenen Daten von aoe4world (`https://data.aoe4world.com/units/all.json`).
-`npm run data:import` wählt pro Einheit und Zeitalter die Variante, die von den meisten
-Zivilisationen geteilt wird (Standardwerte ohne Civ-Boni), und schreibt
-`src/data/units/<einheit>.json`. Werte, die die Quelle nicht liefert, stehen als
-`{ "value": …, "verified": false, "note": "…" }` in der Datei; `npm run data:unverified`
-listet sie auf. Nachgemessene Werte bleiben bei erneutem Import erhalten.
+Auslieferungsstandard ist das **eigene Werteprofil** in `src/data/units/<einheit>.json`, erzeugt
+aus der Tabelle in `scripts/write-own-units.mjs`: eigene, gerundete Zahlen für Lebenspunkte,
+Schaden, Rüstung, Reichweite, Tempo, Angriffs-Timing und Kosten, mit vier Ausbildungsstufen
+(Rekrut, Söldner, Veteran, Garde) statt Zeitaltern. Die Schadensformel (Angriff + Bonus gegen
+Klasse − Rüstung, dann prozentuale Resistenz, mindestens 1) und das Prinzip aus Reichweite,
+Ausholzeit, Abklingzeit und Kontern gelten für beide Profile.
+
+Das **Referenzprofil** in `src/data/units/reference/` ist aus offenen Daten importiert
+(`npm run data:import`, Quelle in `CREDITS.md`) und nur als Kalibrierprofil in den Einstellungen
+wählbar; dort sind seine Platzhalter (`"verified": false`) editierbar und `npm run data:unverified`
+listet sie auf. Es ist bewusst nicht der Standard. `tests/unitDefs.test.ts` prüft, dass das eigene
+Profil in jedem Wert höchstens 25 % vom Referenzprofil abweicht und über die Hälfte der Werte
+tatsächlich verschoben ist.
 
 Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zur Deutung):
 
@@ -398,12 +407,12 @@ Angriffs-Timing pro Waffe (Sekunden ab Angriffsbeginn, siehe `ASSUMPTIONS.md` zu
 - [x] M2: Kampfmodell (Windup/Cooldown, Projektile, Flächenschaden, Auto-Angriff, Ansturm,
       Abwehrstellung), leichte KI, Kalibrierungsmenü, Szenario 1 spielbar
 - [x] M3: Kontrollgruppen, Befehlsketten, Attack-Move/Stopp/Halten/Patrouille, Formation ausrichten,
-      Hotkey-Menü mit AoE4-Preset, Pointer-Lock
+      Hotkey-Menü mit Presets, Pointer-Lock
 - [x] M4: Gegner-KI in 3 Stufen, Szenarien 2 bis 8
 - [x] M5: Auswertung, Verlauf mit Diagramm, Vergleichslauf, Hotkey-Drill, Editor, Schmiede-Upgrades
-- [x] G0: Inventur, Hotkey-Import aus der Spieldatei (`docs/G0-INVENTUR.md`)
+- [x] G0: Inventur, Hotkey-Import aus dem persönlichen Profil (`docs/G0-INVENTUR.md`)
 - [x] G1: Three.js-Renderer mit geneigter Kamera, Gelände, Deko mit Kollision, Raycast-Eingabe, 2D-Debug-Ansicht
 - [x] G2: Prozedurale Figuren mit Gelenken, sim-gesteuerte Animationen, Projektile, Effekte, Ton
-- [x] G3: HUD nach AoE4-Vorbild (Paneele, Befehlsraster mit Tastenbeschriftung, Gruppen-Marken, Minimap-Raute, Formationen, Löschen)
+- [x] G3: HUD (Paneele, Befehlsraster mit Tastenbeschriftung, Gruppen-Marken, Minimap-Raute, Formationen, Löschen)
 - [x] G4: Auswahl-Leiste mit Untergruppen (Tab/Strg+Tab, Karten-Klicks, Einzelansicht), Untergruppen-Drill, Tests
-- [x] G5: Formationen nach Clips, HUD-Maße nach Clip 6, Lasttest 100 gegen 100, Vergleich in `docs/G5-VERGLEICH.md`
+- [x] G5: Formationen, HUD-Maße, Lasttest 100 gegen 100, Vergleich in `docs/G5-VERGLEICH.md`

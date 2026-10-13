@@ -1,4 +1,4 @@
-# Stilblatt (Art Bible) – AoE4 Micro Trainer, Grafik-Stufe 3
+# Stilblatt (Art Bible) – Freie Kompanie, Grafik-Stufe 3
 
 Stand: Schritt A (H1), wartet auf Freigabe. Beispielbilder unter `assets/raw/style/` (roh) und
 `assets/processed/style/` (nachbearbeitet), Prompts unter `assets/prompts/style/`, Übersicht auf der
@@ -9,7 +9,7 @@ Vorschauseite `assets-preview.html` (`npm run dev`, dann http://localhost:5173/a
 Realistisch-mittelalterlich, gemalt mit scharfem Detail ("painterly realism"), warmes Licht eines
 späten Sommernachmittags. Stimmung wie die Referenz-Screenshots: trockenes, goldenes Gras,
 staubige Oliventöne, lange weiche Schatten, leichter Dunst in der Ferne. Keine Fantasy-Übertreibung,
-keine Comic-Konturen, keine Spielgrafik aus AoE4 nachzeichnen.
+keine Comic-Konturen, keine Grafik anderer Spiele nachzeichnen.
 
 Jedes neue Bild bekommt das Schlüsselbild `assets/style/ref-battlefield.jpg` (oder ein passendes
 Bild aus diesem Stilblatt) als Referenz und den Stilblock aus Abschnitt 7 im Prompt.
